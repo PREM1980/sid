@@ -1,0 +1,395 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/19999/xhtml">
+
+<head>
+    <meta charset="utf-8">
+    <title>Service Impact Database</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
+    <script src="{% static "js/jquery.timepicker.min.js" %}"></script>
+    <script src="{% static "js/jquery.datetimepicker.full.min.js" %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static "css/jquery.datetimepicker.css" %}"/>
+    <link rel="stylesheet" href="{% static "css/jquery.timepicker.css" %}">
+    <script>
+    $(function() {
+
+
+        curr_date = new Date()
+        
+        curr_date_3 = new Date()
+        curr_date_3.setMonth(curr_date_3.getMonth() - 3)
+
+        $('#datepicker').datetimepicker({
+            value: curr_date,
+            step: 10
+        });
+        $("#query_datepicker_start").datetimepicker({
+            value: curr_date_3,
+            step: 10
+        });
+        $("#query_datepicker_end").datetimepicker({
+            value: curr_date,
+            step: 10
+        });
+        $('#query_start_time').timepicker();
+        $('#query_end_time').timepicker();
+        //$( '#example' ).DataTable();
+
+        $(function() {
+            //$("input[type=submit], a, button")
+            //    .button()
+            $('#load').click(function(event) {
+                    event.preventDefault();
+
+                    if ($('#division').val().length == 0) {
+                    	alert('Select a division')
+                    }
+                    else if ($('#peergroup').val().length == 0) {
+                    	alert('Select a peergroup')
+                    }
+                    else if ($('#ticket_no').val().length == 0) {
+                    	alert('Enter a valid ticket number')
+                    }
+                    else if ($('#radio1').is(':not(:checked)') && $('#radio2').is(':not(:checked)') ) {
+                    	alert('Select JIRA/TTS ticket')
+                    }
+                    else{
+
+                    data = {
+                        'date': $('#datepicker').val(),
+                        'division': $('#division').val(),
+                        'pg': $('#peergroup').val(),
+                        'duration': $('#duration').val(),
+                        'error_count': $('#errorcount').val(),
+                        'ticket_num': $('#ticket_no').val(),
+                        'outage_caused': $('#cause').val(),
+                        'system_caused': $('#subcause').val(),
+                        'addt_notes': $('#additional_notes').val(),
+                        'ticket_type': $('input[name=tkt-radio]:checked').val()
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/post-ticket-data',
+                        data: data,
+                        success: function(result) {
+                            
+                            result = result
+                            
+                            if (result.status != 'success'){
+                            	alert(result.status)
+                            }else{
+                            	alert("You're stored in our DB!! Playaround!!")
+                            	load_datatable('Y')
+                            }
+                        },
+                    });
+
+                }
+
+                });
+        });
+
+    });
+
+    function checkval(sel) {
+        //alert(sel.value)
+    }
+
+
+
+    function getval(sel, caller_function) {
+        if (caller_function == "inputting") {
+            pg_widget = "#peergroup";
+        } else {
+            pg_widget = "#query_peergroup";
+        }
+        $(pg_widget).empty();
+        var central = [10201, 10202, 10203, 10204, 10401, 10402, 10404, 23501, 11701, 11702, 11703, 11704, 23101, 23102, 23103, 23104, 13401, 13402, 23001, 23002, 13701, 13702, 13703, 13704, 13705, 13901, 13902, 14001, 14002, 14003, 21301, 21302, 21303, 21304, 21305, 21306, 11801, 11802, 11803, 14701, 14702, 14703, 14704, 14705, 14706, 14801, 14802, 14803, 14804, 14805, 14806, 23601, 14401, 14402, 14403, 14404, 14405, 14406, 23701, 23301, 23801, 18101, 12601, 12602, 12603, 12701, 12702, 12703, 12704]
+        var western = [10101, 10102, 17401, 17402, 17403, 17404, 17405, 17406, 17407, 21601, 12301, 12303, 24601, 24602, 13001, 21702, 21704, 13801, 14502, 14503, 16801, 16802, 16803, 17101, 17102, 17301, 17302, 17501, 17502, 17503, 17504, 17505, 24001, 17801, 17802, 17803, 17804, 17805, 17806, 17807, 17901, 17201, 18201]
+        var northeast = [18501, 10501, 10601, 20201, 22301, 22302, 15301, 15401, 10801, 14901, 15501, 16901, 16902, 15601, 10901, 11001, 11101, 11102, 11201, 11202, 11203, 15801, 13201, 13501, 13502, 10701, 10702, 20701, 13301, 20101, 11301, 11401, 11402, 15001, 18701, 18702, 18703, 15901, 16001, 13601, 22001, 22002, 19701, 16101, 16701, 16702, 16703, 16704, 16201, 19901, 18801, 18901, 17001, 19601, 18001, 19501, 16401, 15101, 15102, 16501, 19001, 16601, 23201]
+        if (sel.value == "Central") {
+            items = central.sort();
+        } else if (sel.value == "Northeast") {
+            items = northeast.sort();
+        } else if (sel.value == "Western") {
+            items = western.sort();
+        } else{
+        	items = central.concat(western).concat(northeast)
+        	items = items.sort()
+        }
+
+            for (i = 0; i < items.length; i++) {
+                $(pg_widget).append($('<option>', {
+                    value: items[i],
+                    text: items[i]
+                }))
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div id="container" style="width: 1280px;">
+        <div id="header"><img src="{% static "images/comcast_sid_logo_web.png" %}"></div>
+        <hr>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Division</th>
+                <th>Peergroup</th>
+                <th>Duration (in minutes)</th>
+                <th>Error Count</th>
+                <th>Outage Cause</th>
+                <th>System Caused</th>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" id="datepicker" onchange="checkval(this);">
+                </td>
+                <td>
+                    <div class="ui-widget">
+                        <select id="division" onchange="getval(this,'inputting');">
+                            <option></option selected>
+                            <option>National</option>
+                            <option>Central</option>
+                            <option>Northeast</option>
+                            <option>Western</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="ui-widget">
+                        <select id="peergroup"></select>
+                    </div>
+                </td>
+                <td>
+                    <div class="ui-widget">
+                        <select id="duration">
+                            <option>1 - 15 minutes</option>
+                            <option>15 - 30 minutes</option>
+                            <option>30 - 60 minutes</option>
+                            <option>1 - 3 hours</option>
+                            <option>Greater than 3 hours</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="ui-widget">
+                        <select id="errorcount">
+                            <option>1,000 - 5,000</option>
+                            <option>5,000 - 10,000</option>
+                            <option>10,000 - 20,000</option>
+                            <option>20,000 - 50,000</option>
+                            <option>Greater than 50,000</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="ui-widget">
+                        <select id="cause">
+                            <option>Scheduled Maintenance</option>
+                            <option>Scheduled Maintenance resulting in Outage</option>
+                            <option>NSA Scheduled Maintenance resulting in Outage</option>
+                            <option>Comcast System Unplanned Outage</option>
+                            <option>Non-Comcast System Outage</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="ui-widget">
+                        <select id="subcause">
+                            <option>Backoffice</option>
+                            <option>Cisco Pump</option>
+                            <option>Arris Pump</option>
+                            <option>Network</option>
+                            <option>UDB</option>
+                            <option>Content</option>
+                            <option>Aloha Network</option>
+                            <option>Billing System</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">Additional Notes:
+                    <div class="ui-widget" width="100%">
+                        <input id="additional_notes" width="100%">
+                    </div>
+                </td>
+                <td>Ticket #
+                    <div class="ui-widget">
+                        <input id="ticket_no" width="100%">
+                    </div>
+                </td>
+                <td>
+                    <div id="radio">
+                        <input type="radio" id="radio1" name="tkt-radio" value='JIRA'>
+                        <label for="radio1">Jira</label>
+                        <input type="radio" id="radio2" name="tkt-radio" value='TTS'>
+                        <label for="radio2">TTS</label>
+                    </div>
+                </td>
+                <td>
+                    <input type="submit" value="SUBMIT" id="load">
+                </td>
+            </tr>
+        </table>
+        <br>
+        <hr>
+        <br>
+        <table>
+            <tr>
+                <th>Start Date</th>
+                <!--<th>Start Time</th>-->
+                <th>End Date</th>
+                <!--<th>End Time</th>-->
+                <th>Division</th>
+                <th>Peergroup</th>
+                <th>Outage Cause</th>
+                <th>System Caused</th>
+            </tr>
+
+            <tr>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" id="query_datepicker_start">
+                </td>
+                
+                <td>
+                    <input type="text" id="query_datepicker_end">
+                </td>
+                
+                <td>
+                    <div class="ui-widget">
+                        <select id="query_division" onchange="getval(this,'retrieving');">
+                            <option selected></option>
+                            <option>National</option>
+                            <option>Central</option>
+                            <option>Northeast</option>
+                            <option>Western</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="ui-widget">
+                        <select id="query_peergroup"></select>
+                    </div>
+                </td>
+                <td>
+                    <div class="ui-widget">
+                        <select id="query_cause">
+                            <option>Scheduled Maintenance</option>
+                            <option>Scheduled Maintenance resulting in Outage</option>
+                            <option>NSA Scheduled Maintenance resulting in Outage</option>
+                            <option>Comcast System Unplanned Outage</option>
+                            <option>Non-Comcast System Outage</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="ui-widget">
+                        <select id="query_subcause">
+                            <option>Backoffice</option>
+                            <option>Cisco Pump</option>
+                            <option>Arris Pump</option>
+                            <option>Network</option>
+                            <option>UDB</option>
+                            <option>Content</option>
+                            <option>Aloha Network</option>
+                            <option>Billing System</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <input type="submit" value="QUERY" id="query">
+                </td>
+            </tr>
+        </table>
+    </div>
+    <hr>
+    <br>
+    <br>
+    <!-- container -->
+    <table id="example" class="display" cellspacing="0" width- "100%">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Division</th>
+                <th>Peergroup</th>
+                <th>Duration (in minutes)</th>
+                <th>Error Count</th>
+                <th>Outage Cause</th>
+                <th>System Caused</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Date</th>
+                <th>Division</th>
+                <th>Peergroup</th>
+                <th>Duration (in minutes)</th>
+                <th>Error Count</th>
+                <th>Outage Cause</th>
+                <th>System Caused</th>
+            </tr>
+        </tfoot>
+    </table>
+    <script>
+    //function populate_grid(){
+    //	example = [{"date":"02/14/2016", "division":"Central", "peergroup":"10101", "duration":10, "cause":"cause filler", "subcause":"subcause filler"}];
+    //}
+
+	var load_datatable = function(initial) {
+    	
+    	data = {
+                'start_date': $('#query_datepicker_start').val(),
+                'end_date': $('#query_datepicker_end').val(),
+                'division': $('#query_division').val(),
+                'pg': $('#query_peergroup').val(),
+                'error_count': $('#duration').val(),
+                'outage_caused': $('#query_cause').val(),
+                'system_caused': $('#query_subcause').val(),
+                'initial': initial
+                }
+        
+        $("#example").dataTable({
+            //"ajax": "{% static "example.txt" %}"
+           	//"processing":true,
+           	//"serverSide":true, if this is enabled then we can't paginate on the datatable
+           	"pageLength":10,
+           	"iDisplayLength":10,
+           	//"paging":true,
+           	//"pagingType":"full_numbers",
+           	"ajax":{
+           		"processing":true,
+           		url: '/get-ticket-data',
+           		"type":"POST",
+           		"data": data
+           	},
+           	"destroy":true
+        });
+    }
+    $(document).ready(function(){
+    
+
+    load_datatable('Y')
+
+    $('#query').click(function(){
+    	load_datatable('N')
+    })	
+    })
+    
+
+    </script>
+</body>
+
+</html>

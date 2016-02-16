@@ -17,7 +17,7 @@ mapping = '''
             "properties": {
                 "date": {
                     "type": "date",
-                    "format": "yyyy/MM/dd HH:mm:ss"
+                    "format": "yyyy/MM/dd HH:mm"
                 },
                 "division": {
                     "type": "string",

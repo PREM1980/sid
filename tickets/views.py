@@ -11,6 +11,9 @@ from elasticsearch_dsl import Search, Q
 from django.core import serializers
 # Create your views here.
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class PostTicketData(View):
 
@@ -37,11 +40,15 @@ class PostTicketData(View):
             'duration': str(alldata.get('duration'))
         }
         print 'doc ==', doc
+
+        logger.debug("Index document == {0}".format(doc))
+
         es = Elasticsearch(['localhost'], verify_certs=True)
         try:
             es.index(index='tickets', doc_type='tickets', body=doc)
         except ElasticsearchException as es1:
             print 'es exception == ', es1
+            logger.debug("ElasticSearchexception == {es1}".format(es1))
             return JsonResponse({'status': 'ElasticSearch failed!! Contact dev team!!'})
 
         return JsonResponse({'status': 'success'})

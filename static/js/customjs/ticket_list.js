@@ -4,6 +4,7 @@ $(document).ready(function() {
     // $('#radio_central, #radio_northeast, #radio_western').click(function() {
     //      $(this).attr('checked', !$(this).attr('checked'));
     // });
+<<<<<<< HEAD
 
      $('#upload').click(function(event) {
                 event.preventDefault();
@@ -18,6 +19,8 @@ $(document).ready(function() {
                 } else if ($('#radio1').is(':not(:checked)') && $('#radio2').is(':not(:checked)')) {
                     alert('Select JIRA/TTS ticket')
                 } else {
+=======
+>>>>>>> df46c736abb258540371a7a197a27201801ea1c3
 
                     data = {
                         'date': $('#datepicker').val(),

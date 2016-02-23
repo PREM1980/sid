@@ -74,9 +74,9 @@ $(document).ready(function() {
     $(function() {
         $("#dialog").dialog({
             maxWidth: 800,
-            maxHeight: 500,
-            width: 600,
-            height: 300,
+            maxHeight: 1000,
+            width: 500,
+            height: 500,
             modal: true,
             autoOpen: false,
             show: {

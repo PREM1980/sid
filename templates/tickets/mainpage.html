@@ -48,60 +48,6 @@
         $('#query_end_time').timepicker();
         //$( '#example' ).DataTable();
 
-        $(function() {
-            
-            $('#load').click(function(event) {
-                    event.preventDefault();
-
-                    if ($('#division').val().length == 0) {
-                    	alert('Select a division')
-                    }
-                    else if ($('#peergroup').val().length == 0) {
-                    	alert('Select a peergroup')
-                    }
-                    else if ($('#ticket_no').val().length == 0) {
-                    	alert('Enter a valid ticket number')
-                    }
-                    else if ($('#radio1').is(':not(:checked)') && $('#radio2').is(':not(:checked)') ) {
-                    	alert('Select JIRA/TTS ticket')
-                    }
-                    else{
-
-                    data = {
-                        'date': $('#datepicker').val(),
-                        'division': $('#division').val(),
-                        'pg': $('#peergroup').val(),
-                        'duration': $('#duration').val(),
-                        'error_count': $('#errorcount').val(),
-                        'ticket_num': $('#ticket_no').val(),
-                        'outage_caused': $('#cause').val(),
-                        'system_caused': $('#subcause').val(),
-                        'addt_notes': $('#additional_notes').val(),
-                        'ticket_type': $('input[name=tkt-radio]:checked').val()
-                    }
-                    console.log('data_table insert data == ', data)
-
-                    $.ajax({
-                        type: "POST",
-                        url: '/post-ticket-data',
-                        data: data,
-                        success: function(result) {
-                            
-                            result = result
-                            
-                            if (result.status != 'success'){
-                            	alert(result.status)
-                            }else{
-                            	alert("You're stored in our DB!! Playaround!!")
-                            	//load_datatable('Y')
-                            }
-                        },
-                    });
-
-                }
-
-                });
-        });
 
     });
 
@@ -135,8 +81,14 @@
         } else{
         	items = central.concat(western).concat(northeast)
         	items = items.sort()
-
+            //When National add 'ALL'
+            $(pg_widget).append($('<option>', {
+                    value: 'ALL',
+                    text: 'ALL'
+            }))
         }
+
+            
 
             for (i = 0; i < items.length; i++) {
                 $(pg_widget).append($('<option>', {
@@ -144,10 +96,7 @@
                     text: items[i]
                 }))
             }
-            $(pg_widget).append($('<option>', {
-                    value: 'ALL',
-                    text: 'ALL'
-                }))
+            
             
         }
     </script>
@@ -269,10 +218,13 @@
                 <!--<th>Start Time</th>-->
                 <th>End Date</th>
                 <!--<th>End Time</th>-->
-                <th>Division</th>
+                <th>Ticket Num</th>
+                <th>Region</th>
+                <th id="divisions_header" style="display:none">Division</th>
                 <th>Peergroup</th>
                 <th>Outage Cause</th>
                 <th>System Caused</th>
+                <th>Addt Notes</th>
             </tr>
 
             <tr>
@@ -285,16 +237,39 @@
                 <td>
                     <input type="text" id="query_datepicker_end">
                 </td>
-                
                 <td>
                     <div class="ui-widget">
-                        <select id="query_division" onchange="getval(this,'retrieving');">
+                        <input id="query_ticket_no" width="100%">
+                    </div>
+                </td>
+                <td >
+                    <div class="ui-widget" >
+                        <input id="radio_national" type="radio">National
+                        <br>
+                        <input id="radio_division" type="radio">Division
+                        <!-- <select id="query_division" onchange="getval(this,'retrieving');">
                             <option selected></option>
                             <option>National</option>
                             <option>Central</option>
                             <option>Northeast</option>
                             <option>Western</option>
-                        </select>
+                        </select> -->
+                    </div>
+                </td>
+                <td id="divisions" style="display:none">
+                    <div class="ui-widget">
+                        <input type="radio">Central
+                        <br>
+                        <input type="radio">NorthEast
+                        <br>
+                        <input type="radio">Western
+                        <!-- <select id="query_division" onchange="getval(this,'retrieving');">
+                            <option selected></option>
+                            <option>National</option>
+                            <option>Central</option>
+                            <option>Northeast</option>
+                            <option>Western</option>
+                        </select> -->
                     </div>
                 </td>
                 <td>
@@ -328,6 +303,11 @@
                             <option>Billing System</option>
                             <option>Other</option>
                         </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="ui-widget">
+                        <input id="query_addt_notes" width="100%">
                     </div>
                 </td>
                 <td>

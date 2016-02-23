@@ -1,5 +1,27 @@
 $(document).ready(function() {
-    
+
+
+    $('#radio_division').click(function() {
+        
+    });
+
+    $('#radio_division').click(function() {
+        if ($('#radio_division').is(':checked')) {
+            $('#divisions').show()
+            $('#divisions_header').show()
+            $("#radio_national").removeAttr("checked");
+        }
+    });
+
+    $('#radio_national').click(function() {
+        if ($('#radio_national').is(':checked')) {
+            
+            $('#divisions').hide()
+            $("#radio_division").removeAttr("checked");
+        }
+    });
+
+
     $(function() {
         $("#dialog").dialog({
             maxWidth: 800,
@@ -32,21 +54,21 @@ $(document).ready(function() {
                         'ticket_id': $('#dialog_ticket_id').html(),
                         //'initial': initial
                     }
-                    
+
                     console.log('update data == ', data)
                     $.ajax({
                         url: '/update-ticket-data',
                         type: 'POST',
                         data: data,
-                        success: function(result){
-                            
-                            if (result.status != 'success'){
+                        success: function(result) {
+
+                            if (result.status != 'success') {
                                 alert("Row Update Failed!! Contact Support")
-                            }else{
+                            } else {
                                 alert("Row Updated!! Playaround!!")
                                 $('#dialog').dialog("close");
                                 load_datatable('Y')
-                                
+
                             }
                         },
                         error: function(msg) {
@@ -71,7 +93,6 @@ $(document).ready(function() {
 
 
     $('#query').click(function() {
-        alert('clicked')
         load_datatable('N')
     })
 
@@ -80,14 +101,16 @@ $(document).ready(function() {
         data = {
             'start_date': $('#query_datepicker_start').val(),
             'end_date': $('#query_datepicker_end').val(),
+            'ticket_num': $('#query_ticket_num').html(),
             'division': $('#query_division').val(),
             'pg': $('#query_peergroup').val(),
             //'error_count': $('#duration').val(),
             'outage_caused': $('#query_cause').val(),
             'system_caused': $('#query_subcause').val(),
+            'addt_notes': $('#query_addt_notes').html(),
             'initial': initial
         }
-        
+
         console.log('data_table data == ', data)
 
         $.ajax({
@@ -179,7 +202,61 @@ $(document).ready(function() {
             //load_datatable('N')
         })
 
+
+        $(function() {
+
+            $('#load').click(function(event) {
+                event.preventDefault();
+
+                if ($('#division').val().length == 0) {
+                    alert('Select a division')
+                } else if ($('#peergroup').val().length == 0) {
+                    alert('Select a peergroup')
+                } else if ($('#ticket_no').val().length == 0) {
+                    alert('Enter a valid ticket number')
+                } else if ($('#radio1').is(':not(:checked)') && $('#radio2').is(':not(:checked)')) {
+                    alert('Select JIRA/TTS ticket')
+                } else {
+
+                    data = {
+                        'date': $('#datepicker').val(),
+                        'division': $('#division').val(),
+                        'pg': $('#peergroup').val(),
+                        'duration': $('#duration').val(),
+                        'error_count': $('#errorcount').val(),
+                        'ticket_num': $('#ticket_no').val(),
+                        'outage_caused': $('#cause').val(),
+                        'system_caused': $('#subcause').val(),
+                        'addt_notes': $('#additional_notes').val(),
+                        'ticket_type': $('input[name=tkt-radio]:checked').val()
+                    }
+                    console.log('data_table insert data == ', data)
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/post-ticket-data',
+                        data: data,
+                        success: function(result) {
+
+                            result = result
+
+                            if (result.status != 'success') {
+                                alert(result.status)
+                            } else {
+                                alert("You're stored in our DB!! Playaround!!")
+                                load_datatable('Y')
+                            }
+                        },
+                    });
+
+                }
+
+            });
+
+        });
+
+
     }
-    
+
 
 })

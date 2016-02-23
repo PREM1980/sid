@@ -67,7 +67,7 @@ class GetTicketData(View):
     def post(self, request):
 
         alldata = request.POST
-        
+        print 'alldata == ', alldata
         outage_caused = alldata.get('outage_caused')
         division = alldata.get('division')
         pg = alldata.get('pg')
@@ -75,7 +75,10 @@ class GetTicketData(View):
         end_dt = alldata.get('end_date')
         initial = alldata.get('initial')
         system_caused = alldata.get('system_caused')
-        
+        addt_notes = alldata.get('addt_notes')
+        print 'outage_caused == ', outage_caused
+        print 'system_caused == ', system_caused
+
         data = {}
         results = []
 
@@ -87,7 +90,26 @@ class GetTicketData(View):
                 end_date = datetime.datetime.strptime(
                     str(alldata.get('end_date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
 
-                for each in Tickets.objects.filter(created_dt__range=(start_date, end_date)).filter(division=division).filter(pg=pg).filter(outage_caused=outage_caused).filter(system_caused=system_caused)[:100]:
+                if system_caused =='All' and outage_caused == 'All':
+                    filters = {
+                        'created_dt__range':[start_date,end_date],
+                        'division':division,
+                        'pg':pg,
+                        #'system_caused':system_caused,
+                        #'outage_caused':outage_caused,
+                        'addt_notes':addt_notes
+                    }
+                else:
+                    filters = {
+                        'created_dt__range':[start_date,end_date],
+                        'division':division,
+                        'pg':pg,
+                        'addt_notes':addt_notes
+                    }
+
+                print 'filters == ', filters
+                
+                for each in Tickets.objects.filter(**filters)[:100]:
                     data['ticket_id'] = each.ID
                     data['created_dt'] = each.created_dt
                     data['ticket_num'] = each.ticket_num
@@ -100,6 +122,7 @@ class GetTicketData(View):
                     data['addt_notes'] = each.addt_notes
                     results.append(data)
                     data = {}
+                        
             else:
                 for each in Tickets.objects.order_by('created_dt')[:100]:
                     data['ticket_id'] = each.ID

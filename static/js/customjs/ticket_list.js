@@ -5,6 +5,7 @@ $(document).ready(function() {
     //      $(this).attr('checked', !$(this).attr('checked'));
     // });
 
+
      $('#upload').click(function(event) {
                 event.preventDefault();
                 event.stopPropagation();

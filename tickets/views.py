@@ -50,6 +50,7 @@ class PostTicketData(View):
             Tickets.objects.create(**doc)
         except Exception as e:
             logger.debug("MySQLException == {0}".format(e))
+            JsonResponse({'status': 'failure'})
 
         return JsonResponse({'status': 'success'})
 
@@ -61,7 +62,6 @@ class GetTicketData(View):
         return super(GetTicketData, self).dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        print 'hello-get'
         return JsonResponse({'status': 'success'})
 
     def post(self, request):
@@ -78,15 +78,15 @@ class GetTicketData(View):
         
         data = {}
         results = []
-        print 'hello initial == ', initial
 
-        
         try:
             if initial == 'N':
                 start_date = datetime.datetime.strptime(
                 str(alldata.get('start_date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
+                
                 end_date = datetime.datetime.strptime(
                     str(alldata.get('end_date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
+
                 for each in Tickets.objects.filter(created_dt__range=(start_date, end_date)).filter(division=division).filter(pg=pg).filter(outage_caused=outage_caused).filter(system_caused=system_caused)[:100]:
                     data['ticket_id'] = each.ID
                     data['created_dt'] = each.created_dt
@@ -118,13 +118,11 @@ class GetTicketData(View):
         except Exception as e:
             print 'Select Exception == ', e
             logger.debug("MySQLException == {0}".format(e))
+            JsonResponse({'status': 'failure'})
 
         print 'results == ', results
         print 'len-results == ', len(results)
-        try:
-            JsonResponse({'results': results})
-        except Exception as e:
-            print e
+        
         return JsonResponse({'results': results})
 
 
@@ -155,10 +153,9 @@ class UpdateTicketData(View):
             ticket.duration = alldata.get('duration')
             ticket.save()
             print 'ticket-saved'
-
-
         except Exception as e:
             print 'e = ', e
             logger.debug("MySQLException == {0}".format(e))
+            JsonResponse({'status': 'failure'})
 
         return JsonResponse({'status': 'success'})

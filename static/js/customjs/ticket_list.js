@@ -28,7 +28,7 @@ $(document).ready(function() {
                         'error_count': $('#row_error_count').val(),
                         'outage_caused': $('#row_cause').val(),
                         'system_caused': $('#row_system_cause').val(),
-                        'addt_notes': $('#row_addt_notes').val(),
+                        'addt_notes': $('#dialog_addt_notes').html(),
                         'ticket_id': $('#dialog_ticket_id').html(),
                         //'initial': initial
                     }
@@ -41,10 +41,12 @@ $(document).ready(function() {
                         success: function(result){
                             
                             if (result.status != 'success'){
-                                alert(result.status)
+                                alert("Row Update Failed!! Contact Support")
                             }else{
-                                alert("You're stored in our DB!! Playaround!!")
-                                //load_datatable('Y')
+                                alert("Row Updated!! Playaround!!")
+                                $('#dialog').dialog("close");
+                                load_datatable('Y')
+                                
                             }
                         },
                         error: function(msg) {

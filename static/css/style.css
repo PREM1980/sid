@@ -21,6 +21,10 @@ input[type=submit] {
 	float:left;	
 }
 
+table.dialog-table td.leftcols{
+	font-weight:bold;
+}
+/** CSS Table Generator*/
 .CSSTableGenerator {
 	margin:0px;padding:0px;
 	width:100%;
@@ -116,3 +120,5 @@ input[type=submit] {
 .CSSTableGenerator tr:first-child td:last-child{
 	border-width:0px 0px 1px 1px;
 }
+
+/** CSS Table Generator-End*/

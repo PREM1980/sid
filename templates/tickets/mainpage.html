@@ -305,6 +305,7 @@
                 <td>
                     <div class="ui-widget">
                         <select id="query_cause">
+                            <option>All</option>
                             <option>Scheduled Maintenance</option>
                             <option>Scheduled Maintenance resulting in Outage</option>
                             <option>NSA Scheduled Maintenance resulting in Outage</option>
@@ -316,6 +317,7 @@
                 <td>
                     <div class="ui-widget">
                         <select id="query_subcause">
+                            <option>All</option>
                             <option>Backoffice</option>
                             <option>Cisco Pump</option>
                             <option>Arris Pump</option>
@@ -366,16 +368,16 @@
 
     <div id="dialog" title="Ticket Details">
 
-        <div style="text-align: center">
-            <table>
+        <div style="text-align: left">
+            <table class="dialog-table" border="1">
             <tr>
-            <td>Created Date</td><td id="dialog_created_dt"><input></td>
+            <td class="leftcols">Created Date</td><td id="dialog_created_dt"><input></td>
             </tr>
             <tr>
-            <td>Ticket Num</td><td id="dialog_ticket_num"><input></td>
+            <td class="leftcols">Ticket Num</td><td id="dialog_ticket_num"><input></td>
             </tr>
             <tr>
-            <td>Division</td><td id="dialog_division">
+            <td class="leftcols">Division</td><td id="dialog_division">
                         <select id="row_division" onchange="getval(this,'setting');">
                             <option selected></option>
                             <option>National</option>
@@ -387,11 +389,11 @@
             </td>
             </tr>
             <tr>
-            <td>PeerGroup</td><td id="dialog_pg">
+            <td class="leftcols">PeerGroup</td><td id="dialog_pg">
                 <select id="row_peergroup"></select>
             </td>
             </tr>
-            <td>Duration</td><td id="dialog_duration">
+            <td class="leftcols">Duration</td><td id="dialog_duration">
                         <select id="row_duration">
                             <option>1 - 15 minutes</option>
                             <option>15 - 30 minutes</option>
@@ -400,7 +402,7 @@
                             <option>Greater than 3 hours</option>
                         </select></td>
             <tr>
-            <td>Error Count</td><td id="dialog_error_count">
+            <td class="leftcols">Error Count</td><td id="dialog_error_count">
                         <select id="row_error_count">
                             <option>1,000 - 5,000</option>
                             <option>5,000 - 10,000</option>
@@ -410,7 +412,7 @@
                         </select></td>
             </tr>
             <tr>
-            <td>Outage Caused</td><td id="dialog_outage_caused">
+            <td class="leftcols">Outage Caused</td><td id="dialog_outage_caused">
                         <select id="row_cause">
                             <option>Scheduled Maintenance</option>
                             <option>Scheduled Maintenance resulting in Outage</option>
@@ -420,7 +422,7 @@
                         </select></td>
             </tr>
             <tr>
-            <td>System Caused</td><td id="dialog_created_dt"><select id="row_system_cause">
+            <td class="leftcols">System Caused</td><td id="dialog_created_dt"><select id="row_system_cause">
                             <option>Backoffice</option>
                             <option>Cisco Pump</option>
                             <option>Arris Pump</option>
@@ -433,7 +435,7 @@
                         </select></td>
             </tr>
             <tr>
-            <td>Additional Notes</td><td id="dialog_addt_notes">
+            <td class="leftcols">Additional Notes</td><td id="dialog_addt_notes" contenteditable="true">
                 <input id="row_addt_notes" type="text"></td>
             </tr>
             <tr style="display:none">

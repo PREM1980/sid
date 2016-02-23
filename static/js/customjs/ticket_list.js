@@ -1,10 +1,60 @@
 $(document).ready(function() {
 
+    
+    // $('#radio_central, #radio_northeast, #radio_western').click(function() {
+    //      $(this).attr('checked', !$(this).attr('checked'));
+    // });
 
-    $('#radio_division').click(function() {
+     $('#upload').click(function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                if ($('#division').val().length == 0) {
+                    alert('Select a division')
+                } else if ($('#peergroup').val().length == 0) {
+                    alert('Select a peergroup')
+                } else if ($('#ticket_no').val().length == 0) {
+                    alert('Enter a valid ticket number')
+                } else if ($('#radio1').is(':not(:checked)') && $('#radio2').is(':not(:checked)')) {
+                    alert('Select JIRA/TTS ticket')
+                } else {
+
+                    data = {
+                        'date': $('#datepicker').val(),
+                        'division': $('#division').val(),
+                        'pg': $('#peergroup').val(),
+                        'duration': $('#duration').val(),
+                        'error_count': $('#errorcount').val(),
+                        'ticket_num': $('#ticket_no').val(),
+                        'outage_caused': $('#cause').val(),
+                        'system_caused': $('#subcause').val(),
+                        'addt_notes': $('#additional_notes').val(),
+                        'ticket_type': $('input[name=tkt-radio]:checked').val()
+                    }
+                    console.log('data_table insert data == ', data)
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/post-ticket-data',
+                        data: data,
+                        success: function(result) {
+
+                            result = result
+
+                            if (result.status != 'success') {
+                                alert(result.status)
+                            } else {
+                                alert("You're stored in our DB!! Playaround!!")
+                                load_datatable('Y')
+                            }
+                        },
+                    });
+
+                }
+
+            });
+
         
-    });
-
     $('#radio_division').click(function() {
         if ($('#radio_division').is(':checked')) {
             $('#divisions').show()
@@ -15,7 +65,6 @@ $(document).ready(function() {
 
     $('#radio_national').click(function() {
         if ($('#radio_national').is(':checked')) {
-            
             $('#divisions').hide()
             $("#radio_division").removeAttr("checked");
         }
@@ -203,57 +252,9 @@ $(document).ready(function() {
         })
 
 
-        $(function() {
+        
 
-            $('#load').click(function(event) {
-                event.preventDefault();
-
-                if ($('#division').val().length == 0) {
-                    alert('Select a division')
-                } else if ($('#peergroup').val().length == 0) {
-                    alert('Select a peergroup')
-                } else if ($('#ticket_no').val().length == 0) {
-                    alert('Enter a valid ticket number')
-                } else if ($('#radio1').is(':not(:checked)') && $('#radio2').is(':not(:checked)')) {
-                    alert('Select JIRA/TTS ticket')
-                } else {
-
-                    data = {
-                        'date': $('#datepicker').val(),
-                        'division': $('#division').val(),
-                        'pg': $('#peergroup').val(),
-                        'duration': $('#duration').val(),
-                        'error_count': $('#errorcount').val(),
-                        'ticket_num': $('#ticket_no').val(),
-                        'outage_caused': $('#cause').val(),
-                        'system_caused': $('#subcause').val(),
-                        'addt_notes': $('#additional_notes').val(),
-                        'ticket_type': $('input[name=tkt-radio]:checked').val()
-                    }
-                    console.log('data_table insert data == ', data)
-
-                    $.ajax({
-                        type: "POST",
-                        url: '/post-ticket-data',
-                        data: data,
-                        success: function(result) {
-
-                            result = result
-
-                            if (result.status != 'success') {
-                                alert(result.status)
-                            } else {
-                                alert("You're stored in our DB!! Playaround!!")
-                                load_datatable('Y')
-                            }
-                        },
-                    });
-
-                }
-
-            });
-
-        });
+           
 
 
     }

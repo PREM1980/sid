@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="{% static "js/simplePagination.js/simplePagination.css" %}" />
 
     <script>
+
     $(function() {
 
 
@@ -205,7 +206,7 @@
                     </div>
                 </td>
                 <td>
-                    <input type="submit" value="SUBMIT" id="load">
+                    <input type="submit" value="SUBMIT" id="upload">
                 </td>
             </tr>
         </table>
@@ -244,7 +245,7 @@
                 </td>
                 <td >
                     <div class="ui-widget" >
-                        <input id="radio_national" type="radio">National
+                        <input id="radio_national" type="radio">ALL
                         <br>
                         <input id="radio_division" type="radio">Division
                         <!-- <select id="query_division" onchange="getval(this,'retrieving');">
@@ -258,11 +259,15 @@
                 </td>
                 <td id="divisions" style="display:none">
                     <div class="ui-widget">
-                        <input type="radio">Central
+                        <input id="check_national" type="checkbox">National
                         <br>
-                        <input type="radio">NorthEast
+                        <input id="check_central" type="checkbox">Central
                         <br>
-                        <input type="radio">Western
+                        <input id="check_northeast"type="checkbox">NorthEast
+                        <br>
+                        <input id="check_western" type="checkbox">Western
+                        <br>
+                        
                         <!-- <select id="query_division" onchange="getval(this,'retrieving');">
                             <option selected></option>
                             <option>National</option>

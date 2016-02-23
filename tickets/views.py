@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -9,6 +8,10 @@ from elasticsearch import Elasticsearch, ElasticsearchException
 from elasticsearch_dsl import Search
 from elasticsearch_dsl import Search, Q
 from django.core import serializers
+from models import Tickets
+import datetime
+from uuid import UUID
+import uuid
 # Create your views here.
 
 import logging
@@ -26,9 +29,10 @@ class PostTicketData(View):
 
     def post(self, request):
         alldata = request.POST
-
+        created_dt = datetime.datetime.strptime(
+            str(alldata.get('date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
         doc = {
-            'date': str(alldata.get('date')),
+            'created_dt': created_dt,
             'division': str(alldata.get('division')),
             'pg': str(alldata.get('pg')),
             'error_count': str(alldata.get('error_count')),
@@ -39,17 +43,13 @@ class PostTicketData(View):
             'ticket_type': str(alldata.get('ticket_type')),
             'duration': str(alldata.get('duration'))
         }
-        print 'doc ==', doc
+        print 'doc1 ==', doc
+        logger.debug("Insert document == {0}".format(doc))
 
-        logger.debug("Index document == {0}".format(doc))
-
-        es = Elasticsearch(['localhost'], verify_certs=True)
         try:
-            es.index(index='tickets', doc_type='tickets', body=doc)
-        except ElasticsearchException as es1:
-            print 'es exception == ', es1
-            logger.debug("ElasticSearchexception == {es1}".format(es1))
-            return JsonResponse({'status': 'ElasticSearch failed!! Contact dev team!!'})
+            Tickets.objects.create(**doc)
+        except Exception as e:
+            logger.debug("MySQLException == {0}".format(e))
 
         return JsonResponse({'status': 'success'})
 
@@ -67,51 +67,98 @@ class GetTicketData(View):
     def post(self, request):
 
         alldata = request.POST
-
-        es = Elasticsearch(['localhost'], verify_certs=True)
-
+        
         outage_caused = alldata.get('outage_caused')
-
         division = alldata.get('division')
-
         pg = alldata.get('pg')
-
         start_dt = alldata.get('start_date')
-
         end_dt = alldata.get('end_date')
-
         initial = alldata.get('initial')
-
-        d = {'outage_caused.raw': outage_caused}
-
-        if initial == 'Y':
-            s = Search(using=es, index="tickets") \
-                .filter("term", division=division) \
-                .filter("term", pg=pg) \
-                .filter("term", **d) \
-                .filter("range", date={'gte': start_dt, 'lt': end_dt})
-        else:
-            s = Search(using=es, index="tickets") \
-                .filter("range", date={'gte': start_dt, 'lt': end_dt})
-
-        try:
-            res = s.execute()
-        except ElasticsearchException as es1:
-            print 'es exception == ', es1
-            return JsonResponse({'status': 'ElasticSearch failed!! Contact dev team!!'})
-
-        data = []
+        system_caused = alldata.get('system_caused')
+        
+        data = {}
         results = []
+        print 'hello initial == ', initial
 
-        for hit in s.scan():
-            data.append(hit.date)
-            data.append(hit.division)
-            data.append(hit.pg)
-            data.append(hit.duration)
-            data.append(hit.error_count)
-            data.append(hit.outage_caused)
-            data.append(hit.system_caused)
-            results.append(data)
-            data = []
+        
+        try:
+            if initial == 'N':
+                start_date = datetime.datetime.strptime(
+                str(alldata.get('start_date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
+                end_date = datetime.datetime.strptime(
+                    str(alldata.get('end_date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
+                for each in Tickets.objects.filter(created_dt__range=(start_date, end_date)).filter(division=division).filter(pg=pg).filter(outage_caused=outage_caused).filter(system_caused=system_caused)[:100]:
+                    data['ticket_id'] = each.ID
+                    data['created_dt'] = each.created_dt
+                    data['ticket_num'] = each.ticket_num
+                    data['division'] = each.division
+                    data['pg'] = each.pg
+                    data['duration'] = each.duration
+                    data['error_count'] = each.error_count
+                    data['outage_caused'] = each.outage_caused
+                    data['system_caused'] = each.system_caused
+                    data['addt_notes'] = each.addt_notes
+                    results.append(data)
+                    data = {}
+            else:
+                for each in Tickets.objects.order_by('created_dt')[:100]:
+                    data['ticket_id'] = each.ID
+                    data['created_dt'] = each.created_dt
+                    data['ticket_num'] = each.ticket_num
+                    data['division'] = each.division
+                    data['pg'] = each.pg
+                    data['duration'] = each.duration
+                    data['error_count'] = each.error_count
+                    data['outage_caused'] = each.outage_caused
+                    data['system_caused'] = each.system_caused
+                    data['addt_notes'] = each.addt_notes
+                    results.append(data)
+                    data = {}
 
-        return JsonResponse({'data': results})
+        except Exception as e:
+            print 'Select Exception == ', e
+            logger.debug("MySQLException == {0}".format(e))
+
+        print 'results == ', results
+        print 'len-results == ', len(results)
+        try:
+            JsonResponse({'results': results})
+        except Exception as e:
+            print e
+        return JsonResponse({'results': results})
+
+
+class UpdateTicketData(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(UpdateTicketData, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        return JsonResponse({'status': 'success'})
+
+    def post(self, request):
+        print 'hi'
+        alldata = request.POST
+        print 'alldata ==', alldata
+        print 'ticket_id ==', str(alldata.get('ticket_id'))
+        
+        try:
+            ticket = Tickets.objects.get(ID=alldata.get('ticket_id'))
+            print 'ticket == ', ticket
+            ticket.division = alldata.get('division')
+            ticket.pg = alldata.get('pg')
+            ticket.error_count = alldata.get('error_count')
+            ticket.outage_caused = alldata.get('outage_caused')
+            ticket.system_caused = alldata.get('system_caused')
+            ticket.addt_notes = alldata.get('addt_notes')
+            ticket.duration = alldata.get('duration')
+            ticket.save()
+            print 'ticket-saved'
+
+
+        except Exception as e:
+            print 'e = ', e
+            logger.debug("MySQLException == {0}".format(e))
+
+        return JsonResponse({'status': 'success'})

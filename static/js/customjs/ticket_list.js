@@ -1,9 +1,9 @@
 $(document).ready(function() {
 
-
-    $('#radio_division').click(function() {
-        
-    });
+    
+    // $('#radio_central, #radio_northeast, #radio_western').click(function() {
+    //      $(this).attr('checked', !$(this).attr('checked'));
+    // });
 
     $('#radio_division').click(function() {
         if ($('#radio_division').is(':checked')) {
@@ -15,7 +15,6 @@ $(document).ready(function() {
 
     $('#radio_national').click(function() {
         if ($('#radio_national').is(':checked')) {
-            
             $('#divisions').hide()
             $("#radio_division").removeAttr("checked");
         }

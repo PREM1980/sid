@@ -16,6 +16,10 @@
 
     <script src="{% static "js/jquery.timepicker.min.js" %}"></script>
     <script src="{% static "js/jquery.datetimepicker.full.min.js" %}"></script>
+
+
+    <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "bower_components/bootstrap/dist/css/bootstrap.min.css" %}"></script>
     
     <link rel="stylesheet" type="text/css" href="{% static "css/jquery.datetimepicker.css" %}"/>
     <link rel="stylesheet" href="{% static "css/jquery.timepicker.css" %}">
@@ -104,10 +108,12 @@
 </head>
 
 <body>
-    <div id="container" style="width: 1280px;">
+    <!--<div id="container" style="width: 1280px;">-->
+    <div class="container" >
         <div id="header"><img src="{% static "images/comcast_sid_logo_web.png" %}"></div>
         <h2 style="text-align:center;color:red">Create a Ticket</h2>
         <br>
+        <div class="create_container"  style="background-color: #F9F1F1; color: #666666; padding-left: 50px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px;">
         <table>
             <tr>
                 <th>Date</th>
@@ -211,11 +217,13 @@
                 </td>
             </tr>
         </table>
-        <br>
+        </div>
         
-        <br>
+        
+        
         <h2 style="text-align:center;color:red">Search</h2>
-        <br>
+        
+        <div class="search_container" style="background-color: #F9F1F1; color: #666666; padding-left: 50px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px;">
         <table>
             <tr>
                 <th>Start Date</th>
@@ -325,6 +333,7 @@
                 </td>
             </tr>
         </table>
+        </div>
     </div>
     
     <br>

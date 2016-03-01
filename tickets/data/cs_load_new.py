@@ -143,13 +143,13 @@ class Tickets_Addt_Notes(Model):
 #sync_table(Tickets)
 from cqlengine import connection
 connection.setup(["localhost"], "sid")
-#sync_table(Tickets)
-#sync_table(Tickets_Division)
-#sync_table(Tickets_Duration)
+# sync_table(Tickets)
+# sync_table(Tickets_Division)
+# sync_table(Tickets_Duration)
 # sync_table(Tickets_Pg)
 # sync_table(Tickets_Error_Count)
 # sync_table(Tickets_Outage_Caused)
-#sync_table(Tickets_System_Caused)
+# sync_table(Tickets_System_Caused)
 # sync_table(Tickets_Ticket_Type)
 # sync_table(Tickets_Addt_Notes)
 
@@ -198,46 +198,6 @@ batch.add(SimpleStatement("INSERT INTO tickets (ticket_id,created_dt, \
 	tickets['division'],tickets['pg'], tickets['duration'],tickets['error_count'], 
 	tickets['outage_caused'], tickets['system_caused'],tickets['ticket_type'], tickets['addt_notes']))
 
-batch.add(SimpleStatement("INSERT INTO tickets_division (division \
-	,ticket_id \
-	,created_dt \
-	) VALUES (%s,%s,%s)"), (tickets['division'],tickets['ticket_id'],tickets['created_dt']))
-
-batch.add(SimpleStatement("INSERT INTO tickets_pg (pg \
-	,ticket_id \
-	,created_dt \
-	) VALUES (%s,%s,%s)"), (tickets['pg'],tickets['ticket_id'],tickets['created_dt']))
-
-batch.add(SimpleStatement("INSERT INTO tickets_duration (duration \
-	,ticket_id \
-	,created_dt \
-	) VALUES (%s,%s,%s)"), (tickets['duration'],tickets['ticket_id'],tickets['created_dt']))
-
-batch.add(SimpleStatement("INSERT INTO tickets_error_count (error_count \
-	,ticket_id \
-	,created_dt \
-	) VALUES (%s,%s,%s)"), (tickets['error_count'],tickets['ticket_id'],tickets['created_dt']))
-
-batch.add(SimpleStatement("INSERT INTO tickets_system_caused (system_caused \
-	,ticket_id \
-	,created_dt \
-	) VALUES (%s,%s,%s)"), (tickets['system_caused'],tickets['ticket_id'],tickets['created_dt']))
-
-batch.add(SimpleStatement("INSERT INTO tickets_outage_caused (outage_caused \
-	,ticket_id \
-	,created_dt \
-	) VALUES (%s,%s,%s)"), (tickets['outage_caused'],tickets['ticket_id'],tickets['created_dt']))
-
-batch.add(SimpleStatement("INSERT INTO tickets_outage_caused (outage_caused \
-	,ticket_id \
-	,created_dt \
-	) VALUES (%s,%s,%s)"), (tickets['outage_caused'],tickets['ticket_id'],tickets['created_dt']))
-
-
-batch.add(SimpleStatement("INSERT INTO tickets_ticket_type (ticket_type \
-	,ticket_id \
-	,created_dt \
-	) VALUES (%s,%s,%s)"), (tickets['ticket_type'],tickets['ticket_id'],tickets['created_dt']))
 
 
 #batch.add(SimpleStatement("DELETE FROM pending_users WHERE name=%s"), (name,))

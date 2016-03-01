@@ -1,49 +1,99 @@
 from django.db import models
-
 import uuid
-#from cassandra.cqlengine import columns
-#from cassandra.cqlengine import connection
 from datetime import datetime
 from json import JSONEncoder
 from uuid import UUID
 
-#from cassandra.cqlengine.management import sync_table
-#from cassandra.cqlengine.models import Model
 
 JSONEncoder_olddefault = JSONEncoder.default
 
 
 def JSONEncoder_newdefault(self, o):
-    if isinstance(o, UUID):
-        return str(o)
-    return JSONEncoder_olddefault(self, o)
+	if isinstance(o, UUID):
+		return str(o)
+	return JSONEncoder_olddefault(self, o)
 JSONEncoder.default = JSONEncoder_newdefault
 
 
+class Division(models.Model):
+	ID = models.AutoField(primary_key=True,db_column='division_id')
+	division_name = models.CharField(db_column='division_name',max_length=200)
+	class Meta:
+		db_table = 'division'
+
+
+class Pg(models.Model):
+	ID = models.AutoField(primary_key=True,db_column='pg_id')
+	pg_cd = models.CharField(db_column='pg_cd',max_length=200)
+	class Meta:
+		db_table = 'pg'
+
+
+class Duration(models.Model):
+	ID = models.AutoField(primary_key=True, db_column='duration_id')
+	duration = models.CharField(db_column='duration',max_length=200)
+	class Meta:
+		db_table = 'duration'
+
+
+class ErrorCount(models.Model):
+	ID = models.AutoField(primary_key=True, db_column='error_count_id')
+	error = models.CharField(db_column='error',max_length=200)
+	class Meta:
+		db_table = 'error_count'
+
+
+class OutageCaused(models.Model):
+	ID = models.AutoField(primary_key=True, db_column='outage_caused_id')
+	outage_caused = models.CharField(db_column='outage_caused',max_length=200)
+	class Meta:
+		db_table = 'outage_caused'
+
+
+class SystemCaused(models.Model):
+	ID = models.AutoField(primary_key=True, db_column='system_caused_id')
+	system_caused = models.CharField(db_column='system_caused',max_length=200)
+	class Meta:
+		db_table = 'system_caused'
+
+
 class Tickets(models.Model):
-    ID = models.UUIDField(primary_key=True, default=uuid.uuid4,
-                          editable=False, db_column='ticket_id')
-    created_dt = models.DateTimeField(db_column='created_dt')
-    division = models.CharField(max_length=100, db_column='division')
-    pg = models.CharField(max_length=5, db_column='pg')
-    duration = models.CharField(max_length=100, db_column='duration')
-    error_count = models.CharField(max_length=100, db_column='error_count')
-    outage_caused = models.CharField(max_length=100, db_column='outage_caused')
-    system_caused = models.CharField(max_length=100, db_column='system_caused')
-    addt_notes = models.CharField(max_length=1000, db_column='addt_notes')
-    ticket_num = models.CharField(max_length=100, db_column='ticket_num')
-    ticket_type = models.CharField(max_length=20, db_column='ticket_type')
-    row_create_ts = models.DateTimeField(default=datetime.now())
-    row_end_ts = models.DateTimeField(
-        default='9999-12-31 00:00:00.00000-00', db_column='row_end_ts')
+	#ID = models.UUIDField(primary_key=True, default=uuid.uuid4,
+	#                      editable=False, db_column='ticket_id')
+	ticket_num = models.CharField(max_length=100, db_column='ticket_num',primary_key=True)
+	created_dt = models.DateTimeField(db_column='created_dt')
+	#divisions = models.ManyToManyField(Division,db_column='division_id')
+	division = models.IntegerField(db_column='division_id')
+	pgs = models.ManyToManyField(Pg)
+	duration = models.IntegerField(db_column='duration_id')
+	error_count = models.IntegerField(db_column='error_count_id')
+	outage_caused = models.IntegerField(db_column='outage_caused_id')
+	system_caused = models.IntegerField(db_column='system_caused_id')
+	ticket_type = models.CharField(max_length=20, db_column='ticket_type',db_index=True)
+	row_create_ts = models.DateTimeField(default=datetime.now())
+	row_end_ts = models.DateTimeField(
+		default='9999-12-31 00:00:00.00000-00', db_column='row_end_ts')
 
-    class Meta:
-        db_table = 'tickets'
+	class Meta:
+		db_table = 'tickets'
 
-    def save(self, *args,**kwargs):
-    	if self.addt_notes is None:
-    		self.addt_notes = ""
-    	super(Tickets,self).save(*args,**kwargs)
+class AddtNotes(models.Model):
+	Id = models.OneToOneField(
+		Tickets,
+		primary_key=True,
+		db_column='notes_id'
+	)
+	notes = models.TextField()
+	class Meta:
+		db_table = 'addt_notes'
+
+	def save(self, *args,**kwargs):
+		if self.notes is None:
+			self.notes = ""
+		super(Tickets,self).save(*args,**kwargs)
+
+
+
 
 # class Tickets(Model):
 # 	ID = columns.UUIDField(primary_key=True, default=uuid.uuid4,

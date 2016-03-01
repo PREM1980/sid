@@ -19,13 +19,19 @@
 
 
     <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
-    <script src="{% static "bower_components/bootstrap/dist/css/bootstrap.min.css" %}"></script>
+    <!--<script src="{% static "bower_components/bootstrap/dist/css/bootstrap.min.css" %}"></script>-->
     
     <link rel="stylesheet" type="text/css" href="{% static "css/jquery.datetimepicker.css" %}"/>
     <link rel="stylesheet" href="{% static "css/jquery.timepicker.css" %}">
     
     <script src="{% static "js/simplePagination.js/jquery.simplePagination.js" %}"></script>
     <link rel="stylesheet" href="{% static "js/simplePagination.js/simplePagination.css" %}" />
+
+    <script src="{% static "multiselect/jquery.multiselect.min.js" %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static "multiselect/jquery.multiselect.css" %}"/>
+
+    <script src="{% static "multiselect/jquery.multiselect.filter.js" %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static "multiselect/jquery.multiselect.filter.css" %}"/>
 
     <script>
 
@@ -41,11 +47,19 @@
             value: curr_date,
             step: 10
         });
-        $("#query_datepicker_start").datetimepicker({
+        $("#query_datepicker_start").datepicker({
             value: curr_date_3,
             step: 10
         });
-        $("#query_datepicker_end").datetimepicker({
+        $("#query_datepicker_end").datepicker({
+            value: curr_date,
+            step: 10
+        });
+        $("#query_datepicker_start_end").datepicker({
+            value: curr_date_3,
+            step: 10
+        });
+        $("#query_datepicker_end_end").datepicker({
             value: curr_date,
             step: 10
         });
@@ -60,9 +74,12 @@
         //alert(sel.value)
     }
 
+    var central = [10201, 10202, 10203, 10204, 10401, 10402, 10404, 11701, 11702, 11703, 11704, 11801, 11802, 11803, 12601, 12602, 12603, 12701, 12702, 12703, 12704, 13401, 13402, 13701, 13702, 13703, 13704, 13705, 13901, 13902, 14001, 14002, 14003, 14401, 14402, 14403, 14404, 14405, 14406, 14701, 14702, 14703, 14704, 14705, 14706, 14801, 14802, 14803, 14804, 14805, 14806, 18101, 21301, 21302, 21303, 21304, 21305, 21306, 23001, 23002, 23101, 23102, 23103, 23104, 23301, 23501, 23601, 23701, 23801]
+    var western = [10101, 10102, 12301, 12303, 13001, 13801, 14502, 14503, 16801, 16802, 16803, 17101, 17102, 17201, 17301, 17302, 17401, 17402, 17403, 17404, 17405, 17406, 17407, 17501, 17502, 17503, 17504, 17505, 17801, 17802, 17803, 17804, 17805, 17806, 17807, 17901, 18201, 21601, 21702, 21704, 24001, 24601, 24602]
+    var northeast = [10501, 10601, 10701, 10702, 10801, 10901, 11001, 11101, 11102, 11201, 11202, 11203, 11301, 11401, 11402, 13201, 13301, 13501, 13502, 13601, 14901, 15001, 15101, 15102, 15301, 15401, 15501, 15601, 15801, 15901, 16001, 16101, 16201, 16401, 16501, 16601, 16701, 16702, 16703, 16704, 16901, 16902, 17001, 18001, 18501, 18701, 18702, 18703, 18801, 18901, 19001, 19501, 19601, 19701, 19901, 20101, 20201, 20701, 22001, 22002, 22301, 22302, 23201]
+    var national = central.concat(western).concat(northeast)
 
-
-    function getval(sel, caller_function) {
+    function getval(sel, caller_function, pg_cds_array) {
         
         if (caller_function == "inputting") {
             pg_widget = "#peergroup";
@@ -72,37 +89,47 @@
         else {
             pg_widget = "#row_peergroup";
         }
+
         console.log('pg_widget == ', pg_widget)
+        console.log('sel.value == ', sel.value)
+
         $(pg_widget).empty();
-        var central = [10201, 10202, 10203, 10204, 10401, 10402, 10404, 23501, 11701, 11702, 11703, 11704, 23101, 23102, 23103, 23104, 13401, 13402, 23001, 23002, 13701, 13702, 13703, 13704, 13705, 13901, 13902, 14001, 14002, 14003, 21301, 21302, 21303, 21304, 21305, 21306, 11801, 11802, 11803, 14701, 14702, 14703, 14704, 14705, 14706, 14801, 14802, 14803, 14804, 14805, 14806, 23601, 14401, 14402, 14403, 14404, 14405, 14406, 23701, 23301, 23801, 18101, 12601, 12602, 12603, 12701, 12702, 12703, 12704]
-        var western = [10101, 10102, 17401, 17402, 17403, 17404, 17405, 17406, 17407, 21601, 12301, 12303, 24601, 24602, 13001, 21702, 21704, 13801, 14502, 14503, 16801, 16802, 16803, 17101, 17102, 17301, 17302, 17501, 17502, 17503, 17504, 17505, 24001, 17801, 17802, 17803, 17804, 17805, 17806, 17807, 17901, 17201, 18201]
-        var northeast = [18501, 10501, 10601, 20201, 22301, 22302, 15301, 15401, 10801, 14901, 15501, 16901, 16902, 15601, 10901, 11001, 11101, 11102, 11201, 11202, 11203, 15801, 13201, 13501, 13502, 10701, 10702, 20701, 13301, 20101, 11301, 11401, 11402, 15001, 18701, 18702, 18703, 15901, 16001, 13601, 22001, 22002, 19701, 16101, 16701, 16702, 16703, 16704, 16201, 19901, 18801, 18901, 17001, 19601, 18001, 19501, 16401, 15101, 15102, 16501, 19001, 16601, 23201]
+        
         if (sel.value == "Central") {
-            items = central.sort();
+            items = central
         } else if (sel.value == "Northeast") {
-            items = northeast.sort();
+            items = northeast
         } else if (sel.value == "Western") {
-            items = western.sort();
+            items = western
         } else{
-        	items = central.concat(western).concat(northeast)
+        	items = national
         	items = items.sort()
-            //When National add 'ALL'
+            
+        }
+        console.log('pg_widget ==', pg_widget)
+        
+        for (i = 0; i < items.length; i++) {
             $(pg_widget).append($('<option>', {
-                    value: 'ALL',
-                    text: 'ALL'
-            }))
+                value: items[i],
+                text: items[i]
+            })).multiselect('refresh')
         }
 
-            
+        $(pg_widget).multiselect("widget").find(":checkbox").each(function(){
+            //console.log(this.value)
 
-            for (i = 0; i < items.length; i++) {
-                $(pg_widget).append($('<option>', {
-                    value: items[i],
-                    text: items[i]
-                }))
+            if (pg_cds_array.indexOf(this.value) > -1) {
+                this.click();
             }
+            else {
+                return true;
+            }
+
             
-            
+        })
+
+    
+        
         }
     </script>
 </head>
@@ -131,6 +158,7 @@
                 <td>
                     <div class="ui-widget">
                         <select id="division" onchange="getval(this,'inputting');">
+                        <!--<select id="division">-->
                             <option></option selected>
                             <option>National</option>
                             <option>Central</option>
@@ -141,7 +169,7 @@
                 </td>
                 <td>
                     <div class="ui-widget">
-                        <select id="peergroup"></select>
+                        <select id="peergroup" name="peergroup" multiple="multiple"></select>
                     </div>
                 </td>
                 <td>
@@ -221,22 +249,22 @@
         
         
         
-        <h2 style="text-align:center;color:red">Search</h2>
+        <h3 style="text-align:center;color:red">Search</h3>
         
         <div class="search_container" style="background-color: #F9F1F1; color: #666666; padding-left: 50px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px;">
         <table>
             <tr>
                 <th>Start Date</th>
-                <!--<th>Start Time</th>-->
+                <th>Start Date</th>
                 <th>End Date</th>
-                <!--<th>End Time</th>-->
+                <th>End Date</th>
                 <th>Ticket Num</th>
-                <th>Region</th>
-                <th id="divisions_header" style="display:none">Division</th>
+                <!--<th>Region</th>-->
+                <th>Division</th>
                 <th>Peergroup</th>
-                <th>Outage Cause</th>
-                <th>System Caused</th>
-                <th>Addt Notes</th>
+                <!-- <th>Outage Cause</th>
+                <th>System Caused</th> -->
+                <!--<th>Addt Notes</th>-->
             </tr>
 
             <tr>
@@ -245,9 +273,14 @@
                 <td>
                     <input type="text" id="query_datepicker_start">
                 </td>
-                
+                <td>
+                    <input type="text" id="query_datepicker_start_end">
+                </td>
                 <td>
                     <input type="text" id="query_datepicker_end">
+                </td>
+                <td>
+                    <input type="text" id="query_datepicker_end_end">
                 </td>
                 <td>
                     <div class="ui-widget">
@@ -256,16 +289,16 @@
                 </td>
                 <td >
                     <div class="ui-widget" >
-                        <input id="radio_national" type="radio">ALL
+                        <!--<input id="radio_national" type="radio">ALL
                         <br>
-                        <input id="radio_division" type="radio">Division
-                        <!-- <select id="query_division" onchange="getval(this,'retrieving');">
+                        <input id="radio_division" type="radio">Division-->
+                        <select id="query_division" onchange="getval(this,'retrieving');">
                             <option selected></option>
                             <option>National</option>
                             <option>Central</option>
                             <option>Northeast</option>
                             <option>Western</option>
-                        </select> -->
+                        </select>
                     </div>
                 </td>
                 <td id="divisions" style="display:none">
@@ -295,10 +328,15 @@
                         <select id="query_peergroup"></select>
                     </div>
                 </td>
+                <tr>
                 <td>
+                <!--     <td colspan="3">Additional Notes:
+                    <div class="ui-widget" width="100%">
+                        <input id="additional_notes" width="100%">
+                    </div>
+                </td> -->
                     <div class="ui-widget">
                         <select id="query_cause">
-                            <option>All</option>
                             <option>Scheduled Maintenance</option>
                             <option>Scheduled Maintenance resulting in Outage</option>
                             <option>NSA Scheduled Maintenance resulting in Outage</option>
@@ -310,7 +348,6 @@
                 <td>
                     <div class="ui-widget">
                         <select id="query_subcause">
-                            <option>All</option>
                             <option>Backoffice</option>
                             <option>Cisco Pump</option>
                             <option>Arris Pump</option>
@@ -323,14 +360,15 @@
                         </select>
                     </div>
                 </td>
-                <td>
+                <!-- <td>
                     <div class="ui-widget">
                         <input id="query_addt_notes" width="100%">
                     </div>
-                </td>
+                </td> -->
                 <td>
                     <input type="submit" value="QUERY" id="query" style="margin-left: 20px;">
                 </td>
+                </tr>
             </tr>
         </table>
         </div>
@@ -365,6 +403,8 @@
 
     <div id="ticket_list"></div>
 
+    
+
     <div id="dialog" title="Ticket Details">
 
         <div style="text-align: left">
@@ -378,6 +418,7 @@
             <tr>
             <td class="leftcols">Division</td><td id="dialog_division">
                         <select id="row_division" onchange="getval(this,'setting');">
+
                             <option selected></option>
                             <option>National</option>
                             <option>Central</option>
@@ -389,7 +430,7 @@
             </tr>
             <tr>
             <td class="leftcols">PeerGroup</td><td id="dialog_pg">
-                <select id="row_peergroup"></select>
+                <select id="row_peergroup" multiple="multiple"></select>
             </td>
             </tr>
             <td class="leftcols">Duration</td><td id="dialog_duration">
@@ -446,6 +487,20 @@
 
     </div>
     
+    <div id="dialog_pg_select" title="PeerGroup Filter">
+        <div style="text-align:left">
+            <select size="5">
+                <option value="1">Item #1</option>
+                <option value="2">Item #2</option>
+                <option value="3">Item #3</option>
+                <option value="4">Item #4</option>
+                <option value="5">Item #5</option>
+                <option value="6">Item #6</option>
+                <option value="7">Item #7</option>
+            </select>
+        </div>
+    </div>
+
     <!-- container -->
     <!-- <table id="example" class="display" cellspacing="0" width- "100%">
         <thead>

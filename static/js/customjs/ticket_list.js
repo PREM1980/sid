@@ -1,6 +1,11 @@
  $(document).ready(function() {
 
      $(function() {
+         $("#accordion").accordion({
+             collapsible: true,
+         });
+     });
+     $(function() {
          $("#peergroup").multiselect({
              height: 600,
              show: ['slide', 500],
@@ -23,20 +28,24 @@
          }).multiselectfilter();
      });
 
-     function get_pgs() {
+     function get_pgs(pg_object) {
          pg = []
-         a = $('#peergroup').multiselect("getChecked")
+         a = $(pg_object).multiselect("getChecked")
          for (index = 0; index < a.length; ++index) {
              console.log("select value == ", a[index].value)
              pg.push(a[index].value)
 
          }
-         multiselect_widget_length = $('#peergroup').multiselect("widget").find('.ui-multiselect-checkboxes li').length
+         multiselect_widget_length = $(pg_object).multiselect("widget").find('.ui-multiselect-checkboxes li').length
+
+         console.log('multiselect_widget_length == ',multiselect_widget_length)
+         console.log('pg.length ==',pg.length)
+
          if (multiselect_widget_length == pg.length) {
              pg = []
-             alert('pg set')
              pg.push('ALL')
          }
+         console.log('return pg ==', pg)
          return pg;
 
      }
@@ -55,7 +64,7 @@
              alert('Select JIRA/TTS ticket')
          } else {
              console.log("peergroup == ", $('#peergroup').multiselect("getChecked"))
-             pg = get_pgs()
+             pg = get_pgs('#peergroup')
 
              data = {
                  'date': $('#datepicker').val(),
@@ -143,7 +152,7 @@
              buttons: {
                  "Update": function() {
                      data = {}
-                     pg = get_pgs()
+                     pg = get_pgs('#peergroup')
                      data = {
                          'division': $('#row_division').val(),
                          'pg': pg,
@@ -204,6 +213,11 @@
 
      var load_datatable = function(initial) {
          data = {}
+         pg = []
+         if (initial == 'N'){
+            pg = get_pgs('#query_peergroup')   
+         }
+
          data = {
              'start_date_s': $('#query_datepicker_start').val(),
              'start_date_e': $('#query_datepicker_start_end').val(),
@@ -211,7 +225,7 @@
              'end_date_e': $('#query_datepicker_end_end').val(),
              'ticket_num': $('#query_ticket_no').val(),
              'division': $('#query_division').val(),
-             'pg': $('#query_peergroup').val(),
+             'pg': pg,
              //'error_count': $('#duration').val(),
              'outage_caused': $('#query_cause').val(),
              'system_caused': $('#query_subcause').val(),
@@ -249,24 +263,24 @@
      }
 
      function redrawData(pageNumber, event) {
-         console.log('jsondata = ' + JSON.stringify(transactiondata.results))
-         console.log('pageNumber = ' + pageNumber)
+         //console.log('jsondata = ' + JSON.stringify(transactiondata.results))
+         //console.log('pageNumber = ' + pageNumber)
          transactiondata_results = transactiondata.results
          if (pageNumber) {
              if (pageNumber == 1) {
                  slicedata = transactiondata_results.slice(0, 12)
              } else {
-                 console.log('inside transactiondata = ' + transactiondata_results)
+                 //console.log('inside transactiondata = ' + transactiondata_results)
                  slicedata = transactiondata_results.slice(pageNumber * 5,
                      Math.min((pageNumber + 1) * 5, transactiondata_results.length));
-                 console.log('start', ((pageNumber - 1) * 12 + 1))
-                 console.log('end', 12 * pageNumber + 1)
+                 //console.log('start', ((pageNumber - 1) * 12 + 1))
+                 //console.log('end', 12 * pageNumber + 1)
                  slicedata = transactiondata_results.slice(((pageNumber - 1) * 12 + 1), 12 * pageNumber + 1)
-                 console.log('inside slicdata == ', slicedata)
+                 //console.log('inside slicdata == ', slicedata)
              }
          } else {
              slicedata = transactiondata_results.slice(0, 12)
-             console.log('sliced transactiondata = ' + JSON.stringify(transactiondata))
+             //console.log('sliced transactiondata = ' + JSON.stringify(transactiondata))
          }
 
          $(".CSSTableGenerator").empty()
@@ -276,9 +290,9 @@
 
          slicedata.forEach(function(e, i, a) {
              var obj = e;
-             console.log('obj == ', obj)
-                 //$('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_id + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>' + obj.pg + '</td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button></td></tr>');
-             $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_id + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button></td></tr>');
+             //console.log('obj == ', obj)
+             //$('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_id + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>' + obj.pg + '</td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button></td></tr>');
+             $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_id + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
              console.log('obj == ', obj.pg)
              for (j = 0; j < obj.pg.length; j++) {
                  $('#table_pg' + i).append($('<option>', {

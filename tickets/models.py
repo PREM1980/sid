@@ -90,7 +90,7 @@ class AddtNotes(models.Model):
 	def save(self, *args,**kwargs):
 		if self.notes is None:
 			self.notes = ""
-		super(Tickets,self).save(*args,**kwargs)
+		super(AddtNotes,self).save(*args,**kwargs)
 
 
 

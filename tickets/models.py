@@ -61,7 +61,7 @@ class Tickets(models.Model):
 	#ID = models.UUIDField(primary_key=True, default=uuid.uuid4,
 	#                      editable=False, db_column='ticket_id')
 	ticket_num = models.CharField(max_length=100, db_column='ticket_num',primary_key=True)
-	created_dt = models.DateTimeField(db_column='created_dt')
+	
 	#divisions = models.ManyToManyField(Division,db_column='division_id')
 	division = models.IntegerField(db_column='division_id')
 	pgs = models.ManyToManyField(Pg)
@@ -71,6 +71,7 @@ class Tickets(models.Model):
 	system_caused = models.IntegerField(db_column='system_caused_id')
 	ticket_type = models.CharField(max_length=20, db_column='ticket_type',db_index=True)
 	row_create_ts = models.DateTimeField(default=datetime.now())
+	row_update_ts = models.DateTimeField(default=datetime.now())
 	row_end_ts = models.DateTimeField(
 		default='9999-12-31 00:00:00.00000-00', db_column='row_end_ts')
 

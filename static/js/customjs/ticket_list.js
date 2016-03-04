@@ -9,7 +9,8 @@
          $("#peergroup").multiselect({
              height: 600,
              show: ['slide', 500],
-             hide: ['slide', 500]
+             hide: ['slide', 500],
+             noneSelectedText: 'Pick Division and select peergroup'
          }).multiselectfilter();
      });
 
@@ -17,14 +18,16 @@
          $("#query_peergroup").multiselect({
              height: 600,
              show: ['slide', 500],
-             hide: ['slide', 500]
+             hide: ['slide', 500],
+             noneSelectedText: 'Pick Division and select peergroup'
          }).multiselectfilter();
      });
      $(function() {
          $("#row_peergroup").multiselect({
              height: 600,
              show: ['slide', 500],
-             hide: ['slide', 500]
+             hide: ['slide', 500],
+             noneSelectedText: 'Pick Division and select peergroup'
          }).multiselectfilter();
      });
 
@@ -38,10 +41,10 @@
          }
          multiselect_widget_length = $(pg_object).multiselect("widget").find('.ui-multiselect-checkboxes li').length
 
-         console.log('multiselect_widget_length == ',multiselect_widget_length)
-         console.log('pg.length ==',pg.length)
+         console.log('multiselect_widget_length == ', multiselect_widget_length)
+         console.log('pg.length ==', pg.length)
 
-         if (multiselect_widget_length == pg.length) {
+         if ((multiselect_widget_length == pg.length) && (multiselect_widget_length != 0)) {
              pg = []
              pg.push('ALL')
          }
@@ -53,12 +56,20 @@
      $('#upload').click(function(event) {
          event.preventDefault();
          event.stopPropagation();
-
-         if ($('#division').val().length == 0) {
+         
+         if (($('#division').val().length == 0) || ($('#division').val() == 'Division')) {
              alert('Select a division')
-         } else if ($('#peergroup').val().length == 0) {
+         } else if ($('#peergroup :selected').length == 0) {
              alert('Select a peergroup')
-         } else if ($('#ticket_no').val().length == 0) {
+         } else if ($('#duration').val() == 'Duration (in minutes)') {
+             alert('Pick Duration value')
+         } else if ($('#errorcount').val() == 'Error Count') {
+             alert('Pick ErrorCount value')
+        } else if ($('#cause').val() == 'Outage Caused') {
+             alert('Pick OutageCaused value')
+        } else if ($('#subcause').val() == 'System Caused') {
+             alert('Pick SystemCaused value')
+         } else if ($('#ticket_no').val().length == 0)  {
              alert('Enter a valid ticket number')
          } else if ($('#radio1').is(':not(:checked)') && $('#radio2').is(':not(:checked)')) {
              alert('Select JIRA/TTS ticket')
@@ -85,8 +96,7 @@
                  url: '/post-ticket-data',
                  data: data,
                  success: function(result) {
-
-                     result = result
+                     console.log('post update result == ', result.status)
 
                      if (result.status != 'success') {
                          alert(result.status)
@@ -152,7 +162,7 @@
              buttons: {
                  "Update": function() {
                      data = {}
-                     pg = get_pgs('#peergroup')
+                     pg = get_pgs('#row_peergroup')
                      data = {
                          'division': $('#row_division').val(),
                          'pg': pg,
@@ -162,6 +172,8 @@
                          'system_caused': $('#row_system_cause').val(),
                          'addt_notes': $('#dialog_addt_notes').html(),
                          'ticket_num': $('#dialog_ticket_num').html(),
+                         'ticket_type': $('#dialog_ticket_type').html(),
+                         'update': 'N',
                          //'initial': initial
                      }
 
@@ -214,8 +226,8 @@
      var load_datatable = function(initial) {
          data = {}
          pg = []
-         if (initial == 'N'){
-            pg = get_pgs('#query_peergroup')   
+         if (initial == 'N') {
+             pg = get_pgs('#query_peergroup')
          }
 
          data = {
@@ -276,11 +288,11 @@
                  //console.log('start', ((pageNumber - 1) * 12 + 1))
                  //console.log('end', 12 * pageNumber + 1)
                  slicedata = transactiondata_results.slice(((pageNumber - 1) * 12 + 1), 12 * pageNumber + 1)
-                 //console.log('inside slicdata == ', slicedata)
+                     //console.log('inside slicdata == ', slicedata)
              }
          } else {
              slicedata = transactiondata_results.slice(0, 12)
-             //console.log('sliced transactiondata = ' + JSON.stringify(transactiondata))
+                 //console.log('sliced transactiondata = ' + JSON.stringify(transactiondata))
          }
 
          $(".CSSTableGenerator").empty()
@@ -292,7 +304,7 @@
              var obj = e;
              //console.log('obj == ', obj)
              //$('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_id + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>' + obj.pg + '</td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button></td></tr>');
-             $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_id + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+             $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_type + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
              console.log('obj == ', obj.pg)
              for (j = 0; j < obj.pg.length; j++) {
                  $('#table_pg' + i).append($('<option>', {
@@ -304,13 +316,41 @@
 
          })
 
+         $('[id^=end]').click(function() {
+             data = {}
+             row = $(this).parent().parent()
+             ticket_num = row.find("td:nth-child(3)").html()
+             data = {
+                 'ticket_num': ticket_num,
+                 'update': 'Y',
+             }
+             
+             console.log('update data == ', data)
+             $.ajax({
+                 url: '/update-ticket-data',
+                 type: 'POST',
+                 data: data,
+                 success: function(result) {
+
+                     if (result.status != 'success') {
+                         alert("Row End date Failed!! Contact Support")
+                     } else {
+                         alert("Row End-Dated!! Playaround!!")
+                     }
+                 },
+                 error: function(msg) {
+                     alert("Call to End date ticket failed!! Contact Support!!")
+                 }
+             })
+         })
+
          $('[id^=edit]').click(function() {
              var id = $(this).attr('id');
              row = $(this).parent().parent()
 
              console.log($(this).parent().parent().find("td:first").html())
 
-             ticket_id = row.find("td:first").html()
+             ticket_type = row.find("td:first").html()
              created_dt = row.find("td:nth-child(2)").html()
              ticket_num = row.find("td:nth-child(3)").html()
              division = row.find("td:nth-child(4)").html()
@@ -320,11 +360,11 @@
              outage_caused = row.find("td:nth-child(8)").html()
              system_caused = row.find("td:nth-child(9)").html()
              addt_notes = row.find("td:nth-child(10)").html()
-             console.log(duration)
+             console.log("duration == ", duration)
 
              $("#dialog_created_dt").html(created_dt)
              $("#dialog_ticket_num").html(ticket_num)
-             $("#dialog_ticket_id").html(ticket_id)
+             $("#dialog_ticket_type").html(ticket_type)
              $("#dialog_division select").val(division)
              division = $("#row_division")[0]
 
@@ -332,20 +372,9 @@
              $(pg).find('option').each(function(i, selected) {
                  pg_cds_array[i] = $(selected).val();
              });
-             //console.log('foo ==',foo)
-             // for (i =0;i < pg.length; i++){
-             //    console.log('prem1 pg ==  ', pg[i])
-             // }
+
              getval(division, 'setting', pg_cds_array)
 
-
-             //$("#dialog_pg select").val(pg)
-             //  $("select").multiselect("widget").find(":checkbox").each(function(){
-             //     this.click();
-             // });
-             // $('#row_peergroup').multiselect("widget").find(":checkbox").each(function(){
-             //     this.click();
-             // });
              $("#dialog_duration select").val(duration)
              $("#dialog_error_count select").val(error_count)
              $("#dialog_outage_caused select").val(outage_caused)

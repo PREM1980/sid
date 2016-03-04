@@ -19,6 +19,33 @@ from django.db import connection
 import logging
 logger = logging.getLogger(__name__)
 
+class Ticket(object):
+	def __init__(self, created_dt, division, pg, error_count, ticket_num, outage_caused, system_caused, addt_notes, ticket_type, duration):
+		self.created_dt = created_dt
+		self.division = division 
+		self.pg = pg
+		self.error_count = error_count
+		self.ticket_num = ticket_num
+		self.outage_caused = outage_caused
+		self.system_caused = system_caused
+		self.addt_notes = addt_notes
+		self.ticket_type = ticket_type
+		self.duration = duration		
+
+	def __str__(self):
+		return """ created_dt == {0} 
+		,division = {1}
+		,pg = {2}
+		,error_count = {3}
+		,ticket_num = {4}
+		,outage_caused = {5}
+		,system_caused = {6}
+		,addt_notes = {7}
+		,ticket_type = {8}
+		,duration = {9}""".format(
+			self.created_dt, self.division, str(self.pg), self.error_count,self.ticket_num,self.outage_caused,self.system_caused,self.addt_notes,
+			self.ticket_type,self.duration)
+
 
 class PostTicketData(View):
 
@@ -32,35 +59,36 @@ class PostTicketData(View):
 	def post(self, request):
 		alldata = request.POST
 		print 'post alldata == ', alldata
+		
+		logger.debug("post data  == {0}".format(alldata))
+
 		created_dt = datetime.datetime.strptime(
 			str(alldata.get('date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
 		
-		doc = {
-			'created_dt': created_dt,
-			'division': alldata.get('division'),
-			'pg': alldata.getlist('pg[]'),
-			'error_count': alldata.get('error_count'),
-			'ticket_num': alldata.get('ticket_num'),
-			'outage_caused': alldata.get('outage_caused'),
-			'system_caused': alldata.get('system_caused'),
-			'addt_notes': alldata.get('addt_notes'),
-			'ticket_type': alldata.get('ticket_type'),
-			'duration': alldata.get('duration')
-		}
+		t = Ticket(created_dt
+			,alldata.get('division')
+			,alldata.getlist('pg[]')
+			,alldata.get('error_count')
+			,alldata.get('ticket_num')
+			,alldata.get('outage_caused')
+			,alldata.get('system_caused')
+			,alldata.get('addt_notes')
+			,alldata.get('ticket_type')
+			,alldata.get('duration'))
 		
-		logger.debug("Insert document == {0}".format(doc))
+		logger.debug("Insert document == {0}".format(t))
 		
 		try:
 			with transaction.atomic():
-				div,created = Division.objects.get_or_create(division_name=doc['division'])
-				dur,created = Duration.objects.get_or_create(duration=doc['duration'])
-				err,created = ErrorCount.objects.get_or_create(error=doc['error_count'])
-				out,created = OutageCaused.objects.get_or_create(outage_caused=doc['outage_caused'])
-				sys,created = SystemCaused.objects.get_or_create(system_caused=doc['system_caused'])
+				div,created = Division.objects.get_or_create(division_name=t.division)
+				dur,created = Duration.objects.get_or_create(duration=t.duration)
+				err,created = ErrorCount.objects.get_or_create(error=t.error_count)
+				out,created = OutageCaused.objects.get_or_create(outage_caused=t.outage_caused)
+				sys,created = SystemCaused.objects.get_or_create(system_caused=t.system_caused)
 				ticket_info = {
-					'created_dt': created_dt,
-					'ticket_num': alldata.get('ticket_num'),
-					'ticket_type': alldata.get('ticket_type'),
+					'row_create_ts': created_dt,
+					'ticket_num': t.ticket_num,
+					'ticket_type': t.ticket_type,
 					'division': div.ID,
 					'duration': dur.ID,
 					'error_count': err.ID,
@@ -69,7 +97,7 @@ class PostTicketData(View):
 				}
 
 				try:
-					ticket = Tickets.objects.get(ticket_num=doc['ticket_num'])
+					ticket = Tickets.objects.get(ticket_num=t.ticket_num)
 				except Tickets.DoesNotExist:
 					ticket = None
 
@@ -79,16 +107,16 @@ class PostTicketData(View):
 					print 'Ticket already present'
 					return JsonResponse({'status': 'Ticket already present'})
 				
-				for each in alldata.getlist('pg[]'):
+				for each in t.pg:
 					p,created = Pg.objects.get_or_create(pg_cd=each)
 					ticket.pgs.add(p)
 				
-				AddtNotes.objects.create(Id=ticket,notes=doc['addt_notes'])
+				AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)
 				
 		except Exception as e:
 			print 'Exception == ', e 
 			logger.debug("MySQLException == {0}".format(e))
-			JsonResponse({'status': 'failure'})
+			return JsonResponse({'status': 'Contact Support Team'})
 
 		return JsonResponse({'status': 'success'})
 
@@ -126,6 +154,7 @@ class GetTicketData(View):
 			
 		}
 		print 'initial == ', initial
+
 		data = {}
 		output = []
 		
@@ -136,9 +165,9 @@ class GetTicketData(View):
 				
 				qry = """
 					select   tb1.ticket_num
-							,tb1.created_dt
-							,tb1.ticket_type
 							,tb1.row_create_ts
+							,tb1.ticket_type
+							,tb1.row_update_ts
 							,tb1.row_end_ts
 							,tb2.division_name
 							,tb3.duration
@@ -153,7 +182,7 @@ class GetTicketData(View):
 							on tb1.division_id = tb2.division_id
 							inner join
 							sid.duration tb3
-							on tb1.error_count_id = tb3.duration_id
+							on tb1.duration_id = tb3.duration_id
 							inner join
 							sid.error_count tb4
 							on tb1.error_count_id = tb4.error_count_id
@@ -173,7 +202,7 @@ class GetTicketData(View):
 							sid.addt_notes tb9
 							on tb1.ticket_num = tb9.notes_id
 
-							order by created_dt,ticket_num
+							order by row_create_ts,ticket_num
 					"""
 				print 'qry ==', qry
 				cursor.execute(qry)
@@ -187,20 +216,24 @@ class GetTicketData(View):
 				ticket_num_qry_set = False
 				division_qry_set = False
 				pg_qry_set = False
+				outage_qry_set = False
+				system_qry_set = False
 
 				start_date_qry = ''
 				end_date_qry = ''
 				ticket_num_qry = ''
 				division_qry = ''
 				pg_qry = ''
+				outage_qry = ''
+				system_qry = ''
 
 				if doc['start_date_s'] == '' and doc['start_date_e'] == '':
 					pass
 				else:
 					start_date_qry_set = True
 					start_date_s = datetime.datetime.strptime(doc['start_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
-					start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
-					start_date_qry = " created_dt between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
+					start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
+					start_date_qry = " row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
 
 				print 'prem-1'
 
@@ -209,7 +242,7 @@ class GetTicketData(View):
 				else:
 					end_date_qry_set = True
 					end_date_s = datetime.datetime.strptime(doc['end_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
-					end_date_e = datetime.datetime.strptime(doc['end_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
+					end_date_e = datetime.datetime.strptime(doc['end_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
 					end_date_qry = " row_end_ts between '{end_date_s}' and '{end_date_e}' ".format(end_date_s=end_date_s,end_date_e=end_date_e)
 
 				print 'prem-2'
@@ -221,13 +254,14 @@ class GetTicketData(View):
 					ticket_num_qry = " ticket_num = '{ticket_num}' ".format(ticket_num=doc['ticket_num'])
 				print 'prem-3'
 
-				if doc['division'] == '':
+				if doc['division'] == '' or doc['division'] == 'Division':
 					division_qry = ""
 				else:
 					division_qry_set = True
 					division_qry = " tb2.division_name = '{division}' ".format(division=doc['division'])
 
-				if doc['pg'] == '':
+				print 'prem-31 == ', doc['pg']
+				if len(doc['pg']) == 0:
 					pg_qry = ""
 				else:
 					pg_qry_set = True
@@ -238,12 +272,21 @@ class GetTicketData(View):
 					
 				print 'prem-4 == ', doc['outage_caused']
 
-				outage_qry = " tb5.outage_caused = '{outage_caused}' ".format(outage_caused=doc['outage_caused'])
+				if doc['outage_caused'] == 'Outage Caused':
+					outage_qry = ''
+				else:
+					outage_qry_set = True
+					outage_qry = " tb5.outage_caused = '{outage_caused}' ".format(outage_caused=doc['outage_caused'])
 
 				print 'prem-5'
-				system_qry = " tb6.system_caused = '{system_caused}' ".format(system_caused=doc['system_caused'])
+				if doc['system_caused'] == 'System Caused':
+					system_qry = ''
+				else:
+					system_qry_set = True
+					system_qry = " tb6.system_caused = '{system_caused}' ".format(system_caused=doc['system_caused'])
 
 				order_qry = ' order by created_dt '
+
 				print 'prem-6'
 
 
@@ -251,9 +294,9 @@ class GetTicketData(View):
 				
 				qry = """
 					select   tb1.ticket_num
-							,tb1.created_dt
-							,tb1.ticket_type
 							,tb1.row_create_ts
+							,tb1.ticket_type
+							,tb1.row_update_ts
 							,tb1.row_end_ts
 							,tb2.division_name
 							,tb3.duration
@@ -268,7 +311,7 @@ class GetTicketData(View):
 							on tb1.division_id = tb2.division_id
 							inner join
 							sid.duration tb3
-							on tb1.error_count_id = tb3.duration_id
+							on tb1.duration_id = tb3.duration_id
 							inner join
 							sid.error_count tb4
 							on tb1.error_count_id = tb4.error_count_id
@@ -296,26 +339,71 @@ class GetTicketData(View):
 				print 'system_qry == ', system_qry
 				print 'pg_qry == ', pg_qry
 
-				qry = qry + ' where ' 
+				print 'start_date_qry == ', start_date_qry_set
+				print 'end_date_qry == ', end_date_qry_set
+				print 'ticket_num_qry == ', ticket_num_qry_set
+				print 'division_qry == ', division_qry_set
+				print 'outage_qry == ', outage_qry_set
+				print 'system_qry == ', system_qry_set
+				print 'pg_qry == ', pg_qry
+
+				qry = qry 
+				prev_qry_set = False
+
+				if start_date_qry_set or end_date_qry_set or division_qry_set or pg_qry_set or outage_qry_set or system_qry_set:
+				 	qry = qry + ' where ' 
 
 				if start_date_qry_set:
-					qry = qry + start_date_qry + ' and '
+					qry = qry + start_date_qry
+					prev_qry_set = True 
 
 				if end_date_qry_set:
-					qry = qry + end_date_qry + ' and '
+					if prev_qry_set:
+						qry = qry + ' and ' + end_date_qry 
+						prev_qry_set = True
+					else:
+						qry = qry + end_date_qry
+						prev_qry_set = False
+				
+				if ticket_num_qry_set:
+					if prev_qry_set:
+						qry = qry + ' and ' + ticket_num_qry 
+						prev_qry_set = True
+					else:
+						qry = qry + ticket_num_qry
+						prev_qry_set = False						
 
 				if division_qry_set:
-					qry = qry + division_qry + ' and '
+					if prev_qry_set:
+						qry = qry + ' and ' + division_qry 
+						prev_qry_set = True
+					else:
+						qry = qry + division_qry
+						prev_qry_set = False
+						
 
 				if pg_qry_set:
-					qry = qry + pg_qry + ' and '
+					if prev_qry_set:
+						qry = qry + ' and ' + pg_qry 
+						prev_qry_set = True
+					else:
+						qry = qry + pg_qry
+						prev_qry_set = False
 
-				qry = qry + outage_qry  + ' and ' 
-				qry = qry + system_qry 
+				if outage_qry_set:
+					if prev_qry_set:
+						qry = qry + ' and ' + outage_qry  
+						prev_qry_set = True
+					else:
+						qry = qry + outage_qry  
+						prev_qry_set = False
 
-
-
-					
+				if system_qry_set:
+					if prev_qry_set:
+						qry = qry + ' and ' + system_qry 
+					else:
+						qry = qry + system_qry  
+	
 				print 'qry == ', qry
 				cursor.execute(qry)
 				results = cursor.fetchall()
@@ -333,6 +421,7 @@ class GetTicketData(View):
 				if prev_ticket_num == curr_ticket_num:
 					data['ticket_num'] = each[0]
 					data['created_dt'] = each[1]
+					data['ticket_type'] = each[2]
 					data['division'] = each[5]
 					pg_cd.append(each[10])
 					data['duration'] = each[6]
@@ -356,9 +445,10 @@ class GetTicketData(View):
 
 					data['ticket_num'] = each[0]
 					data['created_dt'] = each[1]
+					data['ticket_type'] = each[2]
 					data['division'] = each[5]
 					pg_cd.append(each[10])
-					data['duration'] = each[7]
+					data['duration'] = each[6]
 					data['error_count'] = each[7]
 					data['outage_caused'] = each[8]
 					data['system_caused'] = each[9]
@@ -382,9 +472,9 @@ class GetTicketData(View):
 		except Exception as e:
 			print 'Select Exception == ', e
 			logger.debug("MySQLException == {0}".format(e))
-			JsonResponse({'status': 'failure'})
+			return JsonResponse({'status': 'failure'})
 
-		#print 'output == ', output
+		print 'output == ', output
 		# print 'len-output == ', len(output)
 		
 		return JsonResponse({'results': output})
@@ -402,77 +492,69 @@ class UpdateTicketData(View):
 	def post(self, request):
 		print 'hi'
 		alldata = request.POST
-		print 'alldata ==', alldata
-		print 'ticket_id ==', alldata.get('ticket_id')
-		#created_dt = datetime.datetime.strptime(
-		#	str(alldata.get('date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
-		doc = {
-			'division': alldata.get('division'),
-			'pg': alldata.getlist('pg[]'),
-			'error_count': alldata.get('error_count'),
-			'ticket_num': alldata.get('ticket_num'),
-			'outage_caused': alldata.get('outage_caused'),
-			'system_caused': alldata.get('system_caused'),
-			'ticket_type': alldata.get('ticket_type'),
-			'duration': alldata.get('duration'),
-		}
-		print 'update doc  == ', doc
+		print 'Update alldata ==', alldata
+		
+		if alldata.get('update') == 'Y':
+		   ticket_num =  alldata.get('ticket_num')
+		   ticket = Tickets.objects.get(ticket_num=ticket_num)
+		   ticket.row_end_ts = datetime.datetime.now()
+		   ticket.save()
+		   return JsonResponse({'status': 'success'})
+
+		t = Ticket(""
+			,alldata.get('division')
+			,alldata.getlist('pg[]')
+			,alldata.get('error_count')
+			,alldata.get('ticket_num')
+			,alldata.get('outage_caused')
+			,alldata.get('system_caused')
+			,alldata.get('addt_notes')
+			,alldata.get('ticket_type')
+			,alldata.get('duration'))
+		
+		print 'update doc  == ', t
+		logger.debug("Update document == {0}".format(t))
+		
 		try:
 			with transaction.atomic():
-				div,created = Division.objects.get_or_create(division_name=doc['division'])
-				dur,created = Duration.objects.get_or_create(duration=doc['duration'])
-				err,created = ErrorCount.objects.get_or_create(error=doc['error_count'])
-				out,created = OutageCaused.objects.get_or_create(outage_caused=doc['outage_caused'])
-				sys,created = SystemCaused.objects.get_or_create(system_caused=doc['system_caused'])
-				ticket_info = {
-				#	'created_dt': created_dt,
-					'ticket_num': alldata.get('ticket_num'),
-					'ticket_type': alldata.get('ticket_type'),
-					'division': div.ID,
-					'duration': dur.ID,
-					'error_count': err.ID,
-					'outage_caused': out.ID,
-					'system_caused': sys.ID,
-				}
-
+				div,created = Division.objects.get_or_create(division_name=t.division)
+				dur,created = Duration.objects.get_or_create(duration=t.duration)
+				err,created = ErrorCount.objects.get_or_create(error=t.error_count)
+				out,created = OutageCaused.objects.get_or_create(outage_caused=t.outage_caused)
+				sys,created = SystemCaused.objects.get_or_create(system_caused=t.system_caused)
 				
+				print 'done-1 == ', t.ticket_num
 				try:
-					ticket,created = Tickets.objects.get_or_create(ticket_num=doc['ticket_num'])
+					ticket = Tickets.objects.get(ticket_num=t.ticket_num)
+					print 'done-12'
+					ticket.division = div.ID
+					ticket.duration = dur.ID
+					ticket.error_count = err.ID
+					ticket.outage_caused = out.ID
+					ticket.system_caused = sys.ID
+					ticket.save()
+					print 'done-13'
+					AddtNotes.objects.get(Id=ticket).delete()
+					print 'done-14'
+					AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)
+					print 'done-15'
 				except Tickets.DoesNotExist:
 					ticket = None
 
-				# print 'done-1'
-				# if ticket is None:
-				# 	ticket = Tickets.objects.create(**ticket_info)
-				# else:
-				# 	print 'Ticket already present'
-				# 	return JsonResponse({'status': 'Ticket already present'})
-				
-				for each in alldata.getlist('pg[]'):
-					p,created = Pg.objects.get_or_create(pg_cd=each)
+				print 'done-2'
+				for each_pg in ticket.pgs.all():
+					ticket.pgs.remove(each_pg)
+
+				for each_pg in t.pg:
+					p,created = Pg.objects.get_or_create(pg_cd=each_pg)
 					ticket.pgs.add(p)
 				print 'done-4'
 				
 		except Exception as e:
 			print 'Exception == ', e 
 			logger.debug("MySQLException == {0}".format(e))
-			JsonResponse({'status': 'failure'})
+			return JsonResponse({'status': 'failure'})
 		
-		# try:
-		# 	ticket = Tickets.objects.get(ID=alldata.get('ticket_id'))
-		# 	print 'ticket == ', ticket
-		# 	ticket.division = alldata.get('division')
-		# 	ticket.pg = alldata.get('pg')
-		# 	ticket.error_count = alldata.get('error_count')
-		# 	ticket.outage_caused = alldata.get('outage_caused')
-		# 	ticket.system_caused = alldata.get('system_caused')
-		# 	ticket.addt_notes = alldata.get('addt_notes')
-		# 	ticket.duration = alldata.get('duration')
-		# 	ticket.save()
-		# 	print 'ticket-saved'
-		# except Exception as e:
-		# 	print 'e = ', e
-		# 	logger.debug("MySQLException == {0}".format(e))
-		# 	JsonResponse({'status': 'failure'})
+		
 
 		return JsonResponse({'status': 'success'})

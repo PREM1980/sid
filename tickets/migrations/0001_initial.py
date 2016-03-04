@@ -75,14 +75,14 @@ class Migration(migrations.Migration):
             name='Tickets',
             fields=[
                 ('ticket_num', models.CharField(max_length=100, serialize=False, primary_key=True, db_column=b'ticket_num')),
-                ('created_dt', models.DateTimeField(db_column=b'created_dt')),
                 ('division', models.IntegerField(db_column=b'division_id')),
                 ('duration', models.IntegerField(db_column=b'duration_id')),
                 ('error_count', models.IntegerField(db_column=b'error_count_id')),
                 ('outage_caused', models.IntegerField(db_column=b'outage_caused_id')),
                 ('system_caused', models.IntegerField(db_column=b'system_caused_id')),
                 ('ticket_type', models.CharField(max_length=20, db_column=b'ticket_type', db_index=True)),
-                ('row_create_ts', models.DateTimeField(default=datetime.datetime(2016, 3, 1, 18, 4, 32, 456990))),
+                ('row_create_ts', models.DateTimeField(default=datetime.datetime(2016, 3, 4, 20, 6, 6, 860541))),
+                ('row_update_ts', models.DateTimeField(default=datetime.datetime(2016, 3, 4, 20, 6, 6, 860569))),
                 ('row_end_ts', models.DateTimeField(default=b'9999-12-31 00:00:00.00000-00', db_column=b'row_end_ts')),
             ],
             options={

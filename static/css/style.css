@@ -9,6 +9,14 @@ input[type=submit] {
  /*background:rgb(245,0,53);*/
  background: gray
 }
+input[type=button] {
+    color:#08233e;
+    font:2.4em Futura, ‘Century Gothic’, AppleGothic, sans-serif;
+    font-size:70%;
+  
+    cursor:pointer;
+}
+
 
 #sort-controls{
 	width:900px;
@@ -20,6 +28,13 @@ input[type=submit] {
 	margin-top:10px;
 	float:left;	
 }
+
+.create_container th,.search_container th{
+    font-size:14px;
+    color:#003366;
+}
+
+
 
 table.dialog-table td.leftcols{
 	font-weight:bold;
@@ -76,9 +91,7 @@ table.dialog-table td.leftcols{
 }
 .CSSTableGenerator td{
 	vertical-align:middle;
-	
 	background-color:#cccccc;
-
 	border:1px solid #000000;
 	border-width:0px 1px 1px 0px;
 	text-align:left;

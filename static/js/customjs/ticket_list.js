@@ -298,13 +298,13 @@
          $(".CSSTableGenerator").empty()
 
          $("<table id='ticket-table'> </table>").appendTo('.CSSTableGenerator')
-         $('#ticket-table').append('<tr><td style="display:none">id</td><td>Date</td><td>Ticket#</td><td> Division </td> <td>PeerGroup</td> <td>Duration</td><td>Error Count</td><td>Outage Cause</td><td>System Caused</td><td>Addt Notes</td><td></td></tr>');
+         $('#ticket-table').append('<tr><td style="display:none">id</td><td>Create Date</td><td>End Date</td><td>Ticket#</td><td> Division </td> <td>PeerGroup</td> <td>Duration</td><td>Error Count</td><td>Outage Cause</td><td>System Caused</td><td>Addt Notes</td><td></td></tr>');
 
          slicedata.forEach(function(e, i, a) {
              var obj = e;
              //console.log('obj == ', obj)
              //$('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_id + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>' + obj.pg + '</td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button></td></tr>');
-             $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_type + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+             $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_type + '</td><td>' + obj.created_dt + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
              console.log('obj == ', obj.pg)
              for (j = 0; j < obj.pg.length; j++) {
                  $('#table_pg' + i).append($('<option>', {

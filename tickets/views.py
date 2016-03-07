@@ -254,7 +254,7 @@ class GetTicketData(View):
 					ticket_num_qry = " ticket_num = '{ticket_num}' ".format(ticket_num=doc['ticket_num'])
 				print 'prem-3'
 
-				if doc['division'] == '' or doc['division'] == 'Division':
+				if doc['division'] in ['','Division','All']:
 					division_qry = ""
 				else:
 					division_qry_set = True
@@ -272,14 +272,14 @@ class GetTicketData(View):
 					
 				print 'prem-4 == ', doc['outage_caused']
 
-				if doc['outage_caused'] == 'Outage Caused':
+				if doc['outage_caused'] in ['Outage Caused','All']:
 					outage_qry = ''
 				else:
 					outage_qry_set = True
 					outage_qry = " tb5.outage_caused = '{outage_caused}' ".format(outage_caused=doc['outage_caused'])
 
 				print 'prem-5'
-				if doc['system_caused'] == 'System Caused':
+				if doc['system_caused'] in ['System Caused','All']:
 					system_qry = ''
 				else:
 					system_qry_set = True

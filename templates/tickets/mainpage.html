@@ -82,6 +82,8 @@
 
     function getval(sel, caller_function, pg_cds_array) {
         
+        //Enable multiselect if All is selected  and disabled
+        
         if (caller_function == "inputting") {
             pg_widget = "#peergroup";
         } else if (caller_function == "querying"){
@@ -90,6 +92,11 @@
         else {
             pg_widget = "#row_peergroup";
         }
+
+
+        $(pg_widget).multiselect("enable");
+
+
         
         console.log('pg_widget == ', pg_widget)
         console.log('sel.value == ', sel.value)
@@ -105,7 +112,6 @@
         } else{
         	items = national
         	items = items.sort()
-            
         }
         console.log('pg_widget ==', pg_widget)
         
@@ -117,20 +123,27 @@
         }
 
         $(pg_widget).multiselect("widget").find(":checkbox").each(function(){
-            //console.log(this.value)
-            if (pg_cds_array[0] == 'ALL'){
+            //This will check all the items to display in the dialog.
+            if (sel.value == 'All'){
+                this.click();
+                return true;
+            }
+
+            if ((pg_cds_array[0] == 'ALL') ) {
                 this.click();
             }
             else if (pg_cds_array.indexOf(this.value) > -1) {
                 this.click();
             }
-            
             else {
                 return true;
             }
 
-            
         })
+
+        if (sel.value == 'All'){
+                $(pg_widget).multiselect("disable");
+            }
 
     
         
@@ -340,8 +353,8 @@
                         <input id="radio_division" type="radio">Division-->
             
                         <select id="query_division" onchange="getval(this,'querying',[]);" >
-                            <option selected></option>
                             <option selected='selected'>Division</option>
+                            <option>All</option>
                             <option>National</option>
                             <option>Central</option>
                             <option>Northeast</option>
@@ -363,6 +376,7 @@
                         
                         <select id="query_division" onchange="getval(this,'retrieving');">
                             <option selected></option>
+                            <option>All</option>
                             <option>National</option>
                             <option>Central</option>
                             <option>Northeast</option>
@@ -396,6 +410,7 @@
                     <div class="ui-widget">
                         <select id="query_cause">
                             <option selected='selected'>Outage Caused</option>
+                            <option>All</option>
                             <option>Scheduled Maintenance</option>
                             <option>Scheduled Maintenance resulting in Outage</option>
                             <option>NSA Scheduled Maintenance resulting in Outage</option>
@@ -408,6 +423,7 @@
                     <div class="ui-widget">
                         <select id="query_subcause">
                             <option selected='selected'>System Caused</option>
+                            <option>All</option>
                             <option>Backoffice</option>
                             <option>Cisco Pump</option>
                             <option>Arris Pump</option>

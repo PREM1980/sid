@@ -1,5 +1,6 @@
  $(document).ready(function() {
 
+
      $(function() {
          $("#accordion").accordion({
              collapsible: true,
@@ -264,7 +265,7 @@
      function create_tickets(jsondata) {
          transactiondata = jsondata
          console.log('transactiondata length == ', transactiondata.results.length)
-         $("<div class='CSSTableGenerator'></div>").appendTo("#ticket_list");
+         $("<div class='CSSTableGenerator1'></div>").appendTo("#ticket_list");
          $('#pagination').pagination({
              items: transactiondata.results.length,
              itemsOnPage: 12,
@@ -295,10 +296,10 @@
                  //console.log('sliced transactiondata = ' + JSON.stringify(transactiondata))
          }
 
-         $(".CSSTableGenerator").empty()
+         $(".CSSTableGenerator1").empty()
 
-         $("<table id='ticket-table'> </table>").appendTo('.CSSTableGenerator')
-         $('#ticket-table').append('<tr><td style="display:none">id</td><td>Create Date</td><td>End Date</td><td>Ticket#</td><td> Division </td> <td>PeerGroup</td> <td>Duration</td><td>Error Count</td><td>Outage Cause</td><td>System Caused</td><td>Addt Notes</td><td></td></tr>');
+         $("<table id='ticket-table' class='tablesorter' style='table-layout:fixed; width:100%'> </table>").appendTo('.CSSTableGenerator1')
+         $('#ticket-table').append('<thead><tr><th style="display:none">id</th><th>Create Date</th><th>End Date</th><th>Ticket#</th><th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th></th></tr></thead>');
 
          slicedata.forEach(function(e, i, a) {
              var obj = e;
@@ -315,6 +316,12 @@
 
 
          })
+         $("#ticket-table").tablesorter(
+            {sortList: [[0,0], [1,0]],
+
+
+            } 
+            );
 
          $('[id^=end]').click(function() {
              data = {}

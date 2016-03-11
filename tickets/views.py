@@ -235,7 +235,6 @@ class GetTicketData(View):
 					start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
 					start_date_qry = " row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
 
-				print 'prem-1'
 
 				if doc['end_date_s'] == '' and doc['end_date_e'] == '':
 					pass
@@ -245,14 +244,11 @@ class GetTicketData(View):
 					end_date_e = datetime.datetime.strptime(doc['end_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
 					end_date_qry = " row_end_ts between '{end_date_s}' and '{end_date_e}' ".format(end_date_s=end_date_s,end_date_e=end_date_e)
 
-				print 'prem-2'
-
 				if doc['ticket_num'] == '':
 					ticket_num_qry = ""
 				else:
 					ticket_num_qry_set = True
 					ticket_num_qry = " ticket_num = '{ticket_num}' ".format(ticket_num=doc['ticket_num'])
-				print 'prem-3'
 
 				if doc['division'] in ['','Division','All']:
 					division_qry = ""
@@ -260,7 +256,6 @@ class GetTicketData(View):
 					division_qry_set = True
 					division_qry = " tb2.division_name = '{division}' ".format(division=doc['division'])
 
-				print 'prem-31 == ', doc['pg']
 				if len(doc['pg']) == 0:
 					pg_qry = ""
 				else:
@@ -269,8 +264,6 @@ class GetTicketData(View):
 					pg_cds = ' , '.join(pg_cds)
 					pg_cds = pg_cds + ' ,"{0}"'.format('ALL')
 					pg_qry = " tb8.pg_cd in ({pg_cds}) ".format(pg_cds=pg_cds)
-					
-				print 'prem-4 == ', doc['outage_caused']
 
 				if doc['outage_caused'] in ['Outage Caused','All']:
 					outage_qry = ''
@@ -278,7 +271,7 @@ class GetTicketData(View):
 					outage_qry_set = True
 					outage_qry = " tb5.outage_caused = '{outage_caused}' ".format(outage_caused=doc['outage_caused'])
 
-				print 'prem-5'
+				
 				if doc['system_caused'] in ['System Caused','All']:
 					system_qry = ''
 				else:
@@ -286,11 +279,6 @@ class GetTicketData(View):
 					system_qry = " tb6.system_caused = '{system_caused}' ".format(system_caused=doc['system_caused'])
 
 				order_qry = ' order by created_dt '
-
-				print 'prem-6'
-
-
-				
 				
 				qry = """
 					select   tb1.ticket_num
@@ -523,38 +511,29 @@ class UpdateTicketData(View):
 				out,created = OutageCaused.objects.get_or_create(outage_caused=t.outage_caused)
 				sys,created = SystemCaused.objects.get_or_create(system_caused=t.system_caused)
 				
-				print 'done-1 == ', t.ticket_num
 				try:
 					ticket = Tickets.objects.get(ticket_num=t.ticket_num)
-					print 'done-12'
 					ticket.division = div.ID
 					ticket.duration = dur.ID
 					ticket.error_count = err.ID
 					ticket.outage_caused = out.ID
 					ticket.system_caused = sys.ID
 					ticket.save()
-					print 'done-13'
 					AddtNotes.objects.get(Id=ticket).delete()
-					print 'done-14'
 					AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)
-					print 'done-15'
 				except Tickets.DoesNotExist:
 					ticket = None
 
-				print 'done-2'
 				for each_pg in ticket.pgs.all():
 					ticket.pgs.remove(each_pg)
 
 				for each_pg in t.pg:
 					p,created = Pg.objects.get_or_create(pg_cd=each_pg)
 					ticket.pgs.add(p)
-				print 'done-4'
 				
 		except Exception as e:
 			print 'Exception == ', e 
 			logger.debug("MySQLException == {0}".format(e))
 			return JsonResponse({'status': 'failure'})
-		
-		
 
 		return JsonResponse({'status': 'success'})

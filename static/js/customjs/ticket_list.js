@@ -57,7 +57,7 @@
      $('#upload').click(function(event) {
          event.preventDefault();
          event.stopPropagation();
-         
+
          if (($('#division').val().length == 0) || ($('#division').val() == 'Division')) {
              alert('Select a division')
          } else if ($('#peergroup :selected').length == 0) {
@@ -66,11 +66,11 @@
              alert('Pick Duration value')
          } else if ($('#errorcount').val() == 'Error Count') {
              alert('Pick ErrorCount value')
-        } else if ($('#cause').val() == 'Outage Caused') {
+         } else if ($('#cause').val() == 'Outage Caused') {
              alert('Pick OutageCaused value')
-        } else if ($('#subcause').val() == 'System Caused') {
+         } else if ($('#subcause').val() == 'System Caused') {
              alert('Pick SystemCaused value')
-         } else if ($('#ticket_no').val().length == 0)  {
+         } else if ($('#ticket_no').val().length == 0) {
              alert('Enter a valid ticket number')
          } else if ($('#radio1').is(':not(:checked)') && $('#radio2').is(':not(:checked)')) {
              alert('Select JIRA/TTS ticket')
@@ -316,22 +316,26 @@
 
 
          })
-         $("#ticket-table").tablesorter(
-            {sortList: [[0,0], [1,0]],
+         $("#ticket-table").tablesorter({
+             sortList: [
+                 [0, 0],
+                 [1, 0]
+             ],
+             headers: { 5: { sorter: false },10:{sorter:false},11:{sorter:false} }
 
 
-            } 
-            );
+         });
 
          $('[id^=end]').click(function() {
              data = {}
              row = $(this).parent().parent()
-             ticket_num = row.find("td:nth-child(3)").html()
+             ticket_num = row.find("td:nth-child(4)").html()
+             
              data = {
                  'ticket_num': ticket_num,
                  'update': 'Y',
              }
-             
+
              console.log('update data == ', data)
              $.ajax({
                  url: '/update-ticket-data',

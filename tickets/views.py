@@ -218,9 +218,12 @@ class GetTicketData(View):
 					for each in results:
 						elig_tkts.append(each[0])
 
-					tkts = ['"' + each + '"' for each in elig_tkts]
-					tkts = ' , '.join(tkts)
-					tkt_qry = " where tb1.ticket_num in ({tkts}) ".format(tkts=tkts)
+					if len(elig_tkts) == 0:
+                        tkt_qry = " where tb1.ticket_num = '' "
+                    else:
+						tkts = ['"' + each + '"' for each in elig_tkts]
+						tkts = ' , '.join(tkts)
+						tkt_qry = " where tb1.ticket_num in ({tkts}) ".format(tkts=tkts)
 
 					pg_qry = queries.all_query['pg_conditions']
 					pg_qry = pg_qry + tkt_qry 

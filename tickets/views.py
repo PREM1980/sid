@@ -18,33 +18,9 @@ from django.db import connection
 
 import logging
 logger = logging.getLogger(__name__)
+import queries
 
-class Ticket(object):
-	def __init__(self, created_dt, division, pg, error_count, ticket_num, outage_caused, system_caused, addt_notes, ticket_type, duration):
-		self.created_dt = created_dt
-		self.division = division 
-		self.pg = pg
-		self.error_count = error_count
-		self.ticket_num = ticket_num
-		self.outage_caused = outage_caused
-		self.system_caused = system_caused
-		self.addt_notes = addt_notes
-		self.ticket_type = ticket_type
-		self.duration = duration		
-
-	def __str__(self):
-		return """ created_dt == {0} 
-		,division = {1}
-		,pg = {2}
-		,error_count = {3}
-		,ticket_num = {4}
-		,outage_caused = {5}
-		,system_caused = {6}
-		,addt_notes = {7}
-		,ticket_type = {8}
-		,duration = {9}""".format(
-			self.created_dt, self.division, str(self.pg), self.error_count,self.ticket_num,self.outage_caused,self.system_caused,self.addt_notes,
-			self.ticket_type,self.duration)
+print queries.all_query['generic']
 
 
 class PostTicketData(View):
@@ -155,85 +131,28 @@ class GetTicketData(View):
 		}
 		print 'initial == ', initial
 
-		data = {}
-		output = []
-		
 		print 'doc == ', doc
 		try:
 			if initial == 'Y':
 				cursor = connection.cursor()
-				
-				qry = """
-					select   tb1.ticket_num
-							,tb1.row_create_ts
-							,tb1.ticket_type
-							,tb1.row_update_ts
-							,tb1.row_end_ts
-							,tb2.division_name
-							,tb3.duration
-							,tb4.error
-							,tb5.outage_caused
-							,tb6.system_caused
-							,tb8.pg_cd
-							,tb9.notes
-							from sid.tickets tb1
-							inner join
-							sid.division tb2
-							on tb1.division_id = tb2.division_id
-							inner join
-							sid.duration tb3
-							on tb1.duration_id = tb3.duration_id
-							inner join
-							sid.error_count tb4
-							on tb1.error_count_id = tb4.error_count_id
-							inner join
-							sid.outage_caused tb5
-							on tb1.outage_caused_id = tb5.outage_caused_id
-							inner join
-							sid.system_caused tb6
-							on tb1.system_caused_id = tb6.system_caused_id
-							inner join
-							sid.tickets_pgs tb7
-							on tb1.ticket_num = tb7.tickets_id
-							inner join
-							sid.pg tb8
-							on tb7.pg_id = tb8.pg_id
-							left outer join
-							sid.addt_notes tb9
-							on tb1.ticket_num = tb9.notes_id
-
-							order by row_create_ts,ticket_num
-					"""
-				print 'qry ==', qry
-				cursor.execute(qry)
+				print 'prem-set'
+				print 'qry ==', queries.all_query['generic']
+				cursor.execute(queries.all_query['generic'])
 				results = cursor.fetchall()
 			else:
 				cursor = connection.cursor()
 				print 'prem-0'
 
-				start_date_qry_set = False
-				end_date_qry_set = False
-				ticket_num_qry_set = False
-				division_qry_set = False
-				pg_qry_set = False
-				outage_qry_set = False
-				system_qry_set = False
-
-				start_date_qry = ''
-				end_date_qry = ''
-				ticket_num_qry = ''
-				division_qry = ''
-				pg_qry = ''
-				outage_qry = ''
-				system_qry = ''
-
+				start_date_qry_set = end_date_qry_set = ticket_num_qry_set = division_qry_set = pg_qry_set = outage_qry_set = system_qry_set = False
+				start_date_qry = end_date_qry = ticket_num_qry = division_qry = pg_qry = outage_qry = system_qry = ''
+				
 				if doc['start_date_s'] == '' and doc['start_date_e'] == '':
 					pass
 				else:
 					start_date_qry_set = True
 					start_date_s = datetime.datetime.strptime(doc['start_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
 					start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
-					start_date_qry = " row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
+					start_date_qry = " tb1.row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
 
 
 				if doc['end_date_s'] == '' and doc['end_date_e'] == '':
@@ -242,13 +161,13 @@ class GetTicketData(View):
 					end_date_qry_set = True
 					end_date_s = datetime.datetime.strptime(doc['end_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
 					end_date_e = datetime.datetime.strptime(doc['end_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
-					end_date_qry = " row_end_ts between '{end_date_s}' and '{end_date_e}' ".format(end_date_s=end_date_s,end_date_e=end_date_e)
+					end_date_qry = " tb1.row_end_ts between '{end_date_s}' and '{end_date_e}' ".format(end_date_s=end_date_s,end_date_e=end_date_e)
 
 				if doc['ticket_num'] == '':
 					ticket_num_qry = ""
 				else:
 					ticket_num_qry_set = True
-					ticket_num_qry = " ticket_num = '{ticket_num}' ".format(ticket_num=doc['ticket_num'])
+					ticket_num_qry = " tb1.ticket_num = '{ticket_num}' ".format(ticket_num=doc['ticket_num'])
 
 				if doc['division'] in ['','Division','All']:
 					division_qry = ""
@@ -279,184 +198,118 @@ class GetTicketData(View):
 					system_qry = " tb6.system_caused = '{system_caused}' ".format(system_caused=doc['system_caused'])
 
 				order_qry = ' order by created_dt '
-				
-				qry = """
-					select   tb1.ticket_num
-							,tb1.row_create_ts
-							,tb1.ticket_type
-							,tb1.row_update_ts
-							,tb1.row_end_ts
-							,tb2.division_name
-							,tb3.duration
-							,tb4.error
-							,tb5.outage_caused
-							,tb6.system_caused
-							,tb8.pg_cd
-							,tb9.notes
-							from sid.tickets tb1
+
+				#Special condition when certain peer groups are selected.
+				if doc['division'] == 'All' and pg_qry_set:
+					pg_qry1 = " tb1.pg_cd in ({pg_cds}) ".format(pg_cds=pg_cds)
+					qry = """
+							select distinct tb2.tickets_id
+							from sid.pg tb1 
 							inner join
-							sid.division tb2
-							on tb1.division_id = tb2.division_id
-							inner join
-							sid.duration tb3
-							on tb1.duration_id = tb3.duration_id
-							inner join
-							sid.error_count tb4
-							on tb1.error_count_id = tb4.error_count_id
-							inner join
-							sid.outage_caused tb5
-							on tb1.outage_caused_id = tb5.outage_caused_id
-							inner join
-							sid.system_caused tb6
-							on tb1.system_caused_id = tb6.system_caused_id
-							inner join
-							sid.tickets_pgs tb7
-							on tb1.ticket_num = tb7.tickets_id
-							inner join
-							sid.pg tb8
-							on tb7.pg_id = tb8.pg_id
-							left outer join
-							sid.addt_notes tb9
-							on tb1.ticket_num = tb9.notes_id
-					"""
-				print 'start_date_qry == ', start_date_qry
-				print 'end_date_qry == ', end_date_qry
-				print 'ticket_num_qry == ', ticket_num_qry
-				print 'division_qry == ', division_qry
-				print 'outage_qry == ', outage_qry
-				print 'system_qry == ', system_qry
-				print 'pg_qry == ', pg_qry
-
-				print 'start_date_qry == ', start_date_qry_set
-				print 'end_date_qry == ', end_date_qry_set
-				print 'ticket_num_qry == ', ticket_num_qry_set
-				print 'division_qry == ', division_qry_set
-				print 'outage_qry == ', outage_qry_set
-				print 'system_qry == ', system_qry_set
-				print 'pg_qry == ', pg_qry
-
-				qry = qry 
-				prev_qry_set = False
-
-				if start_date_qry_set or end_date_qry_set or division_qry_set or pg_qry_set or outage_qry_set or system_qry_set:
-				 	qry = qry + ' where ' 
-
-				if start_date_qry_set:
-					qry = qry + start_date_qry
-					prev_qry_set = True 
-
-				if end_date_qry_set:
-					if prev_qry_set:
-						qry = qry + ' and ' + end_date_qry 
-						prev_qry_set = True
-					else:
-						qry = qry + end_date_qry
-						prev_qry_set = False
-				
-				if ticket_num_qry_set:
-					if prev_qry_set:
-						qry = qry + ' and ' + ticket_num_qry 
-						prev_qry_set = True
-					else:
-						qry = qry + ticket_num_qry
-						prev_qry_set = False						
-
-				if division_qry_set:
-					if prev_qry_set:
-						qry = qry + ' and ' + division_qry 
-						prev_qry_set = True
-					else:
-						qry = qry + division_qry
-						prev_qry_set = False
-						
-
-				if pg_qry_set:
-					if prev_qry_set:
-						qry = qry + ' and ' + pg_qry 
-						prev_qry_set = True
-					else:
-						qry = qry + pg_qry
-						prev_qry_set = False
-
-				if outage_qry_set:
-					if prev_qry_set:
-						qry = qry + ' and ' + outage_qry  
-						prev_qry_set = True
-					else:
-						qry = qry + outage_qry  
-						prev_qry_set = False
-
-				if system_qry_set:
-					if prev_qry_set:
-						qry = qry + ' and ' + system_qry 
-					else:
-						qry = qry + system_qry  
-	
-				print 'qry == ', qry
-				cursor.execute(qry)
-				results = cursor.fetchall()
-				#results = []
-			
-			print 'enumerate results == results', len(results)
-			prev_ticket_num = ''
-			pg_cd = []
-			
-			for counter, each in enumerate(results):
-				curr_ticket_num = each[0]
-				if counter == 0:
-					prev_ticket_num = curr_ticket_num				
-								
-				if prev_ticket_num == curr_ticket_num:
-					data['ticket_num'] = each[0]
-					data['created_dt'] = each[1]
-					data['ticket_type'] = each[2]
-					data['division'] = each[5]
-					pg_cd.append(each[10])
-					data['duration'] = each[6]
-					data['error_count'] = each[7]
-					data['outage_caused'] = each[8]
-					data['system_caused'] = each[9]
+							sid.tickets_pgs tb2
+							on tb1.pg_id = tb2.pg_id
+							where """
+					qry = qry + pg_qry1 
 					
-					if each[11] is None:
-						data['addt_notes'] = ""
-					else:
-						data['addt_notes'] = each[11]
+					cursor.execute(qry)
+					results = cursor.fetchall()
+					elig_tkts = []
+					
+					for each in results:
+						elig_tkts.append(each[0])
+
+					tkts = ['"' + each + '"' for each in elig_tkts]
+					tkts = ' , '.join(tkts)
+					tkt_qry = " where tb1.ticket_num in ({tkts}) ".format(tkts=tkts)
+
+					pg_qry = queries.all_query['pg_conditions']
+					pg_qry = pg_qry + tkt_qry 
+					pg_qry = pg_qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc'
+					print 'tkt_qry == ', pg_qry
+					cursor.execute(pg_qry)
+					results = cursor.fetchall()
+
 				else:
-					if 'ALL' in pg_cd:
-						pg_cd = ['ALL']
-					data['pg'] = pg_cd
+					print 'start_date_qry == ', start_date_qry
+					print 'end_date_qry == ', end_date_qry
+					print 'ticket_num_qry == ', ticket_num_qry
+					print 'division_qry == ', division_qry
+					print 'outage_qry == ', outage_qry
+					print 'system_qry == ', system_qry
+					print 'pg_qry == ', pg_qry
 
-					output.append(data)
-					#print 'else output == ', data
-					data = {}
-					pg_cd = []
+					print 'start_date_qry == ', start_date_qry_set
+					print 'end_date_qry == ', end_date_qry_set
+					print 'ticket_num_qry == ', ticket_num_qry_set
+					print 'division_qry == ', division_qry_set
+					print 'outage_qry == ', outage_qry_set
+					print 'system_qry == ', system_qry_set
+					print 'pg_qry == ', pg_qry
 
-					data['ticket_num'] = each[0]
-					data['created_dt'] = each[1]
-					data['ticket_type'] = each[2]
-					data['division'] = each[5]
-					pg_cd.append(each[10])
-					data['duration'] = each[6]
-					data['error_count'] = each[7]
-					data['outage_caused'] = each[8]
-					data['system_caused'] = each[9]
-					if each[11] is None:
-						data['addt_notes'] = ""
-					else:
-						data['addt_notes'] = each[11]
+					qry = queries.all_query['conditions']
+					prev_qry_set = False
 
+					if start_date_qry_set or end_date_qry_set or division_qry_set or pg_qry_set or outage_qry_set or system_qry_set or ticket_num_qry_set:
+					 	qry = qry + ' where ' 
 
-				prev_ticket_num = curr_ticket_num
+					if start_date_qry_set:
+						qry = qry + start_date_qry
+						prev_qry_set = True 
 
-			if len(results) > 0:	
-				data['pg'] = pg_cd
-				output.append(data)
-				#print 'else output == ', data
+					if end_date_qry_set:
+						if prev_qry_set:
+							qry = qry + ' and ' + end_date_qry 
+							prev_qry_set = True
+						else:
+							qry = qry + end_date_qry
+							prev_qry_set = True
+					
+					if ticket_num_qry_set:
+						if prev_qry_set:
+							qry = qry + ' and ' + ticket_num_qry 
+							prev_qry_set = True
+						else:
+							qry = qry + ticket_num_qry
+							prev_qry_set = True						
 
-				data = {}
-				pg_cd = []			
+					if division_qry_set:
+						if prev_qry_set:
+							qry = qry + ' and ' + division_qry 
+							prev_qry_set = True
+						else:
+							qry = qry + division_qry
+							prev_qry_set = True
+							
+					if pg_qry_set:
+						if prev_qry_set:
+							qry = qry + ' and ' + pg_qry 
+							prev_qry_set = True
+						else:
+							qry = qry + pg_qry
+							prev_qry_set = True
 
+					if outage_qry_set:
+						if prev_qry_set:
+							qry = qry + ' and ' + outage_qry  
+							prev_qry_set = True
+						else:
+							qry = qry + outage_qry  
+							prev_qry_set = True
 
+					if system_qry_set:
+						if prev_qry_set:
+							qry = qry + ' and ' + system_qry 
+						else:
+							qry = qry + system_qry  
+					qry = qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc'
+					print 'qry == ', qry
+					cursor.execute(qry)
+					results = cursor.fetchall()
+					#results = []
+				
+			print 'enumerate results == results', len(results)
+			output = enum_results(results)
+			
 		except Exception as e:
 			print 'Select Exception == ', e
 			logger.debug("MySQLException == {0}".format(e))
@@ -466,6 +319,74 @@ class GetTicketData(View):
 		# print 'len-output == ', len(output)
 		
 		return JsonResponse({'results': output})
+
+
+def enum_results(results):
+	prev_ticket_num = ''
+	pg_cd = []
+	data = {}
+	output = []
+
+	for counter, each in enumerate(results):
+		curr_ticket_num = each[0]
+		if counter == 0:
+			prev_ticket_num = curr_ticket_num				
+						
+		if prev_ticket_num == curr_ticket_num:
+			data['ticket_num'] = each[0]
+			data['created_dt'] = each[1]
+			data['ticket_type'] = each[2]
+			data['division'] = each[5]
+			pg_cd.append(each[10])
+			data['duration'] = each[6]
+			data['error_count'] = each[7]
+			data['outage_caused'] = each[8]
+			data['system_caused'] = each[9]
+			
+			if each[11] is None:
+				data['addt_notes'] = ""
+			else:
+				data['addt_notes'] = each[11]
+		else:
+			if 'ALL' in pg_cd:
+				pg_cd = ['ALL']
+			data['pg'] = pg_cd
+
+			output.append(data)
+			#print 'else output == ', data
+			data = {}
+			pg_cd = []
+
+			data['ticket_num'] = each[0]
+			data['created_dt'] = each[1]
+			data['ticket_type'] = each[2]
+			data['division'] = each[5]
+			pg_cd.append(each[10])
+			data['duration'] = each[6]
+			data['error_count'] = each[7]
+			data['outage_caused'] = each[8]
+			data['system_caused'] = each[9]
+			if each[11] is None:
+				data['addt_notes'] = ""
+			else:
+				data['addt_notes'] = each[11]
+
+			#Limit the number of rows displayed to 100.
+			if len(output) > 100:
+				break
+
+
+		prev_ticket_num = curr_ticket_num
+
+	if len(results) > 0:	
+		data['pg'] = pg_cd
+		output.append(data)
+		#print 'else output == ', data
+
+		data = {}
+		pg_cd = []			
+
+	return output
 
 
 class UpdateTicketData(View):
@@ -537,3 +458,32 @@ class UpdateTicketData(View):
 			return JsonResponse({'status': 'failure'})
 
 		return JsonResponse({'status': 'success'})
+
+class Ticket(object):
+	def __init__(self, created_dt, division, pg, error_count, ticket_num, outage_caused, system_caused, addt_notes, ticket_type, duration):
+		self.created_dt = created_dt
+		self.division = division 
+		self.pg = pg
+		self.error_count = error_count
+		self.ticket_num = ticket_num
+		self.outage_caused = outage_caused
+		self.system_caused = system_caused
+		self.addt_notes = addt_notes
+		self.ticket_type = ticket_type
+		self.duration = duration		
+
+	def __str__(self):
+		return """ created_dt == {0} 
+		,division = {1}
+		,pg = {2}
+		,error_count = {3}
+		,ticket_num = {4}
+		,outage_caused = {5}
+		,system_caused = {6}
+		,addt_notes = {7}
+		,ticket_type = {8}
+		,duration = {9}""".format(
+			self.created_dt, self.division, str(self.pg), self.error_count,self.ticket_num,self.outage_caused,self.system_caused,self.addt_notes,
+			self.ticket_type,self.duration)
+
+

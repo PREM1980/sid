@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{% static "css/style.css" %}">
     
     <script src="{% static "js/customjs/ticket_list.js" %}"></script>
+    <script src="{% static "js/customjs/date.js" %}"></script>
 
     <script src="{% static "js/jquery.timepicker.min.js" %}"></script>
     <script src="{% static "js/jquery.datetimepicker.full.min.js" %}"></script>
@@ -128,10 +129,10 @@
 
         $(pg_widget).multiselect("widget").find(":checkbox").each(function(){
             //This will check all the items to display in the dialog.
-            if (sel.value == 'All'){
-                this.click();
-                return true;
-            }
+            //if (sel.value == 'All'){
+            //    this.click();
+            //    return true;
+            //}
 
             if ((pg_cds_array[0] == 'ALL') ) {
                 this.click();
@@ -145,9 +146,9 @@
 
         })
 
-        if (sel.value == 'All'){
-                $(pg_widget).multiselect("disable");
-            }
+        //if (sel.value == 'All'){
+        //        $(pg_widget).multiselect("disable");
+        //    }
 
     
         

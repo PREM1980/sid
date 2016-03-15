@@ -303,6 +303,11 @@
 
          slicedata.forEach(function(e, i, a) {
              var obj = e;
+             obj.created_dt= new Date(obj.created_dt)
+             console.log('prem created_dt_1 ', obj.created_dt)
+             //obj.created_dt.format('longTime', true)
+             obj.created_dt = dateFormat(obj.created_dt,"default",true)
+             console.log('prem created_dt_2 ', obj.created_dt)
              //console.log('obj == ', obj)
              //$('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_id + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>' + obj.pg + '</td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button></td></tr>');
              $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_type + '</td><td>' + obj.created_dt + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
@@ -318,10 +323,10 @@
          })
          $("#ticket-table").tablesorter({
              sortList: [
-                 [0, 0],
-                 [1, 0]
+                 // [0, 0],
+                 // [1, 0]
              ],
-             headers: { 5: { sorter: false },10:{sorter:false},11:{sorter:false} }
+             headers: { 10: { sorter: false }, 11: { sorter: false } }
 
 
          });
@@ -330,7 +335,7 @@
              data = {}
              row = $(this).parent().parent()
              ticket_num = row.find("td:nth-child(4)").html()
-             
+
              data = {
                  'ticket_num': ticket_num,
                  'update': 'Y',

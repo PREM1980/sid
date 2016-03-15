@@ -14,13 +14,13 @@ from django.db import transaction
 from uuid import UUID
 import uuid
 from django.db import connection
+import socket
 # Create your views here.
 
 import logging
 logger = logging.getLogger(__name__)
 import queries
-
-print queries.all_query['generic']
+import utils
 
 
 class PostTicketData(View):
@@ -33,10 +33,12 @@ class PostTicketData(View):
 		return JsonResponse({'status': 'success'})
 
 	def post(self, request):
+		ip = utils.getip()
+		print 'ip == ', ip
 		alldata = request.POST
 		print 'post alldata == ', alldata
 		
-		logger.debug("post data  == {0}".format(alldata))
+		logger.debug("ip = {0} && post data  == {1}".format(ip,alldata))
 
 		created_dt = datetime.datetime.strptime(
 			str(alldata.get('date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
@@ -52,7 +54,7 @@ class PostTicketData(View):
 			,alldata.get('ticket_type')
 			,alldata.get('duration'))
 		
-		logger.debug("Insert document == {0}".format(t))
+		logger.debug("ip = {0} &&  insert document == {1}".format(ip,t))
 		
 		try:
 			with transaction.atomic():
@@ -107,12 +109,12 @@ class GetTicketData(View):
 		return JsonResponse({'status': 'success'})
 
 	def post(self, request):
-
+		ip = utils.getip()
+		
 		alldata = request.POST
 		print 'get alldata == ', alldata
 		
 		initial = alldata.get('initial')
-		print 'alldata.get.start_date_s==',alldata.get('start_date_s')
 
 		doc = {
 			'division': alldata.get('division'),
@@ -131,17 +133,14 @@ class GetTicketData(View):
 		}
 		print 'initial == ', initial
 
-		print 'doc == ', doc
+		logger.debug("ip = {0} &&  document == {1}".format(ip,doc))
 		try:
 			if initial == 'Y':
 				cursor = connection.cursor()
-				print 'prem-set'
-				print 'qry ==', queries.all_query['generic']
 				cursor.execute(queries.all_query['generic'])
 				results = cursor.fetchall()
 			else:
 				cursor = connection.cursor()
-				print 'prem-0'
 
 				start_date_qry_set = end_date_qry_set = ticket_num_qry_set = division_qry_set = pg_qry_set = outage_qry_set = system_qry_set = False
 				start_date_qry = end_date_qry = ticket_num_qry = division_qry = pg_qry = outage_qry = system_qry = ''
@@ -228,7 +227,7 @@ class GetTicketData(View):
 					pg_qry = queries.all_query['pg_conditions']
 					pg_qry = pg_qry + tkt_qry 
 					pg_qry = pg_qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc'
-					print 'tkt_qry == ', pg_qry
+					logger.debug("ip = {0} &&  multiple tkt_qry == {1}".format(ip,pg_qry))
 					cursor.execute(pg_qry)
 					results = cursor.fetchall()
 
@@ -305,12 +304,14 @@ class GetTicketData(View):
 						else:
 							qry = qry + system_qry  
 					qry = qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc'
-					print 'qry == ', qry
+
+					logger.debug("ip = {0} &&  query == {1}".format(ip,qry))
+
 					cursor.execute(qry)
 					results = cursor.fetchall()
 					#results = []
-				
-			print 'enumerate results == results', len(results)
+
+			logger.debug("ip = {0} &&  results-len == {1}".format(ip,len(results)))
 			output = enum_results(results)
 			
 		except Exception as e:
@@ -318,8 +319,8 @@ class GetTicketData(View):
 			logger.debug("MySQLException == {0}".format(e))
 			return JsonResponse({'status': 'failure'})
 
-		print 'output == ', output
-		# print 'len-output == ', len(output)
+		#print 'output == ', output
+		logger.debug("ip = {0} &&  output == {1}".format(ip,output))
 		
 		return JsonResponse({'results': output})
 
@@ -402,9 +403,9 @@ class UpdateTicketData(View):
 		return JsonResponse({'status': 'success'})
 
 	def post(self, request):
-		print 'hi'
+		ip = utils.getip()
 		alldata = request.POST
-		print 'Update alldata ==', alldata
+		logger.debug("ip = {0} &&  alldata == {1}".format(ip,alldata))
 		
 		if alldata.get('update') == 'Y':
 		   ticket_num =  alldata.get('ticket_num')
@@ -425,7 +426,7 @@ class UpdateTicketData(View):
 			,alldata.get('duration'))
 		
 		print 'update doc  == ', t
-		logger.debug("Update document == {0}".format(t))
+		logger.debug("ip == {0} && Update document == {1}".format(ip,t))
 		
 		try:
 			with transaction.atomic():
@@ -488,5 +489,7 @@ class Ticket(object):
 		,duration = {9}""".format(
 			self.created_dt, self.division, str(self.pg), self.error_count,self.ticket_num,self.outage_caused,self.system_caused,self.addt_notes,
 			self.ticket_type,self.duration)
+
+
 
 

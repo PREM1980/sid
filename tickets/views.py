@@ -219,8 +219,8 @@ class GetTicketData(View):
 						elig_tkts.append(each[0])
 
 					if len(elig_tkts) == 0:
-                        tkt_qry = " where tb1.ticket_num = '' "
-                    else:
+						tkt_qry = " where tb1.ticket_num = '' "
+					else:
 						tkts = ['"' + each + '"' for each in elig_tkts]
 						tkts = ' , '.join(tkts)
 						tkt_qry = " where tb1.ticket_num in ({tkts}) ".format(tkts=tkts)
@@ -253,7 +253,7 @@ class GetTicketData(View):
 					prev_qry_set = False
 
 					if start_date_qry_set or end_date_qry_set or division_qry_set or pg_qry_set or outage_qry_set or system_qry_set or ticket_num_qry_set:
-					 	qry = qry + ' where ' 
+						qry = qry + ' where ' 
 
 					if start_date_qry_set:
 						qry = qry + start_date_qry

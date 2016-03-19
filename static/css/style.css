@@ -212,3 +212,6 @@ table.dialog-table td.leftcols {
     border-bottom: none;
 }
 
+#footer{
+    height:100px;
+}

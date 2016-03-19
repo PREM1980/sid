@@ -18,7 +18,6 @@
     <script src="{% static "js/jquery.timepicker.min.js" %}"></script>
     <script src="{% static "js/jquery.datetimepicker.full.min.js" %}"></script>
 
-
     <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
     <!--<script src="{% static "bower_components/bootstrap/dist/css/bootstrap.min.css" %}"></script>-->
     
@@ -35,6 +34,9 @@
     <link rel="stylesheet" type="text/css" href="{% static "multiselect/jquery.multiselect.filter.css" %}"/>
 
     <script src="{% static "__jquery.tablesorter/jquery.tablesorter.min.js" %}"></script>
+
+    <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
+    <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
 
     <link rel="stylesheet"  type="text/css" media="print, projection, screen" href="{% static "__jquery.tablesorter/themes/blue/style.css" %}"/>
 
@@ -489,7 +491,7 @@
     <div id="dialog" title="Ticket Details">
 
         <div style="text-align: left">
-            <table class="dialog-table" border="2" cellpadding="10px">
+            <table class="dialog-table" border="0" cellpadding="15px">
             <!--<table class="CSSTableGenerator">-->
             <tr>
             <td class="leftcols">Created Date</td><td id="dialog_created_dt"><input></td>
@@ -581,6 +583,10 @@
                 <option value="7">Item #7</option>
             </select>
         </div>
+    </div>
+
+    <div id='footer'>
+    
     </div>
 
     <!-- container -->

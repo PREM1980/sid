@@ -1,11 +1,52 @@
  $(document).ready(function() {
 
 
+
+    //set up some minimal options for the feedback_me plugin
+    fm_options = {
+        //jQueryUI:true,
+        bootstrip:true,
+        show_email: true,
+        email_required: true,
+        position: "left-top",
+        show_radio_button_list: true,
+        radio_button_list_required: true,
+        radio_button_list_title: "How do you rate this application?",
+
+        name_placeholder: "Name please",
+        email_placeholder: "Email goes here",
+        message_placeholder: "Go ahead, type your feedback here...",
+ 
+        name_required: true,
+        message_required: true,
+ 
+        show_asterisk_for_required: true,
+ 
+        feedback_url: "send_feedback_clean",
+ 
+        custom_params: {
+            csrf: "my_secret_token",
+            user_id: "john_doe",
+            feedback_type: "clean_complex"
+        },
+        delayed_options: {
+            success_color: "#5cb85c",
+            fail_color: "#d2322d",
+            delay_success_milliseconds: 3500,
+            send_success : "Sent successfully :)"
+        }
+    };
+ 
+    //init feedback_me plugin
+    fm.init(fm_options);
+
+
      $(function() {
          $("#accordion").accordion({
              collapsible: true,
          });
      });
+
      $(function() {
          $("#peergroup").multiselect({
              height: 600,
@@ -134,7 +175,7 @@
              maxWidth: 800,
              maxHeight: 1000,
              width: 500,
-             height: 500,
+             height: 800,
              modal: true,
              autoOpen: false,
 
@@ -171,7 +212,7 @@
                          'error_count': $('#row_error_count').val(),
                          'outage_caused': $('#row_cause').val(),
                          'system_caused': $('#row_system_cause').val(),
-                         'addt_notes': $('#dialog_addt_notes').html(),
+                         'addt_notes': $('#dialog_addt_notes').text(),
                          'ticket_num': $('#dialog_ticket_num').html(),
                          'ticket_type': $('#dialog_ticket_type').html(),
                          'update': 'N',
@@ -301,16 +342,18 @@
          $("<table id='ticket-table' class='tablesorter' style='table-layout:fixed; width:100%'> </table>").appendTo('.CSSTableGenerator1')
          $('#ticket-table').append('<thead><tr><th style="display:none">id</th><th>Create Date</th><th>End Date</th><th>Ticket#</th><th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th></th></tr></thead>');
 
-         slicedata.forEach(function(e, i, a) {
-             var obj = e;
+         slicedata.forEach(function(obj, i, a) {
+             //var obj = e;
              obj.created_dt= new Date(obj.created_dt)
+             console.log("object == ", obj)
              console.log('prem created_dt_1 ', obj.created_dt)
              //obj.created_dt.format('longTime', true)
              obj.created_dt = dateFormat(obj.created_dt,"default",true)
              console.log('prem created_dt_2 ', obj.created_dt)
-             //console.log('obj == ', obj)
+             console.log('prem-1 obj== ', obj.addt_notes)
              //$('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_id + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>' + obj.pg + '</td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button></td></tr>');
-             $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_type + '</td><td>' + obj.created_dt + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+             $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_type + '</td><td>' + obj.created_dt + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td><div style="height:40px;overflow:scroll" title="'+ obj.addt_notes +'">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+                                                                                                                                                                                                                                                                                                                                                                                                                //<td>  <select id="table_pg' + i + '""> </select>  </td>                                              
              console.log('obj == ', obj.pg)
              for (j = 0; j < obj.pg.length; j++) {
                  $('#table_pg' + i).append($('<option>', {

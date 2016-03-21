@@ -19,6 +19,9 @@ import socket
 
 import logging
 logger = logging.getLogger(__name__)
+
+logger_feedback = logging.getLogger('feedback_logger')
+
 import queries
 import utils
 
@@ -127,8 +130,8 @@ class GetTicketData(View):
 			'duration': alldata.get('duration'),
 			'start_date_s': alldata.get('start_date_s'),
 			'start_date_e': alldata.get('start_date_e'),
-			'end_date_s': alldata.get('end_date_s'),
-			'end_date_e': alldata.get('end_date_e')
+			#'end_date_s': alldata.get('end_date_s'),
+			#'end_date_e': alldata.get('end_date_e')
 			
 		}
 		print 'initial == ', initial
@@ -144,9 +147,22 @@ class GetTicketData(View):
 
 				start_date_qry_set = end_date_qry_set = ticket_num_qry_set = division_qry_set = pg_qry_set = outage_qry_set = system_qry_set = False
 				start_date_qry = end_date_qry = ticket_num_qry = division_qry = pg_qry = outage_qry = system_qry = ''
+				print 'start_date_e == ', doc['start_date_e']
 				
 				if doc['start_date_s'] == '' and doc['start_date_e'] == '':
 					pass
+				elif doc['start_date_s'] != '' and doc['start_date_e'] == '':
+					doc['start_date_e'] = doc['start_date_s']
+					start_date_qry_set = True
+					start_date_s = datetime.datetime.strptime(doc['start_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
+					start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
+					start_date_qry = " tb1.row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
+				elif doc['start_date_s'] == '' and doc['start_date_e'] != '':
+					doc['start_date_s'] = doc['start_date_e']
+					start_date_qry_set = True
+					start_date_s = datetime.datetime.strptime(doc['start_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
+					start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
+					start_date_qry = " tb1.row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
 				else:
 					start_date_qry_set = True
 					start_date_s = datetime.datetime.strptime(doc['start_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
@@ -154,13 +170,13 @@ class GetTicketData(View):
 					start_date_qry = " tb1.row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
 
 
-				if doc['end_date_s'] == '' and doc['end_date_e'] == '':
-					pass
-				else:
-					end_date_qry_set = True
-					end_date_s = datetime.datetime.strptime(doc['end_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
-					end_date_e = datetime.datetime.strptime(doc['end_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
-					end_date_qry = " tb1.row_end_ts between '{end_date_s}' and '{end_date_e}' ".format(end_date_s=end_date_s,end_date_e=end_date_e)
+				# if doc['end_date_s'] == '' and doc['end_date_e'] == '':
+				# 	pass
+				# else:
+				# 	end_date_qry_set = True
+				# 	end_date_s = datetime.datetime.strptime(doc['end_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
+				# 	end_date_e = datetime.datetime.strptime(doc['end_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
+				# 	end_date_qry = " tb1.row_end_ts between '{end_date_s}' and '{end_date_e}' ".format(end_date_s=end_date_s,end_date_e=end_date_e)
 
 				if doc['ticket_num'] == '':
 					ticket_num_qry = ""
@@ -217,18 +233,33 @@ class GetTicketData(View):
 					for each in results:
 						elig_tkts.append(each[0])
 
+					print 'elig_tkts == ', elig_tkts
+
 					if len(elig_tkts) == 0:
-						tkt_qry = " where tb1.ticket_num = '' "
+						ticket_num_qry = " tb1.ticket_num = '' "
 					else:
 						tkts = ['"' + each + '"' for each in elig_tkts]
 						tkts = ' , '.join(tkts)
-						tkt_qry = " where tb1.ticket_num in ({tkts}) ".format(tkts=tkts)
+						ticket_num_qry = " tb1.ticket_num in ({tkts}) ".format(tkts=tkts)
 
-					pg_qry = queries.all_query['pg_conditions']
-					pg_qry = pg_qry + tkt_qry 
-					pg_qry = pg_qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc'
-					logger.debug("ip = {0} &&  multiple tkt_qry == {1}".format(ip,pg_qry))
-					cursor.execute(pg_qry)
+
+					p_qry = queries.all_query['pg_conditions']
+					
+					#pg_qry = pg_qry + tkt_qry 
+
+					print '***pg_qry*** -before== ', p_qry					
+					print '***pg_qry*** -before== ', p_qry					
+					p_qry = set_query_params(p_qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg_qry_set,outage_qry_set,system_qry_set,ticket_num_qry_set \
+						,start_date_qry,end_date_qry,ticket_num_qry,division_qry,pg_qry,outage_qry,system_qry)
+
+					# print '***pg_qry*** -after== ', p_qry
+
+					p_qry = p_qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc LIMIT 100'
+					print 'over**'
+					print '***pg_qry*** == ', p_qry
+
+					logger.debug("ip = {0} &&  multiple tkt_qry == {1}".format(ip,p_qry))
+					cursor.execute(p_qry)
 					results = cursor.fetchall()
 
 				else:
@@ -249,60 +280,64 @@ class GetTicketData(View):
 					print 'pg_qry == ', pg_qry
 
 					qry = queries.all_query['conditions']
-					prev_qry_set = False
+					# prev_qry_set = False
 
-					if start_date_qry_set or end_date_qry_set or division_qry_set or pg_qry_set or outage_qry_set or system_qry_set or ticket_num_qry_set:
-						qry = qry + ' where ' 
+					# if start_date_qry_set or end_date_qry_set or division_qry_set or pg_qry_set or outage_qry_set or system_qry_set or ticket_num_qry_set:
+					# 	qry = qry + ' where ' 
 
-					if start_date_qry_set:
-						qry = qry + start_date_qry
-						prev_qry_set = True 
+					# if start_date_qry_set:
+					# 	qry = qry + start_date_qry
+					# 	prev_qry_set = True 
 
-					if end_date_qry_set:
-						if prev_qry_set:
-							qry = qry + ' and ' + end_date_qry 
-							prev_qry_set = True
-						else:
-							qry = qry + end_date_qry
-							prev_qry_set = True
+					# if end_date_qry_set:
+					# 	if prev_qry_set:
+					# 		qry = qry + ' and ' + end_date_qry 
+					# 		prev_qry_set = True
+					# 	else:
+					# 		qry = qry + end_date_qry
+					# 		prev_qry_set = True
 					
-					if ticket_num_qry_set:
-						if prev_qry_set:
-							qry = qry + ' and ' + ticket_num_qry 
-							prev_qry_set = True
-						else:
-							qry = qry + ticket_num_qry
-							prev_qry_set = True						
+					# if ticket_num_qry_set:
+					# 	if prev_qry_set:
+					# 		qry = qry + ' and ' + ticket_num_qry 
+					# 		prev_qry_set = True
+					# 	else:
+					# 		qry = qry + ticket_num_qry
+					# 		prev_qry_set = True						
 
-					if division_qry_set:
-						if prev_qry_set:
-							qry = qry + ' and ' + division_qry 
-							prev_qry_set = True
-						else:
-							qry = qry + division_qry
-							prev_qry_set = True
+					# if division_qry_set:
+					# 	if prev_qry_set:
+					# 		qry = qry + ' and ' + division_qry 
+					# 		prev_qry_set = True
+					# 	else:
+					# 		qry = qry + division_qry
+					# 		prev_qry_set = True
 							
-					if pg_qry_set:
-						if prev_qry_set:
-							qry = qry + ' and ' + pg_qry 
-							prev_qry_set = True
-						else:
-							qry = qry + pg_qry
-							prev_qry_set = True
+					# if pg_qry_set:
+					# 	if prev_qry_set:
+					# 		qry = qry + ' and ' + pg_qry 
+					# 		prev_qry_set = True
+					# 	else:
+					# 		qry = qry + pg_qry
+					# 		prev_qry_set = True
 
-					if outage_qry_set:
-						if prev_qry_set:
-							qry = qry + ' and ' + outage_qry  
-							prev_qry_set = True
-						else:
-							qry = qry + outage_qry  
-							prev_qry_set = True
+					# if outage_qry_set:
+					# 	if prev_qry_set:
+					# 		qry = qry + ' and ' + outage_qry  
+					# 		prev_qry_set = True
+					# 	else:
+					# 		qry = qry + outage_qry  
+					# 		prev_qry_set = True
 
-					if system_qry_set:
-						if prev_qry_set:
-							qry = qry + ' and ' + system_qry 
-						else:
-							qry = qry + system_qry  
+					# if system_qry_set:
+					# 	if prev_qry_set:
+					# 		qry = qry + ' and ' + system_qry 
+					# 	else:
+					# 		qry = qry + system_qry  
+					print 'calling function'
+					qry = set_query_params(qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg_qry_set,outage_qry_set,system_qry_set,ticket_num_qry_set \
+						,start_date_qry,end_date_qry,ticket_num_qry,division_qry,pg_qry,outage_qry,system_qry)
+
 					qry = qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc'
 
 					logger.debug("ip = {0} &&  query == {1}".format(ip,qry))
@@ -323,6 +358,75 @@ class GetTicketData(View):
 		logger.debug("ip = {0} &&  output == {1}".format(ip,output))
 		
 		return JsonResponse({'results': output})
+
+def set_query_params(qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg_qry_set,outage_qry_set,system_qry_set,ticket_num_qry_set
+	,start_date_qry,end_date_qry,ticket_num_qry,division_qry,pg_qry,outage_qry,system_qry):
+	print 'set_quert_params == ', qry
+	print 'set_quert_params ticket_num_qry== ', ticket_num_qry
+	prev_qry_set = False
+
+	if start_date_qry_set or end_date_qry_set or division_qry_set or pg_qry_set or outage_qry_set or system_qry_set or ticket_num_qry_set:
+		qry = qry + ' where ' 
+
+	if start_date_qry_set:
+		qry = qry + start_date_qry
+		prev_qry_set = True 
+
+	# if end_date_qry_set:
+	# 	if prev_qry_set:
+	# 		qry = qry + ' and ' + end_date_qry 
+	# 		prev_qry_set = True
+	# 	else:
+	# 		qry = qry + end_date_qry
+	# 		prev_qry_set = True
+	
+	if ticket_num_qry_set:
+		if prev_qry_set:
+			qry = qry + ' and ' + ticket_num_qry 
+			prev_qry_set = True
+		else:
+			qry = qry + ticket_num_qry
+			prev_qry_set = True		
+	#print 'set_quert_params ticket == ', qry				
+
+	if division_qry_set:
+		if prev_qry_set:
+			qry = qry + ' and ' + division_qry 
+			prev_qry_set = True
+		else:
+			qry = qry + division_qry
+			prev_qry_set = True
+			
+	#print 'set_quert_params division == ', qry
+
+	if pg_qry_set:
+		if prev_qry_set:
+			qry = qry + ' and ' + pg_qry 
+			prev_qry_set = True
+		else:
+			qry = qry + pg_qry
+			prev_qry_set = True
+
+	#print 'set_quert_params pg == ', qry
+
+	if outage_qry_set:
+		if prev_qry_set:
+			qry = qry + ' and ' + outage_qry  
+			prev_qry_set = True
+		else:
+			qry = qry + outage_qry  
+			prev_qry_set = True
+
+	#print 'set_quert_params outage == ', qry
+
+	if system_qry_set:
+		if prev_qry_set:
+			qry = qry + ' and ' + system_qry 
+		else:
+			qry = qry + system_qry  
+	#print 'set_quert_params system == ', qry
+	print 'set_quert_params final query== ', qry
+	return qry
 
 
 def enum_results(results):
@@ -462,6 +566,23 @@ class UpdateTicketData(View):
 			return JsonResponse({'status': 'failure'})
 
 		return JsonResponse({'status': 'success'})
+
+class RecordFeedBack(View):
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(RecordFeedBack, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		return JsonResponse({'status': 'success'})
+
+	def post(self, request):
+		ip = utils.getip()
+		print 'request.POST == ', request.POST
+		logger_feedback.debug("Ip-address == {0} && Name == {1} && Email == {2} && Message == {3} && Rating == {4}".format(ip,request.POST['name'],request.POST['email'], request.POST['message'], request.POST['radio_list_value']))
+		print 'feedback written'
+		return JsonResponse({'status': 'success'})
+
 
 class Ticket(object):
 	def __init__(self, created_dt, division, pg, error_count, ticket_num, outage_caused, system_caused, addt_notes, ticket_type, duration):

@@ -22,7 +22,7 @@
  
         show_asterisk_for_required: true,
  
-        feedback_url: "send_feedback_clean",
+        feedback_url: "/send_feedback_clean",
  
         custom_params: {
             csrf: "my_secret_token",
@@ -231,7 +231,7 @@
                              } else {
                                  alert("Row Updated!! Playaround!!")
                                  $('#dialog').dialog("close");
-                                 load_datatable('Y')
+                                 load_datatable('N')
 
                              }
                          },

@@ -137,6 +137,12 @@ LOGGING = {
             'filename': '/var/www//logs/sid.log',
             'formatter': 'verbose'
         },
+        'feedback_log_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/www//logs/feedback.log',
+            'formatter': 'verbose'
+        },
     },
     'loggers': {
         'django': {
@@ -144,8 +150,8 @@ LOGGING = {
             'propagate': True,
             'level': 'DEBUG',
         },
-        'tickets': {
-            'handlers': ['file'],
+        'feedback_logger': {
+            'handlers': ['feedback_log_file'],
             'level': 'DEBUG',
         },
     }

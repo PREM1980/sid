@@ -377,49 +377,41 @@
             
             <tr>
                 <td>
-                    
-                    <input class="form-control input-sm" type="text" id="query_datepicker_start" placeholder="Start Date Range">
+                    <div colspan="2">
+                    <input class="form-control input-sm" type="text" id="query_datepicker_start" placeholder="Start Date">
+                    </div>
                     
                 </td>
-                <td>
-                    <input class="form-control input-sm" type="text" id="query_datepicker_start_end" placeholder="Start Date Range">
+                <td colspan="1">
+                    <div>
+                    <input class="form-control input-sm" type="text" id="query_datepicker_start_end" placeholder="End Date">
+                    </div>
                 </td>
+                <!--
                 <td>
                     <input class="form-control input-sm" type="text" id="query_datepicker_end" placeholder="End Date Range">
                 </td>
                 <td>
                     <input class="form-control input-sm" type="text" id="query_datepicker_end_end" placeholder="End Date Range">
                 </td>
+                -->
                 <td>
                     <div>
                         <input id="query_ticket_no" width="100%" placeholder="Ticket Number" class="form-control input-sm">
                     </div>
                 </td>
                 
-
-                
-                <td rowspan="2">
+                <td rowspan="0">
                 <div> 
-                             <input class="form-control" style="text-align:center;background-color:gray" type="submit" value="QUERY" id="query" >
+                    <input class="form-control" style="text-align:center;background-color:gray" type="submit" value="QUERY" id="query" >
                 </div> 
                 
                 </td>
                 </tr>
 
                 <tr>
-                <!--
-                <td colspan="3">Additional Notes:
-                    <div class="ui-widget" width="100%">
-                        <input id="additional_notes" width="100%">
-                    </div>
-                </td>
-                --> 
                 <td>
-                    <div>
-                        <!--<input id="radio_national" type="radio">ALL
-                        <br>
-                        <input id="radio_division" type="radio">Division-->
-            
+                    <div>            
                         <select class="form-control input-sm" id="query_division" onchange="getval(this,'querying',[]);" >
                             <option selected='selected'>Division</option>
                             <option>All</option>
@@ -436,7 +428,7 @@
                     </div>
                 </td>
                 
-                <td colspan="2">
+                <td colspan="0">
                     <div>
                         <select id="query_cause" class="form-control input-sm">
                             <option selected='selected'>Outage Caused</option>

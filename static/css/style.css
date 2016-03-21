@@ -3,10 +3,12 @@ body {
     font-size: 62.5%;
 }
 
+.table-borderless tbody tr td, .table-borderless tbody tr th, .table-borderless thead tr th {
+    border: none !important;
+}
+/*
 input[type=submit] {
     font-size: 12px;
-    /*color: red*/
-    /*background:rgb(245,0,53);*/
     background: gray
 }
 
@@ -16,7 +18,7 @@ input[type=button] {
     font-size: 70%;
     cursor: pointer;
 }
-
+*/
 #sort-controls {
     width: 900px;
     height: 45px;
@@ -35,10 +37,10 @@ input[type=button] {
     color: #003366;
 }
 
-table.dialog-table td.leftcols {
+/*table.dialog-table td.leftcols {
     font-weight: bold;
 }
-
+*/
 
 /** CSS Table Generator*/
 

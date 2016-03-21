@@ -8,7 +8,7 @@
         bootstrip:true,
         show_email: true,
         email_required: true,
-        position: "left-top",
+        position: "right-top",
         show_radio_button_list: true,
         radio_button_list_required: true,
         radio_button_list_title: "How do you rate this application?",
@@ -52,7 +52,7 @@
              height: 600,
              show: ['slide', 500],
              hide: ['slide', 500],
-             noneSelectedText: 'Pick Division and select peergroup'
+             noneSelectedText: 'Pick Division and select pg'
          }).multiselectfilter();
      });
 
@@ -61,7 +61,7 @@
              height: 600,
              show: ['slide', 500],
              hide: ['slide', 500],
-             noneSelectedText: 'Pick Division and select peergroup'
+             noneSelectedText: 'Pick Division and select pg'
          }).multiselectfilter();
      });
      $(function() {
@@ -69,7 +69,7 @@
              height: 600,
              show: ['slide', 500],
              hide: ['slide', 500],
-             noneSelectedText: 'Pick Division and select peergroup'
+             noneSelectedText: 'Pick Division and select pg'
          }).multiselectfilter();
      });
 
@@ -174,7 +174,7 @@
          $("#dialog_pg_select").dialog({
              maxWidth: 800,
              maxHeight: 1000,
-             width: 500,
+             width: 700,
              height: 800,
              modal: true,
              autoOpen: false,
@@ -339,8 +339,8 @@
 
          $(".CSSTableGenerator1").empty()
 
-         $("<table id='ticket-table' class='tablesorter' style='table-layout:fixed; width:100%'> </table>").appendTo('.CSSTableGenerator1')
-         $('#ticket-table').append('<thead><tr><th style="display:none">id</th><th>Create Date</th><th>End Date</th><th>Ticket#</th><th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th></th></tr></thead>');
+         $("<table id='ticket-table' class='table  tablesorter' style='table-layout:fixed; width:100%'> </table>").appendTo('.CSSTableGenerator1')
+         $('#ticket-table').append('<thead class="thead-inverse"><tr><th style="display:none">id</th><th>Create Date</th><th>End Date</th><th>Ticket#</th><th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th></th></tr></thead>');
 
          slicedata.forEach(function(obj, i, a) {
              //var obj = e;
@@ -352,7 +352,7 @@
              console.log('prem created_dt_2 ', obj.created_dt)
              console.log('prem-1 obj== ', obj.addt_notes)
              //$('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_id + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>' + obj.pg + '</td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button></td></tr>');
-             $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_type + '</td><td>' + obj.created_dt + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td><div style="height:40px;overflow:scroll" title="'+ obj.addt_notes +'">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+             $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_type + '</td><td>' + obj.created_dt + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td><div style="height:40px;overflow:scroll" title="'+ obj.addt_notes +'">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
                                                                                                                                                                                                                                                                                                                                                                                                                 //<td>  <select id="table_pg' + i + '""> </select>  </td>                                              
              console.log('obj == ', obj.pg)
              for (j = 0; j < obj.pg.length; j++) {
@@ -369,7 +369,11 @@
                  // [0, 0],
                  // [1, 0]
              ],
-             headers: { 10: { sorter: false }, 11: { sorter: false } }
+             headers: { 10: { sorter: false }, 11: { sorter: false } },
+             theme:"bootstrap",
+             headerTemplate: '{content} {icon}',
+             widgets:['uitheme'],
+             //widgets:["columns"]
 
 
          });

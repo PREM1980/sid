@@ -3,6 +3,9 @@
 
 <head>
     <meta charset="utf-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Service Impact Database</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css">
@@ -18,8 +21,10 @@
     <script src="{% static "js/jquery.timepicker.min.js" %}"></script>
     <script src="{% static "js/jquery.datetimepicker.full.min.js" %}"></script>
 
-    <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
-    <!--<script src="{% static "bower_components/bootstrap/dist/css/bootstrap.min.css" %}"></script>-->
+    <!--<script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "bower_components/bootstrap/dist/css/bootstrap.min.css" %}"></script>-->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     
     <link rel="stylesheet" type="text/css" href="{% static "css/jquery.datetimepicker.css" %}"/>
     <link rel="stylesheet" href="{% static "css/jquery.timepicker.css" %}">
@@ -33,12 +38,19 @@
     <script src="{% static "multiselect/jquery.multiselect.filter.js" %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static "multiselect/jquery.multiselect.filter.css" %}"/>
 
-    <script src="{% static "__jquery.tablesorter/jquery.tablesorter.min.js" %}"></script>
+    
 
     <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
     <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
 
-    <link rel="stylesheet"  type="text/css" media="print, projection, screen" href="{% static "__jquery.tablesorter/themes/blue/style.css" %}"/>
+    <!-- <link rel="stylesheet"  type="text/css" media="print, projection, screen" href="{% static "__jquery.tablesorter/themes/blue/style.css" %}"/>
+    <link rel="stylesheet"  type="text/css" media="print, projection, screen" href="{% static "__jquery.tablesorter/themes/bootstrap/theme.bootstrap.css" %}"/> -->
+
+    <link rel="stylesheet"  type="text/css" media="print, projection, screen" href="{% static "tablesorter-master/css/theme.bootstrap.css" %}"/>
+
+    <script src="{% static "tablesorter-master/js/jquery.tablesorter.js" %}"></script>
+    <script src="{% static "tablesorter-master/js/jquery.tablesorter.widgets.js" %}"></script>
+
 
     <script>
 
@@ -117,8 +129,8 @@
         } else if (sel.value == "Western") {
             items = western
         } else{
-        	items = national
-        	items = items.sort()
+            items = national
+            items = items.sort()
         }
         console.log('pg_widget ==', pg_widget)
         
@@ -160,12 +172,25 @@
 
 <body>
     <!--<div id="container" style="width: 1280px;">-->
-    <div class="container" >
-        <div id="header"><img src="{% static "images/comcast_sid_logo_web.png" %}"></div>
-        <h2 style="text-align:center;color:red">Create a Ticket</h2>
+    <div class="container-fluid" >
+        <div class="row">
+            <div id="header"><img src="{% static "images/comcast_sid_logo_web.png" %}"></div>
+        </div>
+
+        <h4 style="text-align:center;color:red">Create a Ticket</h4>
+        <!--
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <span class="label label-info">Create a ticket</span>        
+            </div>
+        </div>
         <br>
-        <div class="create_container"  style="background-color: white; color: #666666; padding-left: 50px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; font-size:10px">
-        <table >
+        <!--<div class="create_container"  style="background-color: white; color: #666666; padding-left: 50px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; font-size:10px">-->
+        <div class="row" style="background-color:#505979;"> 
+        <!--<div class="col-sm-1"></div>-->
+        <div class="col-sm-11">
+
+        <table class="table table-borderless">
             <tr>
                 <!-- <th>Date</th>
                 <th>Division</th>
@@ -177,11 +202,13 @@
             </tr>
             <tr>
                 <td>
-                    <input type="text" id="datepicker" onchange="checkval(this);">
+                    <div>
+                    <input type="text" class="form-control input-sm" id="datepicker" onchange="checkval(this);">
+                    </div>
                 </td>
                 <td>
-                    <div class="ui-widget">
-                        <select id="division" onchange="getval(this,'inputting',[]);" >
+                    <div>
+                        <select id="division" class="form-control input-sm" onchange="getval(this,'inputting',[]);" >
                         <!--<select id="division">-->
                             <option></option selected>
                             <option selected='selected'>Division</option>
@@ -193,14 +220,14 @@
                     </div>
                 </td>
                 <td>
-                    <div class="ui-widget">
+                    <div>
                         <select id="peergroup" name="peergroup" multiple="multiple"></select>
                     </div>
                 </td>
                 <td>
-                    <div class="ui-widget">
-                        <select id="duration">
-                            <option selected='selected'>Duration (in minutes)</option>
+                    <div>
+                        <select id="duration" class="form-control input-sm">
+                            <option selected='selected'>Duration (in min)</option>
                             <option>1 - 15 minutes</option>
                             <option>15 - 30 minutes</option>
                             <option>30 - 60 minutes</option>
@@ -210,8 +237,8 @@
                     </div>
                 </td>
                 <td>
-                    <div class="ui-widget">
-                        <select id="errorcount">
+                    <div>
+                        <select id="errorcount" class="form-control input-sm">
                             <option selected='selected'>Error Count</option>
                             <option>1,000 - 5,000</option>
                             <option>5,000 - 10,000</option>
@@ -222,8 +249,8 @@
                     </div>
                 </td>
                 <td>
-                    <div class="ui-widget">
-                        <select id="cause">
+                    <div>
+                        <select id="cause" class="form-control input-sm">
                             <option selected='selected'>Outage Caused</option>
                             <option>Scheduled Maintenance</option>
                             <option>Scheduled Maintenance resulting in Outage</option>
@@ -233,9 +260,16 @@
                         </select>
                     </div>
                 </td>
+                
+                <td rowspan="2">
+                    <input type="submit" style="text-align:center;background-color:gray" class="form-control input-sm" value="SUBMIT" id="upload">
+                </td>
+            </tr>
+            <tr>
+                <!--<td colspan="1">Additional Notes:-->
                 <td>
-                    <div class="ui-widget">
-                        <select id="subcause">
+                    <div>
+                        <select id="subcause" class="form-control input-sm">
                             <option selected='selected'>System Caused</option>
                             <option>Backoffice</option>
                             <option>Cisco Pump</option>
@@ -249,40 +283,43 @@
                         </select>
                     </div>
                 </td>
-                <td rowspan="2">
-                    <input type="submit" value="SUBMIT" id="upload">
-                </td>
-            </tr>
-            <tr>
-                <!--<td colspan="1">Additional Notes:-->
-                <td colspan="1">
-                    <div class="ui-widget" width="100%">
-                        <input id="additional_notes" placeholder="Additional Notes" width="100%">
+                <td colspan="2">
+                    <div>
+                        <textarea id="additional_notes" placeholder="Additional Notes" class="form-control input-sm expandable" rows="1"></textarea>
                     </div>
                 </td>
                 <!--<td>Ticket #-->
                 <td>
-                    <div class="ui-widget">
-                        <input id="ticket_no" width="100%" placeholder="Ticket Number">
+                    <div>
+                        <input id="ticket_no" width="100%" placeholder="Ticket Number" class="form-control">
                     </div>
                 </td>
-                <td>
-                    <div id="radio">
-                        Ticket Type:
-                        <input type="radio" id="radio1" name="tkt-radio" value='JIRA'>
-                        <label for="radio1">Jira</label>
-                        <input type="radio" id="radio2" name="tkt-radio" value='TTS'>
-                        <label for="radio2">TTS</label>
-                    </div>
+                <td colspan="2">
+                    
+                        <span class="label label-default">Ticket Type</span>
+                        <label class="radio-inline" for="radio1">
+                        <input type="radio" id="radio1" name="tkt-radio" value='JIRA'>Jira</label>
+                        <label class="radio-inline" for="radio2">
+                        <input type="radio" id="radio2" name="tkt-radio" value='TTS'>TTS</label>
+                        
+                        
+                        
+                    
                 </td>
                 
             </tr>
         </table>
         </div>
+        </div>
         
         
         
-        <h2 style="text-align:center;color:red">Filter Panel</h2>
+        <!-- <div class="row">
+            <div class="col-md-12 text-center">
+                <span class="label label-info">Filter Panel</span>        
+            </div>
+        </div> -->
+        <h4 style="text-align:center;color:red">Filter Panel</h4>
         <!--
         <div id="accordion" class="search_container" style="background-color: #F9F1F1; color: #666666; padding-left: 50px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px;">
         <h3> Filter Panel</h3>
@@ -316,8 +353,11 @@
         -->
 
         
-        <div class="search_container" style="background-color: white; color: #666666; padding-left: 50px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; ">
-        <table>
+        <!--<div class="search_container" style="background-color: white; color: #666666; padding-left: 50px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; ">-->
+        <div class="row" style="background-color:#505979;"> 
+        <!--<div class="col-sm-1"></div>-->
+        <div class="col-sm-11">
+        <table class="table table-borderless">
             <!-- <tr>
                 <th>Start Date</th>
                 <th>Start Date</th>
@@ -337,69 +377,30 @@
             
             <tr>
                 <td>
-                    <input type="text" id="query_datepicker_start" placeholder="Start Date Range">
+                    
+                    <input class="form-control input-sm" type="text" id="query_datepicker_start" placeholder="Start Date Range">
+                    
                 </td>
                 <td>
-                    <input type="text" id="query_datepicker_start_end" placeholder="Start Date Range">
+                    <input class="form-control input-sm" type="text" id="query_datepicker_start_end" placeholder="Start Date Range">
                 </td>
                 <td>
-                    <input type="text" id="query_datepicker_end" placeholder="End Date Range">
+                    <input class="form-control input-sm" type="text" id="query_datepicker_end" placeholder="End Date Range">
                 </td>
                 <td>
-                    <input type="text" id="query_datepicker_end_end" placeholder="End Date Range">
+                    <input class="form-control input-sm" type="text" id="query_datepicker_end_end" placeholder="End Date Range">
                 </td>
                 <td>
-                    <div class="ui-widget">
-                        <input id="query_ticket_no" width="100%" placeholder="Ticket Number">
+                    <div>
+                        <input id="query_ticket_no" width="100%" placeholder="Ticket Number" class="form-control input-sm">
                     </div>
                 </td>
-                <td >
-                    <div class="ui-widget" >
-                        <!--<input id="radio_national" type="radio">ALL
-                        <br>
-                        <input id="radio_division" type="radio">Division-->
-            
-                        <select id="query_division" onchange="getval(this,'querying',[]);" >
-                            <option selected='selected'>Division</option>
-                            <option>All</option>
-                            <option>National</option>
-                            <option>Central</option>
-                            <option>Northeast</option>
-                            <option>Western</option>
-                        </select>
-                    </div>
-                </td>
-                <td id="divisions" style="display:none">
-                    <div class="ui-widget">
-                        <input id="check_national" type="checkbox">National
-                        <br>
-                        <input id="check_central" type="checkbox">Central
-                        <br>
-                        <input id="check_northeast"type="checkbox">NorthEast
-                        <br>
-                        <input id="check_western" type="checkbox">Western
-                        <br>
-                        
-                        
-                        <select id="query_division" onchange="getval(this,'retrieving');">
-                            <option selected></option>
-                            <option>All</option>
-                            <option>National</option>
-                            <option>Central</option>
-                            <option>Northeast</option>
-                            <option>Western</option>
-                        </select>
-                    </div>
-                </td>
+                
 
-                <td>
-                    <div class="ui-widget">
-                        <select id="query_peergroup" multiple="multiple"></select>
-                    </div>
-                </td>
-                <td rowspan="2" padding-left="50px">
-                <div style="padding-left: 180px;"> 
-                             <input type="submit" value="QUERY" id="query" style="margin-left: 20px;">
+                
+                <td rowspan="2">
+                <div> 
+                             <input class="form-control" style="text-align:center;background-color:gray" type="submit" value="QUERY" id="query" >
                 </div> 
                 
                 </td>
@@ -413,9 +414,31 @@
                     </div>
                 </td>
                 --> 
-                <td colspan="2">
+                <td>
+                    <div>
+                        <!--<input id="radio_national" type="radio">ALL
+                        <br>
+                        <input id="radio_division" type="radio">Division-->
+            
+                        <select class="form-control input-sm" id="query_division" onchange="getval(this,'querying',[]);" >
+                            <option selected='selected'>Division</option>
+                            <option>All</option>
+                            <option>National</option>
+                            <option>Central</option>
+                            <option>Northeast</option>
+                            <option>Western</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
                     <div class="ui-widget">
-                        <select id="query_cause">
+                        <select id="query_peergroup" multiple="multiple"></select>
+                    </div>
+                </td>
+                
+                <td colspan="2">
+                    <div>
+                        <select id="query_cause" class="form-control input-sm">
                             <option selected='selected'>Outage Caused</option>
                             <option>All</option>
                             <option>Scheduled Maintenance</option>
@@ -427,8 +450,8 @@
                     </div>
                 </td>
                 <td>
-                    <div class="ui-widget">
-                        <select id="query_subcause">
+                    <div>
+                        <select id="query_subcause" class="form-control input-sm">
                             <option selected='selected'>System Caused</option>
                             <option>All</option>
                             <option>Backoffice</option>
@@ -455,11 +478,10 @@
             
         </table> 
         </div>
-    </div>
+        </div>
+    
     
     <br>
-    <br>
-
     
     <div id="sort-controls">
         <div id="pagination"></div>
@@ -482,8 +504,7 @@
         <!--</div> -->
     </div>
     <br>
-    <br>
-
+    
     <div id="ticket_list"></div>
 
     
@@ -491,17 +512,17 @@
     <div id="dialog" title="Ticket Details">
 
         <div style="text-align: left">
-            <table class="dialog-table" border="0" cellpadding="15px">
+            <table class="table table-striped dialog-table" border="0" cellpadding="15px">
             <!--<table class="CSSTableGenerator">-->
             <tr>
-            <td class="leftcols">Created Date</td><td id="dialog_created_dt"><input></td>
+            <td class="leftcols">Created Date</td><td id="dialog_created_dt"><input class="form-control input-sm"></td>
             </tr>
             <tr>
-            <td class="leftcols">Ticket Num</td><td id="dialog_ticket_num"><input></td>
+            <td class="leftcols">Ticket Num</td><td id="dialog_ticket_num"><input class="form-control input-sm"></td>
             </tr>
             <tr>
             <td class="leftcols">Division</td><td id="dialog_division">
-                        <select id="row_division" onchange="getval(this,'setting');">
+                        <select id="row_division" class="form-control input-sm" onchange="getval(this,'setting');">
 
                             <option selected></option>
                             <option>National</option>
@@ -518,7 +539,7 @@
             </td>
             </tr>
             <td class="leftcols">Duration</td><td id="dialog_duration">
-                        <select id="row_duration">
+                        <select class="form-control input-sm" id="row_duration">
                             <option>1 - 15 minutes</option>
                             <option>15 - 30 minutes</option>
                             <option>30 - 60 minutes</option>
@@ -527,7 +548,7 @@
                         </select></td>
             <tr>
             <td class="leftcols">Error Count</td><td id="dialog_error_count">
-                        <select id="row_error_count">
+                        <select class="form-control input-sm" id="row_error_count">
                             <option>1,000 - 5,000</option>
                             <option>5,000 - 10,000</option>
                             <option>10,000 - 20,000</option>
@@ -537,7 +558,7 @@
             </tr>
             <tr>
             <td class="leftcols">Outage Caused</td><td id="dialog_outage_caused">
-                        <select id="row_cause">
+                        <select class="form-control input-sm" id="row_cause">
                             <option>Scheduled Maintenance</option>
                             <option>Scheduled Maintenance resulting in Outage</option>
                             <option>NSA Scheduled Maintenance resulting in Outage</option>
@@ -546,7 +567,7 @@
                         </select></td>
             </tr>
             <tr>
-            <td class="leftcols">System Caused</td><td id="dialog_created_dt"><select id="row_system_cause">
+            <td class="leftcols">System Caused</td><td id="dialog_created_dt"><select class="form-control input-sm" id="row_system_cause">
                             <option>Backoffice</option>
                             <option>Cisco Pump</option>
                             <option>Arris Pump</option>
@@ -586,7 +607,9 @@
     </div>
 
     <div id='footer'>
-    
+
+    </div>
+
     </div>
 
     <!-- container -->
@@ -620,12 +643,12 @@
     </table> -->
     <script>
     //function populate_grid(){
-    //	example = [{"date":"02/14/2016", "division":"Central", "peergroup":"10101", "duration":10, "cause":"cause filler", "subcause":"subcause filler"}];
+    //  example = [{"date":"02/14/2016", "division":"Central", "peergroup":"10101", "duration":10, "cause":"cause filler", "subcause":"subcause filler"}];
     //}
 
-	// var load_datatable = function(initial) {
-    	
- //    	data = {
+    // var load_datatable = function(initial) {
+        
+ //     data = {
  //                'start_date': $('#query_datepicker_start').val(),
  //                'end_date': $('#query_datepicker_end').val(),
  //                'division': $('#query_division').val(),
@@ -638,20 +661,20 @@
         
         // $("#example").dataTable({
         //     //"ajax": "{% static "example.txt" %}"
-        //    	//"processing":true,
-        //    	//"serverSide":true, if this is enabled then we can't paginate on the datatable
-        //    	"pageLength":10,
-        //    	"iDisplayLength":10,
-        //    	//"paging":true,
-        //    	//"pagingType":"full_numbers",
-        //    	"ajax":{
-        //    		"processing":true,
-        //    		url: '/get-ticket-data',
-        //    		"type":"POST",
-        //    		"data": data
-        //    	},
+        //      //"processing":true,
+        //      //"serverSide":true, if this is enabled then we can't paginate on the datatable
+        //      "pageLength":10,
+        //      "iDisplayLength":10,
+        //      //"paging":true,
+        //      //"pagingType":"full_numbers",
+        //      "ajax":{
+        //          "processing":true,
+        //          url: '/get-ticket-data',
+        //          "type":"POST",
+        //          "data": data
+        //      },
          
-        //    	"destroy":true,
+        //      "destroy":true,
         // });
     // }
 

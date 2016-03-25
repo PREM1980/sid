@@ -18,7 +18,7 @@ import socket
 # Create your views here.
 
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('app_logger')
 
 logger_feedback = logging.getLogger('feedback_logger')
 
@@ -345,7 +345,7 @@ class GetTicketData(View):
 					cursor.execute(qry)
 					results = cursor.fetchall()
 					#results = []
-
+			
 			logger.debug("ip = {0} &&  results-len == {1}".format(ip,len(results)))
 			output = enum_results(results)
 			
@@ -442,7 +442,9 @@ def enum_results(results):
 						
 		if prev_ticket_num == curr_ticket_num:
 			data['ticket_num'] = each[0]
+			data['ticket_num'] = each[0]
 			data['created_dt'] = each[1]
+			data['row_end_ts'] = each[4]
 			data['ticket_type'] = each[2]
 			data['division'] = each[5]
 			pg_cd.append(each[10])
@@ -467,6 +469,7 @@ def enum_results(results):
 
 			data['ticket_num'] = each[0]
 			data['created_dt'] = each[1]
+			data['row_end_ts'] = each[4]
 			data['ticket_type'] = each[2]
 			data['division'] = each[5]
 			pg_cd.append(each[10])

@@ -120,7 +120,7 @@ STATIC_URL = '/static/'
 # logging
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
             'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
@@ -131,6 +131,14 @@ LOGGING = {
         },
     },
     'handlers': {
+        'django': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': '/var/www//logs/sid.log',
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'verbose',
+        }, 
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
@@ -146,6 +154,11 @@ LOGGING = {
     },
     'loggers': {
         'django': {
+            'handlers': ['file'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
+        'app_logger': {
             'handlers': ['file'],
             'propagate': True,
             'level': 'DEBUG',

@@ -346,13 +346,21 @@
              //var obj = e;
              obj.created_dt= new Date(obj.created_dt)
              console.log("object == ", obj)
+             console.log("object end timestamp == ", obj.row_end_ts)
+             console.log("object end timestamp == ", typeof obj.row_end_ts)
              console.log('prem created_dt_1 ', obj.created_dt)
              //obj.created_dt.format('longTime', true)
              obj.created_dt = dateFormat(obj.created_dt,"default",true)
+             if (obj.row_end_ts.substring(0,4) == '9999'){
+                obj.row_end_ts = "" 
+                }
+            else{
+                obj.row_end_ts = dateFormat(obj.row_end_ts,"default",true)
+            }
              console.log('prem created_dt_2 ', obj.created_dt)
              console.log('prem-1 obj== ', obj.addt_notes)
              //$('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_id + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>' + obj.pg + '</td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td>' + obj.addt_notes + '</td><td><button id="edit' + i + '"">edit</button></td></tr>');
-             $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_type + '</td><td>' + obj.created_dt + '</td><td>' + obj.created_dt + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td><div style="height:40px;overflow:scroll" title="'+ obj.addt_notes +'">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+             $('#ticket-table').append('<tr><td style="display:none">' + obj.ticket_type + '</td><td>' + obj.created_dt + '</td><td>' + obj.row_end_ts + '</td><td>' + obj.ticket_num + '</td> <td>' + obj.division + '</td><td>  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td>' + obj.duration + '</td><td>' + obj.error_count + '</td><td>' + obj.outage_caused + '</td><td>' + obj.system_caused + '</td><td><div style="height:40px;overflow:scroll" title="'+ obj.addt_notes +'">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
                                                                                                                                                                                                                                                                                                                                                                                                                 //<td>  <select id="table_pg' + i + '""> </select>  </td>                                              
              console.log('obj == ', obj.pg)
              for (j = 0; j < obj.pg.length; j++) {

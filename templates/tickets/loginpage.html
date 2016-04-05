@@ -2,6 +2,7 @@
 
 
 {% block jscontent %}
+    <title>NINJA Analytics and Reporting Portal</title>
     {% load staticfiles %}
     <link rel="stylesheet" href="{% static "css/loginpage.css" %}">
 {% endblock jscontent %}
@@ -21,7 +22,7 @@ $(document).ready(function(){
 <div class="container">
 
   <div class="row">
-            <div id="header"><img src="{% static "images/comcast_sid_logo_web.png" %}"></div>
+            <div id="header"><img src="{% static "images/comcast_ninja.png" %}"></div>
         </div>
   <div class="row">
     
@@ -41,9 +42,9 @@ $(document).ready(function(){
             </label>
           </div> -->
           <div class="form-group">
-            <input type="submit" class="btn btn-primary btn-block">
+            <input type="submit" class="btn btn-primary btn-block" value="Login with NT credentials">
           </div>
-          <div class="alert alert-info text-center" id="valid-login">
+          <div class="alert alert-info text-center" id="valid-login" style="display:none">
             <label>Login with NT credentials</label>
           </div>
 

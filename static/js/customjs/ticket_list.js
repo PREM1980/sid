@@ -363,9 +363,15 @@
                          for (j = 0; j < obj.pg.length; j++) {
                             console.log(obj.pg[j])
                             console.log('obj-pg_names == ', pg_names[obj.pg[j]])
+                            if (obj.pg[j] == 'ALL'){
+                                pg_name = ''
+                            }else{
+                                pg_name = pg_names[obj.pg[j]]
+                            }
+                            
                              $('#table_pg' + i).append($('<option>', {
                                  value: obj.pg[j],
-                                 text: obj.pg[j] + ' ' + pg_names[obj.pg[j]]
+                                 text: obj.pg[j] + ' ' + pg_name
                              }))
                          }
                      })

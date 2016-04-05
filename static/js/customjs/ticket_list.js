@@ -131,6 +131,20 @@
                          success: function(result) {
                              if (result.status == 'success') {
                                  alert("You're stored in our DB!! Playaround!!")
+                                 //reset values
+                                    //multiselect both needs to be together - uncheck and refresh
+                                     $("#peergroup option:selected").removeAttr("selected");
+                                     $("#peergroup").multiselect( 'refresh' );
+                                     
+                                     $('#division').prop('selectedIndex',1);
+                                     $('#duration').prop('selectedIndex',0);
+                                     $('#errorcount').prop('selectedIndex',0);
+                                     $('#cause').prop('selectedIndex',0);
+                                     $('#subcause').prop('selectedIndex',0);
+                                     $('#ticket_no').val('');
+                                     $('#additional_notes').val('');
+                                     alert("Reset done")
+                                     //reset values over
                                  load_datatable('Y')
                              } else if (result.status == 'session timeout') {
                                  alert("Session expired -- Please relogin")
@@ -403,7 +417,7 @@
                              success: function(result) {
                                  if (result.status == 'success') {
                                      alert("Row End-Dated!! Playaround!!")
-                                     load_datatable('Y')
+                                     
                                  } else if (result.status == 'session timeout') {
                                      alert("Session expired -- Please relogin")
                                      document.location.href = "/";

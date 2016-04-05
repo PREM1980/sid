@@ -74,6 +74,8 @@ class Tickets(models.Model):
 	row_update_ts = models.DateTimeField(default=datetime.now())
 	row_end_ts = models.DateTimeField(
 		default='9999-12-31 00:00:00.00000-00', db_column='row_end_ts')
+	create_user_id = models.CharField(max_length=50, db_column='crt_user_id',null=True)
+	update_user_id = models.CharField(max_length=50, db_column='upd_user_id',null=True)
 
 	class Meta:
 		db_table = 'tickets'

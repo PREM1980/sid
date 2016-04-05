@@ -1,4 +1,4 @@
-print 'loading qry '
+
 all_query = {'generic': """
 					select   tb1.ticket_num
 							,tb1.row_create_ts
@@ -12,6 +12,8 @@ all_query = {'generic': """
 							,tb6.system_caused
 							,tb8.pg_cd
 							,tb9.notes
+							,tb1.crt_user_id
+							,tb1.upd_user_id
 							from sid.tickets tb1
 							inner join
 							sid.division tb2
@@ -53,6 +55,8 @@ all_query = {'generic': """
 							,tb6.system_caused
 							,tb8.pg_cd
 							,tb9.notes
+							,tb1.crt_user_id
+							,tb1.upd_user_id
 							from sid.tickets tb1
 							inner join
 							sid.division tb2
@@ -94,6 +98,8 @@ all_query = {'generic': """
 							,tb6.system_caused
 							,tb8.pg_cd
 							,tb9.notes
+							,tb1.crt_user_id
+							,tb1.upd_user_id
 							from sid.tickets tb1
 							inner join
 							sid.division tb2

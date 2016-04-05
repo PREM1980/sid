@@ -169,3 +169,5 @@ LOGGING = {
         },
     }
 }
+
+SESSION_COOKIE_AGE = 3 * 60

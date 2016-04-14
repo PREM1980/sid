@@ -195,8 +195,8 @@ class GetTicketData(View):
 				else:
 					cursor = connection.cursor()
 
-					start_date_qry_set = end_date_qry_set = ticket_num_qry_set = division_qry_set = pg_qry_set = outage_qry_set = system_qry_set = False
-					start_date_qry = end_date_qry = ticket_num_qry = division_qry = pg_qry = outage_qry = system_qry = ''
+					start_date_qry_set = end_date_qry_set = duration_qry_set = error_count_qry_set = ticket_num_qry_set = division_qry_set = pg_qry_set = outage_qry_set = system_qry_set = False
+					start_date_qry = end_date_qry = duration_qry = error_count_qry = ticket_num_qry = division_qry = pg_qry = outage_qry = system_qry = ''
 					print 'start_date_e == ', doc['start_date_e']
 					
 					if doc['start_date_s'] == '' and doc['start_date_e'] == '':
@@ -234,7 +234,21 @@ class GetTicketData(View):
 						ticket_num_qry_set = True
 						ticket_num_qry = " tb1.ticket_num = '{ticket_num}' ".format(ticket_num=doc['ticket_num'])
 
-					if doc['division'] in ['','Division','All']:
+					if doc['error_count'] in ['Error Count','All']:
+						error_count_qry = ""
+					else:
+						error_count_qry_set = True
+						error_count_qry = " tb4.error = '{error}' ".format(error=doc['error_count'])
+
+
+					if doc['duration'] in ['Duration (in mins)','All']:
+						duration_qry = ""
+					else:
+						duration_qry_set = True
+						duration_qry = " tb3.duration = '{duration}' ".format(duration=doc['duration'])
+
+
+					if doc['division'] in ['Division','All']:
 						division_qry = ""
 					else:
 						division_qry_set = True
@@ -299,9 +313,32 @@ class GetTicketData(View):
 						
 						#pg_qry = pg_qry + tkt_qry 
 
-						print '***pg_qry*** -before== ', p_qry					
-						p_qry = set_query_params(p_qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg_qry_set,outage_qry_set,system_qry_set,ticket_num_qry_set \
-							,start_date_qry,end_date_qry,ticket_num_qry,division_qry,pg_qry,outage_qry,system_qry)
+						print '***pg_qry*** -before== ', p_qry	
+						kwargs = {'qry':qry
+						,'start_date_qry_set':start_date_qry_set
+						,'end_date_qry_set':end_date_qry_set
+						,'division_qry_set':division_qry_set
+						,'pg_qry_set':pg_qry_set
+						,'outage_qry_set':outage_qry_set
+						,'system_qry_set':system_qry_set
+						,'error_count_qry_set':error_count_qry_set
+						,'duration_qry_set':duration_qry_set
+						,'ticket_num_qry_set':ticket_num_qry_set
+
+						,'start_date_qry':start_date_qry
+						,'end_date_qry':end_date_qry
+						,'division_qry':division_qry
+						,'pg_qry':pg_qry
+						,'outage_qry':outage_qry
+						,'system_qry':system_qry
+						,'error_count_qry':error_count_qry
+						,'duration_qry':duration_qry
+						,'ticket_num_qry':ticket_num_qry						
+						}
+
+						#qry = set_query_params(qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg_qry_set,outage_qry_set,system_qry_set,ticket_num_qry_set,error_count_qry_set,duration_qry_set \
+						#	,start_date_qry,end_date_qry,ticket_num_qry,division_qry,pg_qry,outage_qry,system_qry,error_count_qry,duration_qry)
+						qry = set_query_params(**kwargs)
 
 						# print '***pg_qry*** -after== ', p_qry
 
@@ -385,9 +422,33 @@ class GetTicketData(View):
 						# 		qry = qry + ' and ' + system_qry 
 						# 	else:
 						# 		qry = qry + system_qry  
-						
-						qry = set_query_params(qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg_qry_set,outage_qry_set,system_qry_set,ticket_num_qry_set \
-							,start_date_qry,end_date_qry,ticket_num_qry,division_qry,pg_qry,outage_qry,system_qry)
+
+						kwargs = {'qry':qry
+						,'start_date_qry_set':start_date_qry_set
+						,'end_date_qry_set':end_date_qry_set
+						,'division_qry_set':division_qry_set
+						,'pg_qry_set':pg_qry_set
+						,'outage_qry_set':outage_qry_set
+						,'system_qry_set':system_qry_set
+						,'error_count_qry_set':error_count_qry_set
+						,'duration_qry_set':duration_qry_set
+						,'ticket_num_qry_set':ticket_num_qry_set
+
+						,'start_date_qry':start_date_qry
+						,'end_date_qry':end_date_qry
+						,'division_qry':division_qry
+						,'pg_qry':pg_qry
+						,'outage_qry':outage_qry
+						,'system_qry':system_qry
+						,'error_count_qry':error_count_qry
+						,'duration_qry':duration_qry
+						,'ticket_num_qry':ticket_num_qry						
+						}
+						qry = set_query_params(**kwargs)
+						# qry = set_query_params(qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg_qry_set,outage_qry_set,system_qry_set,ticket_num_qry_set,error_count_qry_set,duration_qry_set \
+						# 	,start_date_qry,end_date_qry,ticket_num_qry,division_qry,pg_qry,outage_qry,system_qry,error_count_qry,duration_qry)
+
+
 
 						qry = qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc'
 
@@ -413,15 +474,26 @@ class GetTicketData(View):
 			print 'get-ticket-data no valid session '
 			return JsonResponse({'status': 'session timeout'})
 
-def set_query_params(qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg_qry_set,outage_qry_set,system_qry_set,ticket_num_qry_set
-	,start_date_qry,end_date_qry,ticket_num_qry,division_qry,pg_qry,outage_qry,system_qry):
+# def set_query_params(qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg_qry_set,outage_qry_set,system_qry_set,ticket_num_qry_set
+# 	,start_date_qry,end_date_qry,ticket_num_qry,division_qry,pg_qry,outage_qry,system_qry):
+def set_query_params(**kwargs):
+
 	prev_qry_set = False
+	qry = kwargs['qry']
 
-	if start_date_qry_set or end_date_qry_set or division_qry_set or pg_qry_set or outage_qry_set or system_qry_set or ticket_num_qry_set:
-		qry = qry + ' where ' 
+	if kwargs['start_date_qry_set'] \
+		or kwargs['end_date_qry_set'] \
+		or kwargs['division_qry_set'] \
+		or kwargs['pg_qry_set']	\
+		or kwargs['outage_qry_set']	\
+		or kwargs['system_qry_set']	\
+		or kwargs['ticket_num_qry_set'] \
+		or kwargs['duration_qry_set'] \
+		or kwargs['error_count_qry_set']:
+		qry = kwargs['qry'] + ' where ' 
 
-	if start_date_qry_set:
-		qry = qry + start_date_qry
+	if kwargs['start_date_qry_set']:
+		qry = qry + kwargs['start_date_qry']
 		prev_qry_set = True 
 
 	# if end_date_qry_set:
@@ -432,50 +504,68 @@ def set_query_params(qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg
 	# 		qry = qry + end_date_qry
 	# 		prev_qry_set = True
 	
-	if ticket_num_qry_set:
+	if kwargs['ticket_num_qry_set']:
 		if prev_qry_set:
-			qry = qry + ' and ' + ticket_num_qry 
+			qry = qry + ' and ' + kwargs['ticket_num_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + ticket_num_qry
+			qry = qry + kwargs['ticket_num_qry']
 			prev_qry_set = True		
+	
 	print 'set_quert_params ticket == ', qry				
 
-	if division_qry_set:
+	if kwargs['duration_qry_set']:
 		if prev_qry_set:
-			qry = qry + ' and ' + division_qry 
+			qry = qry + ' and ' + kwargs['duration_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + division_qry
+			qry = qry + kwargs['duration_qry']
+			prev_qry_set = True
+
+	if kwargs['error_count_qry_set']:
+		if prev_qry_set:
+			qry = qry + ' and ' + kwargs['error_count_qry']
+			prev_qry_set = True
+		else:
+			qry = qry + kwargs['error_count_qry']
+			prev_qry_set = True
+
+
+	if kwargs['division_qry_set']:
+		if prev_qry_set:
+			qry = qry + ' and ' + kwargs['division_qry']
+			prev_qry_set = True
+		else:
+			qry = qry + kwargs['division_qry']
 			prev_qry_set = True
 			
 	print 'set_quert_params division == ', qry
 
-	if pg_qry_set:
+	if kwargs['pg_qry_set']:
 		if prev_qry_set:
-			qry = qry + ' and ' + pg_qry 
+			qry = qry + ' and ' + kwargs['pg_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + pg_qry
+			qry = qry + kwargs['pg_qry']
 			prev_qry_set = True
 
 	print 'set_quert_params pg == ', qry
 
-	if outage_qry_set:
+	if kwargs['outage_qry_set']:
 		if prev_qry_set:
-			qry = qry + ' and ' + outage_qry  
+			qry = qry + ' and ' + kwargs['outage_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + outage_qry  
+			qry = qry + kwargs['outage_qry']  
 			prev_qry_set = True
 
 	print 'set_quert_params outage == ', qry
 
-	if system_qry_set:
+	if kwargs['system_qry_set']:
 		if prev_qry_set:
-			qry = qry + ' and ' + system_qry 
+			qry = qry + ' and ' + kwargs['system_qry'] 
 		else:
-			qry = qry + system_qry  
+			qry = qry + kwargs['system_qry']
 	#print 'set_quert_params system == ', qry
 	print 'set_quert_params final query== ', qry
 	return qry

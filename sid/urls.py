@@ -16,7 +16,8 @@ urlpatterns = [
     url(r'^post-ticket-data$', PostTicketData.as_view()),
     url(r'^get-ticket-data$', GetTicketData.as_view(), name="get_ticket_data"),
     url(r'^update-ticket-data$', UpdateTicketData.as_view(), name="update_ticket_data"),
-    url(r'^send_feedback_clean$', RecordFeedBack.as_view())
+    url(r'^send_feedback_clean$', RecordFeedBack.as_view()),
+    url(r'^api_docs$', TemplateView.as_view(template_name="tickets/apipage.html"))
 
 ]
 #+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

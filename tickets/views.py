@@ -15,6 +15,7 @@ from uuid import UUID
 import uuid
 from django.db import connection
 import socket
+from django.conf import settings
 # Create your views here.
 
 import logging
@@ -67,7 +68,7 @@ class PostTicketData(View):
 		alldata = request.POST
 		api_key = request.META.get('HTTP_AUTHORIZATION')
 
-		if user_id is not None or api_key == '1234':
+		if user_id is not None or api_key == settings.API_KEY:
 		# 	return JsonResponse({'status': 'login'})
 		# else:
 
@@ -156,37 +157,57 @@ class GetTicketData(View):
 		ip = utils.getip()
 		
 		alldata = request.POST
-
-		api_key = request.META.get('HTTP_AUTHORIZATION')
+		print 'doc == ', alldata
 		
-		if user_id is not None or api_key == '1234':
-		# 	return JsonResponse({'results': 'login'})
-		# else:
-			
-			# if api_key is not None:
-			# 	if api_key != '1234':
-			# 		return JsonResponse({'results': 'login'})
+		api_key = None
+		api_key = request.META.get('HTTP_AUTHORIZATION')
 
+		if api_key is not None:
+			if api_key != settings.API_KEY:
+				return JsonResponse({'status': 'Invalid Key..Contact support!!'})
+
+		logger.debug("user_id = {0} ".format(user_id))
+		
+		if user_id is not None or api_key == settings.API_KEY:
+			
 			initial = alldata.get('initial')
 
 			doc = {
+				'start_date_s': alldata.get('start_date_s'),
+				'start_date_e': alldata.get('start_date_e'),
 				'division': alldata.get('division'),
+				'duration': alldata.get('duration'),
 				'pg': alldata.getlist('pg[]'),
 				'error_count': alldata.get('error_count'),
 				'ticket_num': alldata.get('ticket_num'),
 				'outage_caused': alldata.get('outage_caused'),
 				'system_caused': alldata.get('system_caused'),
 				'ticket_type': alldata.get('ticket_type'),
-				'duration': alldata.get('duration'),
-				'start_date_s': alldata.get('start_date_s'),
-				'start_date_e': alldata.get('start_date_e'),
-				#'end_date_s': alldata.get('end_date_s'),
-				#'end_date_e': alldata.get('end_date_e')
-				
 			}
 			
+			if api_key is not None:
+				if doc['start_date_e'] is None and doc['start_date_s'] is not None:
+					return JsonResponse({'status': 'Start/End date should be specified-1'})
+				if doc['start_date_s'] is None and doc['start_date_e'] is not None:
+					return JsonResponse({'status': 'Start/End date should be specified-2'})
+				if doc['division'] is None:
+					doc['division'] = 'All'
+				if doc['duration'] is None:
+					doc['duration'] = 'All'
+				if doc['pg'] is None:
+					doc['pg'] = []
+				if doc['error_count'] is None:
+					doc['error_count'] = 'All'
+				if doc['outage_caused'] is None:
+					doc['outage_caused'] = 'All'
+				if doc['system_caused'] is None:
+					doc['system_caused'] = 'All'
+				if doc['ticket_num'] is None:
+					doc['ticket_num'] = ''
+				
+			
+			logger.debug("ip = {0} &&  document == {1} ".format(ip,doc))
 
-			logger.debug("ip = {0} &&  document == {1}".format(ip,doc))
 			try:
 				if initial == 'Y':
 					cursor = connection.cursor()
@@ -197,7 +218,6 @@ class GetTicketData(View):
 
 					start_date_qry_set = end_date_qry_set = duration_qry_set = error_count_qry_set = ticket_num_qry_set = division_qry_set = pg_qry_set = outage_qry_set = system_qry_set = False
 					start_date_qry = end_date_qry = duration_qry = error_count_qry = ticket_num_qry = division_qry = pg_qry = outage_qry = system_qry = ''
-					print 'start_date_e == ', doc['start_date_e']
 					
 					if doc['start_date_s'] == '' and doc['start_date_e'] == '':
 						pass
@@ -289,7 +309,6 @@ class GetTicketData(View):
 								on tb1.pg_id = tb2.pg_id
 								where """
 						qry = qry + pg_qry1 
-						
 						cursor.execute(qry)
 						results = cursor.fetchall()
 						elig_tkts = []
@@ -308,13 +327,9 @@ class GetTicketData(View):
 							tkts = ' , '.join(tkts)
 							ticket_num_qry = " tb1.ticket_num in ({tkts}) ".format(tkts=tkts)
 
-
 						p_qry = queries.all_query['pg_conditions']
 						
-						#pg_qry = pg_qry + tkt_qry 
-
-						print '***pg_qry*** -before== ', p_qry	
-						kwargs = {'qry':qry
+						kwargs = {'qry':p_qry
 						,'start_date_qry_set':start_date_qry_set
 						,'end_date_qry_set':end_date_qry_set
 						,'division_qry_set':division_qry_set
@@ -324,7 +339,6 @@ class GetTicketData(View):
 						,'error_count_qry_set':error_count_qry_set
 						,'duration_qry_set':duration_qry_set
 						,'ticket_num_qry_set':ticket_num_qry_set
-
 						,'start_date_qry':start_date_qry
 						,'end_date_qry':end_date_qry
 						,'division_qry':division_qry
@@ -336,12 +350,7 @@ class GetTicketData(View):
 						,'ticket_num_qry':ticket_num_qry						
 						}
 
-						#qry = set_query_params(qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg_qry_set,outage_qry_set,system_qry_set,ticket_num_qry_set,error_count_qry_set,duration_qry_set \
-						#	,start_date_qry,end_date_qry,ticket_num_qry,division_qry,pg_qry,outage_qry,system_qry,error_count_qry,duration_qry)
-						qry = set_query_params(**kwargs)
-
-						# print '***pg_qry*** -after== ', p_qry
-
+						p_qry = set_query_params(**kwargs)
 						p_qry = p_qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc LIMIT 100'
 						print 'over**'
 						print '***pg_qry*** == ', p_qry
@@ -368,60 +377,6 @@ class GetTicketData(View):
 						print 'pg_qry == ', pg_qry
 
 						qry = queries.all_query['conditions']
-						# prev_qry_set = False
-
-						# if start_date_qry_set or end_date_qry_set or division_qry_set or pg_qry_set or outage_qry_set or system_qry_set or ticket_num_qry_set:
-						# 	qry = qry + ' where ' 
-
-						# if start_date_qry_set:
-						# 	qry = qry + start_date_qry
-						# 	prev_qry_set = True 
-
-						# if end_date_qry_set:
-						# 	if prev_qry_set:
-						# 		qry = qry + ' and ' + end_date_qry 
-						# 		prev_qry_set = True
-						# 	else:
-						# 		qry = qry + end_date_qry
-						# 		prev_qry_set = True
-						
-						# if ticket_num_qry_set:
-						# 	if prev_qry_set:
-						# 		qry = qry + ' and ' + ticket_num_qry 
-						# 		prev_qry_set = True
-						# 	else:
-						# 		qry = qry + ticket_num_qry
-						# 		prev_qry_set = True						
-
-						# if division_qry_set:
-						# 	if prev_qry_set:
-						# 		qry = qry + ' and ' + division_qry 
-						# 		prev_qry_set = True
-						# 	else:
-						# 		qry = qry + division_qry
-						# 		prev_qry_set = True
-								
-						# if pg_qry_set:
-						# 	if prev_qry_set:
-						# 		qry = qry + ' and ' + pg_qry 
-						# 		prev_qry_set = True
-						# 	else:
-						# 		qry = qry + pg_qry
-						# 		prev_qry_set = True
-
-						# if outage_qry_set:
-						# 	if prev_qry_set:
-						# 		qry = qry + ' and ' + outage_qry  
-						# 		prev_qry_set = True
-						# 	else:
-						# 		qry = qry + outage_qry  
-						# 		prev_qry_set = True
-
-						# if system_qry_set:
-						# 	if prev_qry_set:
-						# 		qry = qry + ' and ' + system_qry 
-						# 	else:
-						# 		qry = qry + system_qry  
 
 						kwargs = {'qry':qry
 						,'start_date_qry_set':start_date_qry_set
@@ -433,7 +388,6 @@ class GetTicketData(View):
 						,'error_count_qry_set':error_count_qry_set
 						,'duration_qry_set':duration_qry_set
 						,'ticket_num_qry_set':ticket_num_qry_set
-
 						,'start_date_qry':start_date_qry
 						,'end_date_qry':end_date_qry
 						,'division_qry':division_qry
@@ -445,21 +399,15 @@ class GetTicketData(View):
 						,'ticket_num_qry':ticket_num_qry						
 						}
 						qry = set_query_params(**kwargs)
-						# qry = set_query_params(qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg_qry_set,outage_qry_set,system_qry_set,ticket_num_qry_set,error_count_qry_set,duration_qry_set \
-						# 	,start_date_qry,end_date_qry,ticket_num_qry,division_qry,pg_qry,outage_qry,system_qry,error_count_qry,duration_qry)
-
-
-
+						
 						qry = qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc'
 
 						logger.debug("ip = {0} &&  query == {1}".format(ip,qry))
-
 						cursor.execute(qry)
 						results = cursor.fetchall()
-						#results = []
 				
 				logger.debug("ip = {0} &&  results-len == {1}".format(ip,len(results)))
-				output = enum_results(results)
+				output = enum_results(user_id,results)
 				
 			except Exception as e:
 				print 'Select Exception == ', e
@@ -571,7 +519,7 @@ def set_query_params(**kwargs):
 	return qry
 
 
-def enum_results(results):
+def enum_results(user_id,results):
 	prev_ticket_num = ''
 	pg_cd = []
 	data = {}
@@ -596,6 +544,7 @@ def enum_results(results):
 			data['system_caused'] = each[9]
 			data['crt_user_id'] = each[12]
 			data['upd_user_id'] = each[13]
+			data['login_id'] = user_id
 			
 			if each[11] is None:
 				data['addt_notes'] = ""
@@ -623,6 +572,7 @@ def enum_results(results):
 			data['system_caused'] = each[9]
 			data['crt_user_id'] = each[12]
 			data['upd_user_id'] = each[13]
+			data['login_id'] = user_id
 			if each[11] is None:
 				data['addt_notes'] = ""
 			else:
@@ -659,7 +609,7 @@ class UpdateTicketData(View):
 		alldata = request.POST
 		logger.debug("ip = {0} &&  alldata == {1}".format(ip,alldata))
 		api_key = request.META.get('HTTP_AUTHORIZATION')
-		if user_id is not None or api_key == '1234':
+		if user_id is not None or api_key == settings.API_KEY:
 		# 	return JsonResponse({'status': 'login'})
 		# else:
 			if alldata.get('update') == 'Y':

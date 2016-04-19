@@ -1,10 +1,43 @@
-{% extends "base.html" %}
-
-{% block content %}
-	<br>
-	<br>
-	<br>
-	<div style="text-align: center; color:red">
-	Page Under construction, Come back soon!!
-	</div>
+{% extends "base.html" %} {% block content %}
+<br>
+<br>
+<br>
+<div>
+    <h4 style="padding-left: 20px;color:red">
+		Service Impact Database API Documentation: 
+	</h4>
+    <ul>
+        <li style="font-weight:bold;color:blue">Key</li>
+        	Once you login click on the Username and you should see a dialog box popping up with the API key.
+        	<br><br>
+        <li style="font-weight:bold;color:blue">Get all Ticket details</li>
+        	You can get all the records by making a API call.
+        	Here is sample Python API implementation that you can use for reference.
+        	<br>
+        	Pass parameters that are needed, others can be ignored.
+        	<xmp style="font-weight:bold;color:green">
+import requests
+import json
+headers =  {
+       "AUTHORIZATION": "Api Key - Refer above"
+    } 
+payload = {
+	'start_date_s':'04/01/2016',
+	'start_date_e':'04/15/2016',
+	'duration':'15 - 30 minutes',
+	'pg[]':["10204", "10101", "10201", "10203", "10102", "10202"],
+	'error_count':'5,000 - 10,000',
+	'outage_caused':'Scheduled Maintenance',
+	'system_caused':'Capacity',
+	'ticket_num':'vpsq-1235'
+}
+r = requests.post('http://ninja.comcast.net/get-ticket-data',headers=headers,data=payload)
+print r.status_code
+print r.text
+			</xmp>
+    </ul>
+    <h3>
+		
+	</h3>
+</div>
 {% endblock content %}

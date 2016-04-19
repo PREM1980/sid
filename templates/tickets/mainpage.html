@@ -128,7 +128,13 @@
     <!--<div id="container" style="width: 1280px;">-->
     <div class="container-fluid" >
         <div class="row">
-            <div id="header"><img src="{% static "images/comcast_sid_logo_web.png" %}"></div>
+            <div id="header">
+                <img src="{% static "images/comcast_sid_logo_web.png" %}">
+                <div id="logout"style="float:right;color:red;padding-right: 15px;font-weight:bold">Logout
+                </div>
+                <div id="loginid" style="float:right;color:red;padding-right:15px;font-weight:bold">
+                </div>
+            </div>
         </div>
 
         <h4 style="text-align:center;color:red">Create Event Correlation Record</h4>
@@ -492,7 +498,23 @@
     
     <div id="ticket_list"></div>
 
-    
+    <div class="modal fade" id="apikey" role="dialog">
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">API Key</h4>
+            </div>
+            <div class="modal-body">
+              <p>CPT74QBAWFIDFH4U27RT</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
 
     <div id="dialog" title="Ticket Details">
 

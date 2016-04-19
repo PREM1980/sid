@@ -1,4 +1,13 @@
  $(document).ready(function() {
+
+    $('#loginid').click(function(){
+        $('#apikey').modal('show');    
+    })
+
+    $('#logout').click(function(){
+        window.location.href = "/";
+    })
+    
      //set up some minimal options for the feedback_me plugin
      fm_options = {
          //jQueryUI:true,
@@ -332,6 +341,7 @@
              success: function(result) {
                  if (result.status == 'success') {
                      create_tickets(result)
+                     $('#loginid').html(login_id)
                  } else if (result.status == 'session timeout') {
                      alert("Session expired -- Please relogin")
                      document.location.href = "/";
@@ -404,10 +414,10 @@
              $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + obj.row_end_ts + '</td><td id="id_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
              //<td>  <select id="table_pg' + i + '""> </select>  </td>                                              
              console.log('obj-pg_names == ', pg_names)
+             login_id = obj.login_id
 
              for (j = 0; j < obj.pg.length; j++) {
-                 console.log(obj.pg[j])
-                 console.log('obj-pg_names == ', pg_names[obj.pg[j]])
+
                  if (obj.pg[j] == 'ALL') {
                      pg_name = ''
                  } else {

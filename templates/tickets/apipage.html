@@ -1,11 +1,16 @@
 {% extends "base.html" %} {% block content %}
+{% load staticfiles %}
+<div class="row">
+            <div id="header"><img src="{% static "images/comcast_ninja.png" %}"></div>           
+</div>
 <br>
-<br>
-<br>
-<div>
+<div class="container">	
     <h4 style="padding-left: 20px;color:red">
 		Service Impact Database API Documentation: 
 	</h4>
+	<br>
+	<br>
+
     <ul>
         <li style="font-weight:bold;color:blue">Key</li>
         	Once you login click on the Username and you should see a dialog box popping up with the API key.

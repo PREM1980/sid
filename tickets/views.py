@@ -16,7 +16,6 @@ import uuid
 from django.db import connection
 import socket
 from django.conf import settings
-# Create your views here.
 
 import logging
 logger = logging.getLogger('app_logger')
@@ -32,9 +31,7 @@ class LoginView(View):
 		return super(LoginView, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):
-		print 'get login page'
 		user_id = utils.check_session_variable(request)
-		print 'get login page == ', user_id
 		if user_id is None:
 			return render(request,'tickets/loginpage.html',{'error':'N'})
 		return render(request,'tickets/mainpage.html',{'error':'N'})
@@ -43,8 +40,7 @@ class LoginView(View):
 		ip = utils.getip()
 		username = request.POST['username']
 		password = request.POST['password']
-		print 'username == ', username
-		print 'password == ', password
+
 		result = utils.check_user_auth(request.POST['username'],request.POST['password'])
 		if result['status'] == 'success':
 			request.session['userid'] = request.POST['username']
@@ -69,27 +65,36 @@ class PostTicketData(View):
 		api_key = request.META.get('HTTP_AUTHORIZATION')
 
 		if user_id is not None or api_key == settings.API_KEY:
-		# 	return JsonResponse({'status': 'login'})
-		# else:
-
-		# 	if api_key is not None:
-		# 		if api_key != '1234':
-		# 			return JsonResponse({'results': 'login'})
 			logger.debug("ip = {0} && post data  == {1}".format(ip,alldata))
 
 			created_dt = datetime.datetime.strptime(
 				str(alldata.get('date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
 			
-			t = Ticket(created_dt
-				,alldata.get('division')
-				,alldata.getlist('pg[]')
-				,alldata.get('error_count')
-				,alldata.get('ticket_num')
-				,alldata.get('outage_caused')
-				,alldata.get('system_caused')
-				,alldata.get('addt_notes')
-				,alldata.get('ticket_type')
-				,alldata.get('duration'))
+			# from dateutil.parser import parse
+			# print 'string created_dt == ', alldata.get('date')
+			# created_dt = parse(alldata.get('date'))
+			# print 'created_dt == ', created_dt
+			# print 'type created_dt == ', type(created_dt)
+			# print 'dir created_dt == ', dir(created_dt)
+			# print 'dir created_dt.tzinfo == ', dir(created_dt.tzinfo)
+			# print 'created_dt.tzinfo == ', created_dt.tzinfo
+			# print 'created_dt.tzinfo tzname == ', dir(created_dt.tzinfo.tzname)
+			# print 'created_dt.tzinfo utcoffser== ', dir(created_dt.tzinfo.utcoffset)
+			print 'created_dt.tzname == ', type(created_dt)
+			
+			t = Ticket(created_dt=created_dt
+				,division=alldata.get('division')
+				,pg=alldata.getlist('pg[]')
+				,error_count=alldata.get('error_count')
+				,ticket_num=alldata.get('ticket_num')
+				,outage_caused=alldata.get('outage_caused')
+				,system_caused=alldata.get('system_caused')
+				,addt_notes=alldata.get('addt_notes')
+				,ticket_type=alldata.get('ticket_type')
+				,duration=alldata.get('duration')
+				,timezone='tz'
+				,ticket_link=alldata.get('ticket_link')
+				)
 			
 			logger.debug("ip = {0} &&  insert document == {1}".format(ip,t))
 			
@@ -111,7 +116,10 @@ class PostTicketData(View):
 						'system_caused': sys.ID,
 						'create_user_id': user_id,
 						'update_user_id': user_id,
+						'timezone': created_dt,
+						'ticket_link': t.ticket_link
 					}
+					print 'ticket_info == ', ticket_info
 
 					try:
 						ticket = Tickets.objects.get(ticket_num=t.ticket_num)
@@ -121,7 +129,6 @@ class PostTicketData(View):
 					if ticket is None:
 						ticket = Tickets.objects.create(**ticket_info)
 					else:
-						print 'Ticket already present'
 						return JsonResponse({'status': 'Ticket already present'})
 					
 					for each in t.pg:
@@ -150,14 +157,12 @@ class GetTicketData(View):
 		return JsonResponse({'status': 'success'})
 
 	def post(self, request):
-		print 'get_ticket_data'
+		
 		user_id = utils.check_session_variable(request)
 
 		print 'get_ticket_data userid == ', user_id
 		ip = utils.getip()
-		
 		alldata = request.POST
-		print 'doc == ', alldata
 		
 		api_key = None
 		api_key = request.META.get('HTTP_AUTHORIZATION')
@@ -367,7 +372,6 @@ class GetTicketData(View):
 						print 'outage_qry == ', outage_qry
 						print 'system_qry == ', system_qry
 						print 'pg_qry == ', pg_qry
-
 						print 'start_date_qry == ', start_date_qry_set
 						print 'end_date_qry == ', end_date_qry_set
 						print 'ticket_num_qry == ', ticket_num_qry_set
@@ -438,10 +442,10 @@ def set_query_params(**kwargs):
 		or kwargs['ticket_num_qry_set'] \
 		or kwargs['duration_qry_set'] \
 		or kwargs['error_count_qry_set']:
-		qry = kwargs['qry'] + ' where ' 
+		qry = kwargs['qry'] + ' where tb1.valid_flag = "Y" ' 
 
 	if kwargs['start_date_qry_set']:
-		qry = qry + kwargs['start_date_qry']
+		qry = qry + ' and ' + kwargs['start_date_qry']
 		prev_qry_set = True 
 
 	# if end_date_qry_set:
@@ -451,23 +455,22 @@ def set_query_params(**kwargs):
 	# 	else:
 	# 		qry = qry + end_date_qry
 	# 		prev_qry_set = True
-	
+
+	print 'prem qry = ', qry	
 	if kwargs['ticket_num_qry_set']:
 		if prev_qry_set:
 			qry = qry + ' and ' + kwargs['ticket_num_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + kwargs['ticket_num_qry']
-			prev_qry_set = True		
-	
-	print 'set_quert_params ticket == ', qry				
+			qry = qry + ' and ' + kwargs['ticket_num_qry']
+			prev_qry_set = True					
 
 	if kwargs['duration_qry_set']:
 		if prev_qry_set:
 			qry = qry + ' and ' + kwargs['duration_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + kwargs['duration_qry']
+			qry = qry + ' and ' + kwargs['duration_qry']
 			prev_qry_set = True
 
 	if kwargs['error_count_qry_set']:
@@ -475,45 +478,38 @@ def set_query_params(**kwargs):
 			qry = qry + ' and ' + kwargs['error_count_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + kwargs['error_count_qry']
+			qry = qry + ' and ' + kwargs['error_count_qry']
 			prev_qry_set = True
-
 
 	if kwargs['division_qry_set']:
 		if prev_qry_set:
 			qry = qry + ' and ' + kwargs['division_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + kwargs['division_qry']
+			qry = qry + ' and ' + kwargs['division_qry']
 			prev_qry_set = True
 			
-	print 'set_quert_params division == ', qry
-
 	if kwargs['pg_qry_set']:
 		if prev_qry_set:
 			qry = qry + ' and ' + kwargs['pg_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + kwargs['pg_qry']
+			qry = qry + ' and ' + kwargs['pg_qry']
 			prev_qry_set = True
-
-	print 'set_quert_params pg == ', qry
 
 	if kwargs['outage_qry_set']:
 		if prev_qry_set:
 			qry = qry + ' and ' + kwargs['outage_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + kwargs['outage_qry']  
+			qry = qry + ' and ' + kwargs['outage_qry']  
 			prev_qry_set = True
-
-	print 'set_quert_params outage == ', qry
 
 	if kwargs['system_qry_set']:
 		if prev_qry_set:
 			qry = qry + ' and ' + kwargs['system_qry'] 
 		else:
-			qry = qry + kwargs['system_qry']
+			qry = qry + ' and ' + kwargs['system_qry']
 	#print 'set_quert_params system == ', qry
 	print 'set_quert_params final query== ', qry
 	return qry
@@ -530,8 +526,7 @@ def enum_results(user_id,results):
 		if counter == 0:
 			prev_ticket_num = curr_ticket_num				
 						
-		if prev_ticket_num == curr_ticket_num:
-			data['ticket_num'] = each[0]
+		if prev_ticket_num == curr_ticket_num:			
 			data['ticket_num'] = each[0]
 			data['created_dt'] = each[1]
 			data['row_end_ts'] = each[4]
@@ -545,7 +540,7 @@ def enum_results(user_id,results):
 			data['crt_user_id'] = each[12]
 			data['upd_user_id'] = each[13]
 			data['login_id'] = user_id
-			
+			data['ticket_link'] = each[14]
 			if each[11] is None:
 				data['addt_notes'] = ""
 			else:
@@ -573,6 +568,8 @@ def enum_results(user_id,results):
 			data['crt_user_id'] = each[12]
 			data['upd_user_id'] = each[13]
 			data['login_id'] = user_id
+			data['ticket_link'] = each[14]
+
 			if each[11] is None:
 				data['addt_notes'] = ""
 			else:
@@ -610,8 +607,7 @@ class UpdateTicketData(View):
 		logger.debug("ip = {0} &&  alldata == {1}".format(ip,alldata))
 		api_key = request.META.get('HTTP_AUTHORIZATION')
 		if user_id is not None or api_key == settings.API_KEY:
-		# 	return JsonResponse({'status': 'login'})
-		# else:
+		
 			if alldata.get('update') == 'Y':
 			   ticket_num =  alldata.get('ticket_num')
 			   ticket = Tickets.objects.get(ticket_num=ticket_num)
@@ -619,16 +615,28 @@ class UpdateTicketData(View):
 			   ticket.save()
 			   return JsonResponse({'status': 'success'})
 
-			t = Ticket(""
-				,alldata.get('division')
-				,alldata.getlist('pg[]')
-				,alldata.get('error_count')
-				,alldata.get('ticket_num')
-				,alldata.get('outage_caused')
-				,alldata.get('system_caused')
-				,alldata.get('addt_notes')
-				,alldata.get('ticket_type')
-				,alldata.get('duration'))
+			created_dt = datetime.datetime.strptime(
+				str(alldata.get('created_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
+
+			print 'end_dt == ', alldata.get('end_dt')
+			end_dt = alldata.get('end_dt')
+			print 'len end_dt == ', len(end_dt)
+			if len(end_dt) > 0:
+				end_dt = datetime.datetime.strptime(end_dt, '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
+
+			print 'update created_dt == ', created_dt
+
+			t = Ticket(created_dt=created_dt
+				,end_dt=end_dt
+				,division=alldata.get('division')
+				,pg=alldata.getlist('pg[]')
+				,error_count=alldata.get('error_count')
+				,ticket_num=alldata.get('ticket_num')
+				,outage_caused=alldata.get('outage_caused')
+				,system_caused=alldata.get('system_caused')
+				,addt_notes=alldata.get('addt_notes')
+				,ticket_type=alldata.get('ticket_type')
+				,duration=alldata.get('duration'))
 			
 			print 'update doc  == ', t
 			logger.debug("ip == {0} && Update document == {1}".format(ip,t))
@@ -649,6 +657,9 @@ class UpdateTicketData(View):
 						ticket.outage_caused = out.ID
 						ticket.system_caused = sys.ID
 						ticket.update_user_id = user_id
+						ticket.row_create_ts = t.created_dt
+						if len(end_dt) > 0:
+							ticket.row_end_ts = t.end_dt
 						ticket.save()
 						AddtNotes.objects.get(Id=ticket).delete()
 						AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)
@@ -683,15 +694,14 @@ class RecordFeedBack(View):
 
 	def post(self, request):
 		ip = utils.getip()
-		print 'request.POST == ', request.POST
 		logger_feedback.debug("Ip-address == {0} && Name == {1} && Email == {2} && Message == {3} && Rating == {4}".format(ip,request.POST['name'],request.POST['email'], request.POST['message'], request.POST['radio_list_value']))
-		print 'feedback written'
 		return JsonResponse({'status': 'success'})
 
 
 class Ticket(object):
-	def __init__(self, created_dt, division, pg, error_count, ticket_num, outage_caused, system_caused, addt_notes, ticket_type, duration):
+	def __init__(self, created_dt = None, end_dt = None, division = None, pg = None, error_count = None, ticket_num = None, outage_caused = None, system_caused = None, addt_notes = None, ticket_type = None, duration = None, timezone = None, ticket_link = None):
 		self.created_dt = created_dt
+		self.end_dt = end_dt
 		self.division = division 
 		self.pg = pg
 		self.error_count = error_count
@@ -700,7 +710,9 @@ class Ticket(object):
 		self.system_caused = system_caused
 		self.addt_notes = addt_notes
 		self.ticket_type = ticket_type
-		self.duration = duration		
+		self.duration = duration	
+		self.timezone = timezone	
+		self.ticket_link = ticket_link
 
 	def __str__(self):
 		return """ created_dt == {0} 

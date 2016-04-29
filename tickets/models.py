@@ -61,7 +61,7 @@ class Tickets(models.Model):
 	#ID = models.UUIDField(primary_key=True, default=uuid.uuid4,
 	#                      editable=False, db_column='ticket_id')
 	ticket_num = models.CharField(max_length=100, db_column='ticket_num',primary_key=True)
-	
+	ticket_link = models.TextField(default="")
 	#divisions = models.ManyToManyField(Division,db_column='division_id')
 	division = models.IntegerField(db_column='division_id')
 	pgs = models.ManyToManyField(Pg)
@@ -76,6 +76,9 @@ class Tickets(models.Model):
 		default='9999-12-31 00:00:00.00000-00', db_column='row_end_ts')
 	create_user_id = models.CharField(max_length=50, db_column='crt_user_id',null=True)
 	update_user_id = models.CharField(max_length=50, db_column='upd_user_id',null=True)
+	valid_flag = models.CharField(max_length=1,db_column='valid_flag',default="Y")
+	timezone = models.CharField(max_length=50,db_column="timezone",default="")
+	timezone_offset = models.CharField(max_length=50,db_column="timezone_offset",default="")
 
 	class Meta:
 		db_table = 'tickets'

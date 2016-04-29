@@ -1,13 +1,13 @@
  $(document).ready(function() {
 
-    $('#loginid').click(function(){
-        $('#apikey').modal('show');    
-    })
+     $('#loginid').click(function() {
+         $('#apikey').modal('show');
+     })
 
-    $('#logout').click(function(){
-        window.location.href = "/";
-    })
-    
+     $('#logout').click(function() {
+         window.location.href = "/";
+     })
+
      //set up some minimal options for the feedback_me plugin
      fm_options = {
          //jQueryUI:true,
@@ -95,6 +95,13 @@
 
      }
 
+     function reverse(s) {
+         var o = '';
+         for (var i = s.length - 1; i >= 0; i--)
+             o += s[i];
+         return o;
+     }
+
      $('#upload').click(function(event) {
          event.preventDefault();
          event.stopPropagation();
@@ -116,38 +123,42 @@
          } else if ($('#radio1').is(':not(:checked)') && $('#radio2').is(':not(:checked)')) {
              alert('Select JIRA/TTS ticket')
          } else {
-
              duration = $('#duration').val()
              error_count = $('#errorcount').val()
              outage_caused = $('#cause').val()
              system_caused = $('#subcause').val()
-             console.log("prem duration == ", duration)
-             console.log("prem duration == ", error_count + 'over')
-             console.log("prem duration == ", outage_caused)
-             console.log("prem duration == ", system_caused)
+
              if (duration == 'Duration (in mins)') {
                  duration = ""
-                 console.log("inside")
              }
 
              if (error_count == 'Error Count') {
                  error_count = ""
-                 console.log("inside")
              }
              if (outage_caused == 'Outage Caused') {
                  outage_caused = ""
-                 console.log("inside")
              }
              if (system_caused == 'System Caused') {
                  system_caused = ""
-                 console.log("inside")
+             }
+
+             pg = get_pgs('#peergroup')
+
+             ticket_num_n_link = $('#ticket_no').val()
+
+             if (ticket_num_n_link.substring(0, 4) == 'http') {
+                 ticket_num_only = reverse(reverse(ticket_num_n_link).split('/')[0])
+                 ticket_num = ticket_num_only
+                 ticket_link = ticket_num_n_link
+             } else {
+                 alert('no http')
+                 ticket_num = ticket_num_n_link
+                 ticket_link = ''
              }
 
 
-             console.log("peergroup == ", $('#peergroup').multiselect("getChecked"))
-             pg = get_pgs('#peergroup')
-
              data = {
+                 //'date': new Date($('#datepicker').val()),
                  'date': $('#datepicker').val(),
                  'division': $('#division').val(),
                  'pg': pg,
@@ -155,11 +166,11 @@
                  'error_count': error_count,
                  'outage_caused': outage_caused,
                  'system_caused': system_caused,
-                 'ticket_num': $('#ticket_no').val(),
+                 'ticket_num': ticket_num,
+                 'ticket_link': ticket_link,
                  'addt_notes': $('#additional_notes').val(),
                  'ticket_type': $('input[name=tkt-radio]:checked').val()
              }
-             console.log('data_table insert data == ', data)
 
              $.ajax({
                  type: "POST",
@@ -168,8 +179,8 @@
                  success: function(result) {
                      if (result.status == 'success') {
                          alert("You're stored in our DB!! Playaround!!")
-                             //reset values
-                             //multiselect both needs to be together - uncheck and refresh
+                         //reset values
+                         //multiselect both needs to be together - uncheck and refresh
                          $("#peergroup option:selected").removeAttr("selected");
                          $("#peergroup").multiselect('refresh');
 
@@ -180,7 +191,7 @@
                          $('#subcause').prop('selectedIndex', 0);
                          $('#ticket_no').val('');
                          $('#additional_notes').val('');
-                             //reset values over
+                         //reset values over
                          load_datatable('N')
                      } else if (result.status == 'session timeout') {
                          alert("Session expired -- Please relogin")
@@ -251,6 +262,8 @@
                          data = {}
                          pg = get_pgs('#row_peergroup')
                          data = {
+                             'created_dt':$('#dialog_created_dt').val(),
+                             'end_dt':$('#dialog_end_dt').val(),
                              'division': $('#row_division').val(),
                              'pg': pg,
                              'duration': $('#row_duration').val(),
@@ -313,13 +326,19 @@
          if (initial == 'N') {
              pg = get_pgs('#query_peergroup')
          }
-
+         //code for ticket_link
+         ticket_num = $('#query_ticket_no').val()
+             //  if (ticket_num.substring(0,4) == 'http'){
+             //     ticket_num = ticket_num.split('/')
+             //     ticket_num[ticket_num.length-1]
+             //     alert('its http')        
+             // }
          data = {
              'start_date_s': $('#query_datepicker_start').val(),
              'start_date_e': $('#query_datepicker_start_end').val(),
              'end_date_s': $('#query_datepicker_end').val(),
              'end_date_e': $('#query_datepicker_end_end').val(),
-             'ticket_num': $('#query_ticket_no').val(),
+             'ticket_num': ticket_num,
              'division': $('#query_division').val(),
              'pg': pg,
              //'error_count': $('#duration').val(),
@@ -393,7 +412,7 @@
          $(".CSSTableGenerator1").empty()
 
          $("<table id='ticket-table' class='table  tablesorter' style='table-layout:fixed; width:100%'> </table>").appendTo('.CSSTableGenerator1')
-         $('#ticket-table').append('<thead class="thead-inverse"><tr><th style="display:none">id</th><th>User Id</th><th>Create Date</th><th>End Date</th><th>Ticket#</th><th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th></th></tr></thead>');
+         $('#ticket-table').append('<thead class="thead-inverse"><tr><th style="display:none">id</th><th>User Id</th><th>Create Date<span style="text-align:center;color:blue"> (EST)</span></th><th>End Date</th><th>Ticket#</th><th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th></th></tr></thead>');
 
          slicedata.forEach(function(obj, i, a) {
              obj.created_dt = new Date(obj.created_dt)
@@ -411,9 +430,13 @@
              } else {
                  obj.row_end_ts = dateFormat(obj.row_end_ts, "default", true)
              }
-             $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + obj.row_end_ts + '</td><td id="id_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
-             //<td>  <select id="table_pg' + i + '""> </select>  </td>                                              
-             console.log('obj-pg_names == ', pg_names)
+
+             if (obj.ticket_link.length == 0) {
+                 $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + obj.row_end_ts + '</td><td id="id_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+             } else {
+                 $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + obj.row_end_ts + '</td><td id="id_ticket_num"><a href="' + obj.ticket_link + '" target="_blank" >' + obj.ticket_num + '</a></td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+             }
+
              login_id = obj.login_id
 
              for (j = 0; j < obj.pg.length; j++) {
@@ -433,7 +456,7 @@
 
          $("#ticket-table").tablesorter({
              sortList: [],
-             headers: { 11: { sorter: false }, 12: { sorter: false } },
+             headers: { 2: { sorter: 'time' }, 11: { sorter: false }, 12: { sorter: false } },
              theme: "bootstrap",
              headerTemplate: '{content} {icon}',
              widgets: ['uitheme'],
@@ -476,9 +499,10 @@
              row = $(this).parent().parent()
              ticket_type = row.find("#id_ticket_type").html()
              created_dt = row.find("#id_created_dt").html()
+             end_dt = row.find("#id_row_end_ts").html()
              ticket_num = row.find("#id_ticket_num").html()
              division = row.find("#id_division").html()
-                 //pg = row.find("td:nth-child(6), select")
+             //pg = row.find("td:nth-child(6), select")
              pg = row.find("#id_pg, select")
              duration = row.find("#id_duration").html()
 
@@ -486,13 +510,31 @@
              outage_caused = row.find('#id_outage_caused').html()
              system_caused = row.find("#id_system_caused").html()
              addt_notes = row.find("#id_addt_notes").html()
-
-             $("#dialog_created_dt").html(created_dt)
+             $('#dialog_created_dt').datetimepicker('reset');
+             $('#dialog_created_dt').datetimepicker({
+                 value: new Date(created_dt),
+                 step: 10
+             });
+             end_dt_default_est = moment.tz(new Date(), "America/New_York").format();
+             if (end_dt == ''){
+                //Don't remove the reset, the old values should be reset
+                $('#dialog_end_dt').datetimepicker('reset');
+                 $('#dialog_end_dt').datetimepicker({
+                    'value':'',
+                    'defaultDate':end_dt_default_est
+                 });
+                }
+            else{
+                 $('#dialog_end_dt').datetimepicker('reset');
+                 $('#dialog_end_dt').datetimepicker({
+                 value: new Date(end_dt),
+                 step: 10
+             });
+            }
              $("#dialog_ticket_num").html(ticket_num)
              $("#dialog_ticket_type").html(ticket_type)
              $("#dialog_division select").val(division)
              division = $("#row_division")[0]
-
              var pg_cds_array = []
              $(pg).find('option').each(function(i, selected) {
                  pg_cds_array[i] = $(selected).val().substring(0, 5);
@@ -508,7 +550,7 @@
              $("#dialog").dialog("open");
 
              //Very important 
-             //Don't remove this piece of code, if its removed you will unable to edit filter text box
+             //Don't remove this piece of code, if its removed you will unable to edit filter text box in multiselect
              //http://stackoverflow.com/questions/16683512/jquery-ui-multiselect-widget-search-filter-not-receiving-focus-when-in-a-jquery
              if ($.ui && $.ui.dialog && $.ui.dialog.prototype._allowInteraction) {
                  var ui_dialog_interaction = $.ui.dialog.prototype._allowInteraction;

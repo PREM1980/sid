@@ -40,7 +40,7 @@ all_query = {'generic': """
 							left outer join
 							sid.addt_notes tb9
 							on tb1.ticket_num = tb9.notes_id
-							where tb1.valid_flag = 'Y'
+							where tb1.valid_flag = "Y"
 							order by tb1.row_create_ts desc,tb1.ticket_num desc
 					""",
 
@@ -85,6 +85,7 @@ all_query = {'generic': """
 							left outer join
 							sid.addt_notes tb9
 							on tb1.ticket_num = tb9.notes_id
+							where tb1.valid_flag = "Y"
 					""",
 		'pg_conditions':"""
 					select   tb1.ticket_num
@@ -127,6 +128,7 @@ all_query = {'generic': """
 							left outer join
 							sid.addt_notes tb9
 							on tb1.ticket_num = tb9.notes_id
+							where tb1.valid_flag = "Y"
 					"""}
 
 #print 'qry loaded == ', p1

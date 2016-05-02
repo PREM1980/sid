@@ -151,7 +151,7 @@
                  ticket_num = ticket_num_only
                  ticket_link = ticket_num_n_link
              } else {
-                 alert('no http')
+
                  ticket_num = ticket_num_n_link
                  ticket_link = ''
              }
@@ -179,8 +179,8 @@
                  success: function(result) {
                      if (result.status == 'success') {
                          alert("You're stored in our DB!! Playaround!!")
-                         //reset values
-                         //multiselect both needs to be together - uncheck and refresh
+                             //reset values
+                             //multiselect both needs to be together - uncheck and refresh
                          $("#peergroup option:selected").removeAttr("selected");
                          $("#peergroup").multiselect('refresh');
 
@@ -262,8 +262,8 @@
                          data = {}
                          pg = get_pgs('#row_peergroup')
                          data = {
-                             'created_dt':$('#dialog_created_dt').val(),
-                             'end_dt':$('#dialog_end_dt').val(),
+                             'created_dt': $('#dialog_created_dt').val(),
+                             'end_dt': $('#dialog_end_dt').val(),
                              'division': $('#row_division').val(),
                              'pg': pg,
                              'duration': $('#row_duration').val(),
@@ -391,18 +391,19 @@
      }
 
      function redrawData(pageNumber, event) {
-         //console.log('jsondata = ' + JSON.stringify(transactiondata.results))
+         console.log('jsondata = ' + JSON.stringify(transactiondata.results))
          //console.log('pageNumber = ' + pageNumber)
+         
          transactiondata_results = transactiondata.results
          if (pageNumber) {
              if (pageNumber == 1) {
                  slicedata = transactiondata_results.slice(0, 12)
              } else {
-                 slicedata = transactiondata_results.slice(pageNumber * 5,
-                     Math.min((pageNumber + 1) * 5, transactiondata_results.length));
+                 // slicedata = transactiondata_results.slice(pageNumber * 5,
+                 //     Math.min((pageNumber + 1) * 5, transactiondata_results.length));
                  //console.log('start', ((pageNumber - 1) * 12 + 1))
                  //console.log('end', 12 * pageNumber + 1)
-                 slicedata = transactiondata_results.slice(((pageNumber - 1) * 12 + 1), 12 * pageNumber + 1)
+                 slicedata = transactiondata_results.slice(((pageNumber - 1) * 12), 12 * pageNumber + 1)
                      //console.log('inside slicdata == ', slicedata)
              }
          } else {
@@ -456,7 +457,17 @@
 
          $("#ticket-table").tablesorter({
              sortList: [],
-             headers: { 2: { sorter: 'time' }, 11: { sorter: false }, 12: { sorter: false } },
+             headers: {
+                 2: {
+                     sorter: 'time'
+                 },
+                 11: {
+                     sorter: false
+                 },
+                 12: {
+                     sorter: false
+                 }
+             },
              theme: "bootstrap",
              headerTemplate: '{content} {icon}',
              widgets: ['uitheme'],
@@ -502,7 +513,7 @@
              end_dt = row.find("#id_row_end_ts").html()
              ticket_num = row.find("#id_ticket_num").html()
              division = row.find("#id_division").html()
-             //pg = row.find("td:nth-child(6), select")
+                 //pg = row.find("td:nth-child(6), select")
              pg = row.find("#id_pg, select")
              duration = row.find("#id_duration").html()
 
@@ -516,21 +527,20 @@
                  step: 10
              });
              end_dt_default_est = moment.tz(new Date(), "America/New_York").format();
-             if (end_dt == ''){
-                //Don't remove the reset, the old values should be reset
-                $('#dialog_end_dt').datetimepicker('reset');
-                 $('#dialog_end_dt').datetimepicker({
-                    'value':'',
-                    'defaultDate':end_dt_default_est
-                 });
-                }
-            else{
+             if (end_dt == '') {
+                 //Don't remove the reset, the old values should be reset
                  $('#dialog_end_dt').datetimepicker('reset');
                  $('#dialog_end_dt').datetimepicker({
-                 value: new Date(end_dt),
-                 step: 10
-             });
-            }
+                     'value': '',
+                     'defaultDate': end_dt_default_est
+                 });
+             } else {
+                 $('#dialog_end_dt').datetimepicker('reset');
+                 $('#dialog_end_dt').datetimepicker({
+                     value: new Date(end_dt),
+                     step: 10
+                 });
+             }
              $("#dialog_ticket_num").html(ticket_num)
              $("#dialog_ticket_type").html(ticket_type)
              $("#dialog_division select").val(division)

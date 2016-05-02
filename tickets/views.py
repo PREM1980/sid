@@ -442,10 +442,10 @@ def set_query_params(**kwargs):
 		or kwargs['ticket_num_qry_set'] \
 		or kwargs['duration_qry_set'] \
 		or kwargs['error_count_qry_set']:
-		qry = kwargs['qry'] + ' where tb1.valid_flag = "Y" ' 
+		qry = kwargs['qry']  + ' and '
 
 	if kwargs['start_date_qry_set']:
-		qry = qry + ' and ' + kwargs['start_date_qry']
+		qry = qry + kwargs['start_date_qry']
 		prev_qry_set = True 
 
 	# if end_date_qry_set:
@@ -462,7 +462,7 @@ def set_query_params(**kwargs):
 			qry = qry + ' and ' + kwargs['ticket_num_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + ' and ' + kwargs['ticket_num_qry']
+			qry = qry + kwargs['ticket_num_qry']
 			prev_qry_set = True					
 
 	if kwargs['duration_qry_set']:
@@ -470,7 +470,7 @@ def set_query_params(**kwargs):
 			qry = qry + ' and ' + kwargs['duration_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + ' and ' + kwargs['duration_qry']
+			qry = qry + kwargs['duration_qry']
 			prev_qry_set = True
 
 	if kwargs['error_count_qry_set']:
@@ -478,7 +478,7 @@ def set_query_params(**kwargs):
 			qry = qry + ' and ' + kwargs['error_count_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + ' and ' + kwargs['error_count_qry']
+			qry = qry + kwargs['error_count_qry']
 			prev_qry_set = True
 
 	if kwargs['division_qry_set']:
@@ -486,7 +486,7 @@ def set_query_params(**kwargs):
 			qry = qry + ' and ' + kwargs['division_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + ' and ' + kwargs['division_qry']
+			qry = qry + kwargs['division_qry']
 			prev_qry_set = True
 			
 	if kwargs['pg_qry_set']:
@@ -494,7 +494,7 @@ def set_query_params(**kwargs):
 			qry = qry + ' and ' + kwargs['pg_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + ' and ' + kwargs['pg_qry']
+			qry = qry + kwargs['pg_qry']
 			prev_qry_set = True
 
 	if kwargs['outage_qry_set']:
@@ -502,14 +502,14 @@ def set_query_params(**kwargs):
 			qry = qry + ' and ' + kwargs['outage_qry']
 			prev_qry_set = True
 		else:
-			qry = qry + ' and ' + kwargs['outage_qry']  
+			qry = qry + kwargs['outage_qry']  
 			prev_qry_set = True
 
 	if kwargs['system_qry_set']:
 		if prev_qry_set:
 			qry = qry + ' and ' + kwargs['system_qry'] 
 		else:
-			qry = qry + ' and ' + kwargs['system_qry']
+			qry = qry + kwargs['system_qry']
 	#print 'set_quert_params system == ', qry
 	print 'set_quert_params final query== ', qry
 	return qry

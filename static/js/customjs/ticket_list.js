@@ -320,19 +320,22 @@
          load_datatable('N')
      })
 
-     var load_datatable = function(initial) {
+     $('#exportExcel').click(function() {
+         load_datatable('N', 'EXCEL')
+     })
+
+     $('#exportPdf').click(function() {
+         load_datatable('N', 'PDF')
+     })
+
+     var load_datatable = function(initial, download_report) {
          data = {}
          pg = []
          if (initial == 'N') {
              pg = get_pgs('#query_peergroup')
          }
-         //code for ticket_link
          ticket_num = $('#query_ticket_no').val()
-             //  if (ticket_num.substring(0,4) == 'http'){
-             //     ticket_num = ticket_num.split('/')
-             //     ticket_num[ticket_num.length-1]
-             //     alert('its http')        
-             // }
+
          data = {
              'start_date_s': $('#query_datepicker_start').val(),
              'start_date_e': $('#query_datepicker_start_end').val(),
@@ -341,7 +344,6 @@
              'ticket_num': ticket_num,
              'division': $('#query_division').val(),
              'pg': pg,
-             //'error_count': $('#duration').val(),
              'duration': $('#query_duration').val(),
              'error_count': $('#query_errorcount').val(),
              'outage_caused': $('#query_cause').val(),
@@ -349,29 +351,51 @@
              'addt_notes': $('#query_addt_notes').html(),
              'initial': initial
          }
-
          console.log('data_table data == ', data)
 
-         $.ajax({
-             url: '/get-ticket-data',
-             type: 'POST',
-             data: data,
+         reports = ['EXCEL', 'PDF']
+         
+         if (reports.indexOf(download_report) > -1) {
+             $('#hidden_form_start_date_s').val(data['start_date_s'])
+             $('#hidden_form_start_date_e').val(data['start_date_e'])
+             $('#hidden_form_ticket_num').val(data['ticket_num'])
+             $('#hidden_form_division').val(data['division'])
+             $('#hidden_form_pg').val(data['pg'])
+             $('#hidden_form_duration').val(data['duration'])
+             $('#hidden_form_error_count').val(data['error_count'])
+             $('#hidden_form_outage_caused').val(data['outage_caused'])
+             $('#hidden_form_system_caused').val(data['system_caused'])
+             $('#hidden_form_addt_notes').val(data['addt_notes'])
+             
+             if (download_report == 'PDF') {
+                $('#downloadform').attr('action', '/pdf-download-data');
+                $('#downloadform').submit()
+             } else {
+                $('#downloadform').submit()
 
-             success: function(result) {
-                 if (result.status == 'success') {
-                     create_tickets(result)
-                     $('#loginid').html(login_id)
-                 } else if (result.status == 'session timeout') {
-                     alert("Session expired -- Please relogin")
-                     document.location.href = "/";
-                 } else {
-                     alert("Unable to get data!! Contact Support");
-                 }
-             },
-             error: function() {
-                 alert("Call to searchproduct failed");
              }
-         })
+         } else {
+             $.ajax({
+                 url: '/get-ticket-data',
+                 type: 'POST',
+                 data: data,
+
+                 success: function(result) {
+                     if (result.status == 'success') {
+                         create_tickets(result)
+                         $('#loginid').html(login_id)
+                     } else if (result.status == 'session timeout') {
+                         alert("Session expired -- Please relogin")
+                         document.location.href = "/";
+                     } else {
+                         alert("Unable to get data!! Contact Support");
+                     }
+                 },
+                 error: function() {
+                     alert("Call to searchproduct failed");
+                 }
+             })
+         }
      }
 
 
@@ -392,8 +416,6 @@
 
      function redrawData(pageNumber, event) {
          console.log('jsondata = ' + JSON.stringify(transactiondata.results))
-         //console.log('pageNumber = ' + pageNumber)
-         
          transactiondata_results = transactiondata.results
          if (pageNumber) {
              if (pageNumber == 1) {
@@ -401,10 +423,7 @@
              } else {
                  // slicedata = transactiondata_results.slice(pageNumber * 5,
                  //     Math.min((pageNumber + 1) * 5, transactiondata_results.length));
-                 //console.log('start', ((pageNumber - 1) * 12 + 1))
-                 //console.log('end', 12 * pageNumber + 1)
                  slicedata = transactiondata_results.slice(((pageNumber - 1) * 12), 12 * pageNumber + 1)
-                     //console.log('inside slicdata == ', slicedata)
              }
          } else {
              slicedata = transactiondata_results.slice(0, 12)
@@ -426,16 +445,17 @@
              }
 
              obj.created_dt = dateFormat(obj.created_dt, "default", true)
-             if (obj.row_end_ts.substring(0, 4) == '9999') {
-                 obj.row_end_ts = ""
+
+             if (obj.row_end_ts == '') {
+                 row_end_ts = ""
              } else {
-                 obj.row_end_ts = dateFormat(obj.row_end_ts, "default", true)
+                 row_end_ts = dateFormat(obj.row_end_ts, "default", true)
              }
 
              if (obj.ticket_link.length == 0) {
-                 $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + obj.row_end_ts + '</td><td id="id_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+                 $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + row_end_ts + '</td><td id="id_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
              } else {
-                 $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + obj.row_end_ts + '</td><td id="id_ticket_num"><a href="' + obj.ticket_link + '" target="_blank" >' + obj.ticket_num + '</a></td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+                 $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + row_end_ts + '</td><td id="id_ticket_num"><a href="' + obj.ticket_link + '" target="_blank" >' + obj.ticket_num + '</a></td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
              }
 
              login_id = obj.login_id

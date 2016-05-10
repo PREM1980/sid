@@ -138,6 +138,19 @@
 {% block content %}
     {% load staticfiles %}
     <!--<div id="container" style="width: 1280px;">-->
+    <form id="downloadform" style="display:none" action="/xls-download-data" method="post">
+         <input name="start_date_s" id="hidden_form_start_date_s">
+         <input name="start_date_e" id="hidden_form_start_date_e">
+         <input name="ticket_num" id="hidden_form_ticket_num">
+         <input name="division" id="hidden_form_division">
+         <input name="pg" id="hidden_form_pg">
+         <input name="duration" id="hidden_form_duration"> 
+         <input name="error_count" id="hidden_form_error_count">
+         <input name="outage_caused" id="hidden_form_outage_caused">
+         <input name="system_caused" id="hidden_form_system_caused">
+         <input name="addt_notes" id="hidden_form_addt_notes">
+         <input name="initial" id="hidden_form_initial" >
+    </form>
     <div class="container-fluid" >
         <div class="row">
             <div id="header">
@@ -150,16 +163,9 @@
         </div>
 
         <h4 style="text-align:center;color:red">Create Event Correlation Record <span style="text-align:center;color:blue">(EST)</span></h4>
-        <!--
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <span class="label label-info">Create a ticket</span>        
-            </div>
-        </div>
-        <br>
-        <!--<div class="create_container"  style="background-color: white; color: #666666; padding-left: 50px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; font-size:10px">-->
+        
         <div class="row" style="background-color:#505979;"> 
-        <!--<div class="col-sm-1"></div>-->
+        
         <div class="col-sm-11">
 
         <table class="table table-borderless">
@@ -279,71 +285,17 @@
                 
             </tr>
         </table>
-        </div>
-        </div>
-        
-        
-        
-        <!-- <div class="row">
-            <div class="col-md-12 text-center">
-                <span class="label label-info">Filter Panel</span>        
-            </div>
-        </div> -->
-        <h4 style="text-align:center;color:red">Filter Panel</h4>
-        <!--
-        <div id="accordion" class="search_container" style="background-color: #F9F1F1; color: #666666; padding-left: 50px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px;">
-        <h3> Filter Panel</h3>
-        <div>
-            <div>
-            Create Date
-            <input type="checkbox" name="vehicle" value="Bike">
-            <input type="text" id="query_datepicker_start">
-            <input type="text" id="query_datepicker_start_end">
-            </div>
-            <br>
-            <div>
-            End Date
-            <input type="checkbox" name="vehicle" value="Bike">
-            <input type="text" id="query_datepicker_end">
-            <input type="text" id="query_datepicker_end_end">
-            </div>
-            <div>
-            End Date
-            <input type="checkbox" name="vehicle" value="Bike">
-            <input type="text" id="query_datepicker_end">
-            <input type="text" id="query_datepicker_end_end">
-            </div>
-            <br>
-            <div>
-            Ticket Num
-            <input id="query_ticket_no" width="100%">
-            </div>
-            
-        </div>
-        -->
 
+        </div>
+        </div>
         
-        <!--<div class="search_container" style="background-color: white; color: #666666; padding-left: 50px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; ">-->
+            
+        <h4 style="text-align:center;color:red">Filter Panel</h4>
+
         <div class="row" style="background-color:#505979;"> 
         <!--<div class="col-sm-1"></div>-->
         <div class="col-sm-11">
         <table class="table table-borderless">
-            <!-- <tr>
-                <th>Start Date</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>End Date</th>
-                <th>Ticket Num</th>
-                <!--<th>Region</th>-->
-                
-                <!-- <th>Division</th>
-                <th>Peergroup</th> -->
-                <!-- <th>Outage Cause</th>
-                <th>System Caused</th> -->
-                <!--<th>Addt Notes</th>-->
-        
-            <!-- </tr> --> 
-
             
             <tr>
                 <td>
@@ -486,7 +438,15 @@
     <br>
     
     <div class="row">
-        <div id="pagination"></div><div style="float:right;color:red">**The table displays first 100 rows. Call <a href="api_docs" target="_blank">API</a> for more data.</div>
+        <div id="pagination"></div>
+
+
+        <div style="float:right;color:red;font-weight:bold">
+
+        <a href="#" id="exportExcel" />Excel&nbsp;<img src="{% static "images/ExcelImgSml.gif" %}" width="25" height="25" title="Export to Excel Spreadsheet" style="margin-right:10px"></a>&nbsp;
+        <a href="#" id="exportPdf">PDF&nbsp;<img src="{% static "images/PDFImgSml.gif" %}" width="25" height="25" title="Export to PDF"></a>&nbsp;&nbsp;&nbsp;
+
+        **The table displays first 100 rows. Call <a href="api_docs" target="_blank">API</a> for more data.
         <!-- <div id="downloads">
             <span id="sorter">Sort:
                                 <select id="columnDropdownWrapper">
@@ -501,8 +461,9 @@
                                         <option value="desc">Descending</option>
                                 </select>
                                 </span>
-            <!-- <a href="#" id="exportExcel" />Excel&nbsp;<img src="{% static "img/ExcelImgSml.gif" %}" width="25" height="25" title="Export to Excel Spreadsheet" style="margin-right:10px"></a>&nbsp;
-            <a href="#" id="exportpdf">PDF&nbsp;<img src="{% static "img/PDFImgSml.gif" %}" width="25" height="25" title="Export to PDF"></a>&nbsp; -->
+            -->
+            
+            </div>
         <!--</div> -->
     </div>
     <!-- <div>*Only 100 tickets are displayed</div> -->

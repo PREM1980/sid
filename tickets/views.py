@@ -1,29 +1,34 @@
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render, render_to_response, HttpResponse
 from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
-import json
 from elasticsearch import Elasticsearch, ElasticsearchException
 from elasticsearch_dsl import Search
 from elasticsearch_dsl import Search, Q
 from django.core import serializers
 from models import Tickets, Division, Duration, Pg, ErrorCount, OutageCaused, SystemCaused,AddtNotes
-import datetime
 from django.db import transaction
 from uuid import UUID
-import uuid
 from django.db import connection
-import socket
 from django.conf import settings
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from xlsxwriter.workbook import Workbook
 
 import logging
+import socket
+import uuid
+import datetime
+import json
+
 logger = logging.getLogger('app_logger')
 
 logger_feedback = logging.getLogger('feedback_logger')
 
 import queries
 import utils
+from pytz import timezone
 
 class LoginView(View):
 	@method_decorator(csrf_exempt)
@@ -69,19 +74,7 @@ class PostTicketData(View):
 
 			created_dt = datetime.datetime.strptime(
 				str(alldata.get('date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
-			
-			# from dateutil.parser import parse
-			# print 'string created_dt == ', alldata.get('date')
-			# created_dt = parse(alldata.get('date'))
-			# print 'created_dt == ', created_dt
-			# print 'type created_dt == ', type(created_dt)
-			# print 'dir created_dt == ', dir(created_dt)
-			# print 'dir created_dt.tzinfo == ', dir(created_dt.tzinfo)
-			# print 'created_dt.tzinfo == ', created_dt.tzinfo
-			# print 'created_dt.tzinfo tzname == ', dir(created_dt.tzinfo.tzname)
-			# print 'created_dt.tzinfo utcoffser== ', dir(created_dt.tzinfo.utcoffset)
-			print 'created_dt.tzname == ', type(created_dt)
-			
+						
 			t = Ticket(created_dt=created_dt
 				,division=alldata.get('division')
 				,pg=alldata.getlist('pg[]')
@@ -163,7 +156,7 @@ class GetTicketData(View):
 		print 'get_ticket_data userid == ', user_id
 		ip = utils.getip()
 		alldata = request.POST
-		
+		print 'GET alldata == ', alldata
 		api_key = None
 		api_key = request.META.get('HTTP_AUTHORIZATION')
 
@@ -174,249 +167,7 @@ class GetTicketData(View):
 		logger.debug("user_id = {0} ".format(user_id))
 		
 		if user_id is not None or api_key == settings.API_KEY:
-			
-			initial = alldata.get('initial')
-
-			doc = {
-				'start_date_s': alldata.get('start_date_s'),
-				'start_date_e': alldata.get('start_date_e'),
-				'division': alldata.get('division'),
-				'duration': alldata.get('duration'),
-				'pg': alldata.getlist('pg[]'),
-				'error_count': alldata.get('error_count'),
-				'ticket_num': alldata.get('ticket_num'),
-				'outage_caused': alldata.get('outage_caused'),
-				'system_caused': alldata.get('system_caused'),
-				'ticket_type': alldata.get('ticket_type'),
-			}
-			
-			if api_key is not None:
-				if doc['start_date_e'] is None and doc['start_date_s'] is not None:
-					return JsonResponse({'status': 'Start/End date should be specified-1'})
-				if doc['start_date_s'] is None and doc['start_date_e'] is not None:
-					return JsonResponse({'status': 'Start/End date should be specified-2'})
-				if doc['division'] is None:
-					doc['division'] = 'All'
-				if doc['duration'] is None:
-					doc['duration'] = 'All'
-				if doc['pg'] is None:
-					doc['pg'] = []
-				if doc['error_count'] is None:
-					doc['error_count'] = 'All'
-				if doc['outage_caused'] is None:
-					doc['outage_caused'] = 'All'
-				if doc['system_caused'] is None:
-					doc['system_caused'] = 'All'
-				if doc['ticket_num'] is None:
-					doc['ticket_num'] = ''
-				
-			
-			logger.debug("ip = {0} &&  document == {1} ".format(ip,doc))
-
-			try:
-				if initial == 'Y':
-					cursor = connection.cursor()
-					cursor.execute(queries.all_query['generic'])
-					results = cursor.fetchall()
-				else:
-					cursor = connection.cursor()
-
-					start_date_qry_set = end_date_qry_set = duration_qry_set = error_count_qry_set = ticket_num_qry_set = division_qry_set = pg_qry_set = outage_qry_set = system_qry_set = False
-					start_date_qry = end_date_qry = duration_qry = error_count_qry = ticket_num_qry = division_qry = pg_qry = outage_qry = system_qry = ''
-					
-					if doc['start_date_s'] == '' and doc['start_date_e'] == '':
-						pass
-					elif doc['start_date_s'] != '' and doc['start_date_e'] == '':
-						doc['start_date_e'] = doc['start_date_s']
-						start_date_qry_set = True
-						start_date_s = datetime.datetime.strptime(doc['start_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
-						start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
-						start_date_qry = " tb1.row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
-					elif doc['start_date_s'] == '' and doc['start_date_e'] != '':
-						doc['start_date_s'] = doc['start_date_e']
-						start_date_qry_set = True
-						start_date_s = datetime.datetime.strptime(doc['start_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
-						start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
-						start_date_qry = " tb1.row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
-					else:
-						start_date_qry_set = True
-						start_date_s = datetime.datetime.strptime(doc['start_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
-						start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
-						start_date_qry = " tb1.row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
-
-
-					# if doc['end_date_s'] == '' and doc['end_date_e'] == '':
-					# 	pass
-					# else:
-					# 	end_date_qry_set = True
-					# 	end_date_s = datetime.datetime.strptime(doc['end_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
-					# 	end_date_e = datetime.datetime.strptime(doc['end_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
-					# 	end_date_qry = " tb1.row_end_ts between '{end_date_s}' and '{end_date_e}' ".format(end_date_s=end_date_s,end_date_e=end_date_e)
-
-					if doc['ticket_num'] == '':
-						ticket_num_qry = ""
-					else:
-						ticket_num_qry_set = True
-						ticket_num_qry = " tb1.ticket_num = '{ticket_num}' ".format(ticket_num=doc['ticket_num'])
-
-					if doc['error_count'] in ['Error Count','All']:
-						error_count_qry = ""
-					else:
-						error_count_qry_set = True
-						error_count_qry = " tb4.error = '{error}' ".format(error=doc['error_count'])
-
-
-					if doc['duration'] in ['Duration (in mins)','All']:
-						duration_qry = ""
-					else:
-						duration_qry_set = True
-						duration_qry = " tb3.duration = '{duration}' ".format(duration=doc['duration'])
-
-
-					if doc['division'] in ['Division','All']:
-						division_qry = ""
-					else:
-						division_qry_set = True
-						division_qry = " tb2.division_name = '{division}' ".format(division=doc['division'])
-
-					if len(doc['pg']) == 0:
-						pg_qry = ""
-					else:
-						pg_qry_set = True
-						pg_cds = ['"' + each + '"' for each in doc['pg']]
-						pg_cds = ' , '.join(pg_cds)
-						pg_cds = pg_cds + ' ,"{0}"'.format('ALL')
-						pg_qry = " tb8.pg_cd in ({pg_cds}) ".format(pg_cds=pg_cds)
-
-					if doc['outage_caused'] in ['Outage Caused','All']:
-						outage_qry = ''
-					else:
-						outage_qry_set = True
-						outage_qry = " tb5.outage_caused = '{outage_caused}' ".format(outage_caused=doc['outage_caused'])
-
-					
-					if doc['system_caused'] in ['System Caused','All']:
-						system_qry = ''
-					else:
-						system_qry_set = True
-						system_qry = " tb6.system_caused = '{system_caused}' ".format(system_caused=doc['system_caused'])
-
-					order_qry = ' order by created_dt '
-
-					#Special condition when certain peer groups are selected.
-					if doc['division'] == 'All' and pg_qry_set:
-						pg_qry1 = " tb1.pg_cd in ({pg_cds}) ".format(pg_cds=pg_cds)
-						qry = """
-								select distinct tb2.tickets_id
-								from sid.pg tb1 
-								inner join
-								sid.tickets_pgs tb2
-								on tb1.pg_id = tb2.pg_id
-								where """
-						qry = qry + pg_qry1 
-						cursor.execute(qry)
-						results = cursor.fetchall()
-						elig_tkts = []
-						
-						for each in results:
-							elig_tkts.append(each[0])
-
-						print 'elig_tkts == ', elig_tkts
-
-						if len(elig_tkts) == 0:
-							ticket_num_qry = " tb1.ticket_num = '' "
-						else:
-							pg_qry_set = False
-							ticket_num_qry_set = True
-							tkts = ['"' + each + '"' for each in elig_tkts]
-							tkts = ' , '.join(tkts)
-							ticket_num_qry = " tb1.ticket_num in ({tkts}) ".format(tkts=tkts)
-
-						p_qry = queries.all_query['pg_conditions']
-						
-						kwargs = {'qry':p_qry
-						,'start_date_qry_set':start_date_qry_set
-						,'end_date_qry_set':end_date_qry_set
-						,'division_qry_set':division_qry_set
-						,'pg_qry_set':pg_qry_set
-						,'outage_qry_set':outage_qry_set
-						,'system_qry_set':system_qry_set
-						,'error_count_qry_set':error_count_qry_set
-						,'duration_qry_set':duration_qry_set
-						,'ticket_num_qry_set':ticket_num_qry_set
-						,'start_date_qry':start_date_qry
-						,'end_date_qry':end_date_qry
-						,'division_qry':division_qry
-						,'pg_qry':pg_qry
-						,'outage_qry':outage_qry
-						,'system_qry':system_qry
-						,'error_count_qry':error_count_qry
-						,'duration_qry':duration_qry
-						,'ticket_num_qry':ticket_num_qry						
-						}
-
-						p_qry = set_query_params(**kwargs)
-						p_qry = p_qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc LIMIT 100'
-						print 'over**'
-						print '***pg_qry*** == ', p_qry
-
-						logger.debug("ip = {0} &&  multiple tkt_qry == {1}".format(ip,p_qry))
-						cursor.execute(p_qry)
-						results = cursor.fetchall()
-
-					else:
-						print 'start_date_qry == ', start_date_qry
-						print 'end_date_qry == ', end_date_qry
-						print 'ticket_num_qry == ', ticket_num_qry
-						print 'division_qry == ', division_qry
-						print 'outage_qry == ', outage_qry
-						print 'system_qry == ', system_qry
-						print 'pg_qry == ', pg_qry
-						print 'start_date_qry == ', start_date_qry_set
-						print 'end_date_qry == ', end_date_qry_set
-						print 'ticket_num_qry == ', ticket_num_qry_set
-						print 'division_qry == ', division_qry_set
-						print 'outage_qry == ', outage_qry_set
-						print 'system_qry == ', system_qry_set
-						print 'pg_qry == ', pg_qry
-
-						qry = queries.all_query['conditions']
-
-						kwargs = {'qry':qry
-						,'start_date_qry_set':start_date_qry_set
-						,'end_date_qry_set':end_date_qry_set
-						,'division_qry_set':division_qry_set
-						,'pg_qry_set':pg_qry_set
-						,'outage_qry_set':outage_qry_set
-						,'system_qry_set':system_qry_set
-						,'error_count_qry_set':error_count_qry_set
-						,'duration_qry_set':duration_qry_set
-						,'ticket_num_qry_set':ticket_num_qry_set
-						,'start_date_qry':start_date_qry
-						,'end_date_qry':end_date_qry
-						,'division_qry':division_qry
-						,'pg_qry':pg_qry
-						,'outage_qry':outage_qry
-						,'system_qry':system_qry
-						,'error_count_qry':error_count_qry
-						,'duration_qry':duration_qry
-						,'ticket_num_qry':ticket_num_qry						
-						}
-						qry = set_query_params(**kwargs)
-						
-						qry = qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc'
-
-						logger.debug("ip = {0} &&  query == {1}".format(ip,qry))
-						cursor.execute(qry)
-						results = cursor.fetchall()
-				
-				logger.debug("ip = {0} &&  results-len == {1}".format(ip,len(results)))
-				output = enum_results(user_id,results)
-				
-			except Exception as e:
-				print 'Select Exception == ', e
-				logger.debug("MySQLException == {0}".format(e))
-				return JsonResponse({'status': 'failure'})
+			output = get_ticket_data(alldata,api_key,ip,user_id)
 
 			#print 'output == ', output
 			logger.debug("ip = {0} &&  output == {1}".format(ip,output))
@@ -426,8 +177,241 @@ class GetTicketData(View):
 			print 'get-ticket-data no valid session '
 			return JsonResponse({'status': 'session timeout'})
 
-# def set_query_params(qry,start_date_qry_set,end_date_qry_set,division_qry_set,pg_qry_set,outage_qry_set,system_qry_set,ticket_num_qry_set
-# 	,start_date_qry,end_date_qry,ticket_num_qry,division_qry,pg_qry,outage_qry,system_qry):
+def get_ticket_data(alldata,api_key,ip,user_id):
+	
+	initial = alldata.get('initial')
+	
+
+	doc = {
+		'start_date_s': alldata.get('start_date_s'),
+		'start_date_e': alldata.get('start_date_e'),
+		'division': alldata.get('division'),
+		'duration': alldata.get('duration'),
+		'pg': alldata.getlist('pg[]'),
+		'error_count': alldata.get('error_count'),
+		'ticket_num': alldata.get('ticket_num'),
+		'outage_caused': alldata.get('outage_caused'),
+		'system_caused': alldata.get('system_caused'),
+		'ticket_type': alldata.get('ticket_type'),
+	}
+	
+	
+	if api_key is not None:
+		if doc['start_date_e'] is None and doc['start_date_s'] is not None:
+			return JsonResponse({'status': 'Start/End date should be specified-1'})
+		if doc['start_date_s'] is None and doc['start_date_e'] is not None:
+			return JsonResponse({'status': 'Start/End date should be specified-2'})
+		if doc['division'] is None:
+			doc['division'] = 'All'
+		if doc['duration'] is None:
+			doc['duration'] = 'All'
+		if doc['pg'] is None:
+			doc['pg'] = []
+		if doc['error_count'] is None:
+			doc['error_count'] = 'All'
+		if doc['outage_caused'] is None:
+			doc['outage_caused'] = 'All'
+		if doc['system_caused'] is None:
+			doc['system_caused'] = 'All'
+		if doc['ticket_num'] is None:
+			doc['ticket_num'] = ''
+		
+	
+	logger.debug("ip = {0} &&  document == {1} ".format(ip,doc))
+
+	try:
+		if initial == 'Y':
+			cursor = connection.cursor()
+			cursor.execute(queries.all_query['generic'])
+			results = cursor.fetchall()
+		else:
+			cursor = connection.cursor()
+
+			start_date_qry_set = end_date_qry_set = duration_qry_set = error_count_qry_set = ticket_num_qry_set = division_qry_set = pg_qry_set = outage_qry_set = system_qry_set = False
+			start_date_qry = end_date_qry = duration_qry = error_count_qry = ticket_num_qry = division_qry = pg_qry = outage_qry = system_qry = ''
+			
+			if doc['start_date_s'] == '' and doc['start_date_e'] == '':
+				pass
+			elif doc['start_date_s'] != '' and doc['start_date_e'] == '':
+				doc['start_date_e'] = doc['start_date_s']
+				start_date_qry_set = True
+				start_date_s = datetime.datetime.strptime(doc['start_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
+				start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
+				start_date_qry = " tb1.row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
+			elif doc['start_date_s'] == '' and doc['start_date_e'] != '':
+				doc['start_date_s'] = doc['start_date_e']
+				start_date_qry_set = True
+				start_date_s = datetime.datetime.strptime(doc['start_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
+				start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
+				start_date_qry = " tb1.row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
+			else:
+				start_date_qry_set = True
+				start_date_s = datetime.datetime.strptime(doc['start_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
+				start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
+				start_date_qry = " tb1.row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
+
+
+			# if doc['end_date_s'] == '' and doc['end_date_e'] == '':
+			# 	pass
+			# else:
+			# 	end_date_qry_set = True
+			# 	end_date_s = datetime.datetime.strptime(doc['end_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
+			# 	end_date_e = datetime.datetime.strptime(doc['end_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
+			# 	end_date_qry = " tb1.row_end_ts between '{end_date_s}' and '{end_date_e}' ".format(end_date_s=end_date_s,end_date_e=end_date_e)
+
+			if doc['ticket_num'] == '':
+				ticket_num_qry = ""
+			else:
+				ticket_num_qry_set = True
+				ticket_num_qry = " tb1.ticket_num = '{ticket_num}' ".format(ticket_num=doc['ticket_num'])
+
+			if doc['error_count'] in ['Error Count','All']:
+				error_count_qry = ""
+			else:
+				error_count_qry_set = True
+				error_count_qry = " tb4.error = '{error}' ".format(error=doc['error_count'])
+
+
+			if doc['duration'] in ['Duration (in mins)','All']:
+				duration_qry = ""
+			else:
+				duration_qry_set = True
+				duration_qry = " tb3.duration = '{duration}' ".format(duration=doc['duration'])
+
+
+			if doc['division'] in ['Division','All']:
+				division_qry = ""
+			else:
+				division_qry_set = True
+				division_qry = " tb2.division_name = '{division}' ".format(division=doc['division'])
+
+			if len(doc['pg']) == 0:
+				pg_qry = ""
+			else:
+				pg_qry_set = True
+				pg_cds = ['"' + each + '"' for each in doc['pg']]
+				pg_cds = ' , '.join(pg_cds)
+				pg_cds = pg_cds + ' ,"{0}"'.format('ALL')
+				pg_qry = " tb8.pg_cd in ({pg_cds}) ".format(pg_cds=pg_cds)
+
+			if doc['outage_caused'] in ['Outage Caused','All']:
+				outage_qry = ''
+			else:
+				outage_qry_set = True
+				outage_qry = " tb5.outage_caused = '{outage_caused}' ".format(outage_caused=doc['outage_caused'])
+
+			
+			if doc['system_caused'] in ['System Caused','All']:
+				system_qry = ''
+			else:
+				system_qry_set = True
+				system_qry = " tb6.system_caused = '{system_caused}' ".format(system_caused=doc['system_caused'])
+
+			order_qry = ' order by created_dt '
+
+			#Special condition when certain peer groups are selected.
+			if doc['division'] == 'All' and pg_qry_set:
+				pg_qry1 = " tb1.pg_cd in ({pg_cds}) ".format(pg_cds=pg_cds)
+				qry = """
+						select distinct tb2.tickets_id
+						from sid.pg tb1 
+						inner join
+						sid.tickets_pgs tb2
+						on tb1.pg_id = tb2.pg_id
+						where """
+				qry = qry + pg_qry1 
+				cursor.execute(qry)
+				results = cursor.fetchall()
+				elig_tkts = []
+				
+				for each in results:
+					elig_tkts.append(each[0])
+
+				print 'elig_tkts == ', elig_tkts
+
+				if len(elig_tkts) == 0:
+					ticket_num_qry = " tb1.ticket_num = '' "
+				else:
+					pg_qry_set = False
+					ticket_num_qry_set = True
+					tkts = ['"' + each + '"' for each in elig_tkts]
+					tkts = ' , '.join(tkts)
+					ticket_num_qry = " tb1.ticket_num in ({tkts}) ".format(tkts=tkts)
+
+				p_qry = queries.all_query['pg_conditions']
+				
+				kwargs = {'qry':p_qry
+				,'start_date_qry_set':start_date_qry_set
+				,'end_date_qry_set':end_date_qry_set
+				,'division_qry_set':division_qry_set
+				,'pg_qry_set':pg_qry_set
+				,'outage_qry_set':outage_qry_set
+				,'system_qry_set':system_qry_set
+				,'error_count_qry_set':error_count_qry_set
+				,'duration_qry_set':duration_qry_set
+				,'ticket_num_qry_set':ticket_num_qry_set
+				,'start_date_qry':start_date_qry
+				,'end_date_qry':end_date_qry
+				,'division_qry':division_qry
+				,'pg_qry':pg_qry
+				,'outage_qry':outage_qry
+				,'system_qry':system_qry
+				,'error_count_qry':error_count_qry
+				,'duration_qry':duration_qry
+				,'ticket_num_qry':ticket_num_qry						
+				}
+
+				p_qry = set_query_params(**kwargs)
+				p_qry = p_qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc LIMIT 100'
+				print 'over**'
+				print '***pg_qry*** == ', p_qry
+
+				logger.debug("ip = {0} &&  multiple tkt_qry == {1}".format(ip,p_qry))
+				cursor.execute(p_qry)
+				results = cursor.fetchall()
+
+			else:
+				qry = queries.all_query['conditions']
+
+				kwargs = {'qry':qry
+				,'start_date_qry_set':start_date_qry_set
+				,'end_date_qry_set':end_date_qry_set
+				,'division_qry_set':division_qry_set
+				,'pg_qry_set':pg_qry_set
+				,'outage_qry_set':outage_qry_set
+				,'system_qry_set':system_qry_set
+				,'error_count_qry_set':error_count_qry_set
+				,'duration_qry_set':duration_qry_set
+				,'ticket_num_qry_set':ticket_num_qry_set
+				,'start_date_qry':start_date_qry
+				,'end_date_qry':end_date_qry
+				,'division_qry':division_qry
+				,'pg_qry':pg_qry
+				,'outage_qry':outage_qry
+				,'system_qry':system_qry
+				,'error_count_qry':error_count_qry
+				,'duration_qry':duration_qry
+				,'ticket_num_qry':ticket_num_qry						
+				}
+				qry = set_query_params(**kwargs)
+				
+				qry = qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc'
+
+				logger.debug("ip = {0} &&  query == {1}".format(ip,qry))
+				cursor.execute(qry)
+				results = cursor.fetchall()
+		
+		logger.debug("ip = {0} &&  results-len == {1}".format(ip,len(results)))
+		output = enum_results(user_id,results)
+		
+	except Exception as e:
+		print 'Select Exception == ', e
+		logger.debug("MySQLException == {0}".format(e))
+		return JsonResponse({'status': 'failure'})
+
+	return output
+
+
 def set_query_params(**kwargs):
 
 	prev_qry_set = False
@@ -529,7 +513,10 @@ def enum_results(user_id,results):
 		if prev_ticket_num == curr_ticket_num:			
 			data['ticket_num'] = each[0]
 			data['created_dt'] = each[1]
-			data['row_end_ts'] = each[4]
+			if each[4].year == 9999:
+				data['row_end_ts'] = ""
+			else:
+				data['row_end_ts'] = each[4]
 			data['ticket_type'] = each[2]
 			data['division'] = each[5]
 			pg_cd.append(each[10])
@@ -557,7 +544,11 @@ def enum_results(user_id,results):
 
 			data['ticket_num'] = each[0]
 			data['created_dt'] = each[1]
-			data['row_end_ts'] = each[4]
+			#data['row_end_ts'] = each[4]
+			if each[4].year == 9999:
+				data['row_end_ts'] = ""
+			else:				
+				data['row_end_ts'] = each[4]
 			data['ticket_type'] = each[2]
 			data['division'] = each[5]
 			pg_cd.append(each[10])
@@ -591,6 +582,252 @@ def enum_results(user_id,results):
 	return output
 
 
+
+class PDFDownload(View):
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(PDFDownload, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		return JsonResponse({'status': 'success'})
+
+	def post(self, request):
+		user_id = utils.check_session_variable(request)
+		ip = utils.getip()
+		alldata = request.POST
+		api_key = None
+		api_key = request.META.get('HTTP_AUTHORIZATION')
+		print 'download request.POST alldata== ', alldata
+		print 'download ip== ', ip
+
+		if api_key is not None:
+			if api_key != settings.API_KEY:
+				return JsonResponse({'status': 'Invalid Key..Contact support!!'})
+
+		logger.debug("user_id = {0} ".format(user_id))
+		if user_id is not None or api_key == settings.API_KEY:
+			output = get_ticket_data(alldata,api_key,ip,user_id)
+			logger.debug("ip = {0} &&  output == {1}".format(ip,output))
+
+			filename = 'Service_Impact_Database_Report_' + '{:%a_%b_%Y_%H_%M_%S}'.format(datetime.datetime.now()) + '.pdf'
+			response = HttpResponse(content_type='application/pdf')
+			response['Content-Disposition'] = 'attachment; filename=' + filename
+
+			# Create the PDF object, using the response object as its "file."
+			p = canvas.Canvas(response,pagesize=letter)
+
+			# Draw things on the PDF. Here's where the PDF generation happens.
+			# See the ReportLab documentation for the full list of functionality.
+			
+			output = get_ticket_data(alldata,api_key,ip,user_id)
+			
+			#output = []
+
+			width, height = letter
+
+			p.setLineWidth(.3)
+			p.setFont('Helvetica',12)
+			
+			print 'width == ', width
+			print 'height == ', height
+			
+			(incr, x, y, x1) = initpages(height)
+			# t1="""Hello How are you?? Hello How are you?? Hello How are you?? Hello How are you?? Hello How are you??
+			#  Hello How are you?? Hello How are you??Hello How are you??Hello How are you??Hello How are you??"""
+			# t1_len = len(t1)
+			# print t1_len
+			# n = 75
+			# split_lines = [t1[i:i+n] for i in range(0, len(t1), n)]
+			# print split_lines
+
+
+			# p.drawString(x, y, t1)
+			#p.drawString(x, y-15, t1)
+
+
+			for each in output:
+				print 'value of height = {0} , value of x = {1} , value of y = {2}'.format(height,x,y)
+				p.drawString(x, y, 'User Id:')
+				p.drawString(x1, y, each['crt_user_id'])
+				y = y - incr
+				y = page_break_called(p,y,height)
+
+				p.drawString(x, y, 'Create Date:')
+				p.drawString(x1, y, '{:%a %b %Y %H:%M:%S}'.format(each['created_dt']))
+				y = y - incr
+				y = page_break_called(p,y,height)
+
+				p.drawString(x, y, 'End Date:')
+				if each['row_end_ts'] != "":
+					#sheet.write(row,2,'{:%a %b %Y %H:%M:%S}'.format(each['row_end_ts']))
+					p.drawString(x1, y, '{:%a %b %Y %H:%M:%S}'.format(each['row_end_ts']))
+				y = y - incr
+				y = page_break_called(p,y,height)
+				
+				p.drawString(x, y, 'Ticket #:')
+				p.drawString(x1, y, each['ticket_num'])
+				y = y - incr
+				y = page_break_called(p,y,height)
+				
+				p.drawString(x, y, 'Division:')
+				p.drawString(x1, y, each['division'])
+				y = y - incr
+				y = page_break_called(p,y,height)
+
+				p.drawString(x, y, 'PeerGroup:')
+				p.drawString(x1, y, ','.join(each['pg']))
+				y = y - incr
+				y = page_break_called(p,y,height)
+
+				p.drawString(x, y, 'Duration:')
+				p.drawString(x1, y, each['duration'])
+				y = y - incr
+				y = page_break_called(p,y,height)
+
+				p.drawString(x, y, 'Error Count:')
+				p.drawString(x1, y, each['error_count'])
+				y = y - incr
+				y = page_break_called(p,y,height)
+
+				p.drawString(x, y, 'Outage Caused:')
+				p.drawString(x1, y, each['outage_caused'])
+				y = y - incr
+				y = page_break_called(p,y,height)
+
+				p.drawString(x, y, 'System Caused:')
+				p.drawString(x1, y, each['system_caused'])
+				y = y - incr
+				y = page_break_called(p,y,height)
+
+				p.drawString(x, y, 'Addt Notes:')
+				n = 75
+				split_lines = [each['addt_notes'][i:i+n] for i in range(0, len(each['addt_notes']), n)]
+
+				for line in split_lines:
+					p.drawString(x1, y, line)
+					y = y - incr
+					y = page_break_called(p,y,height)
+				
+				if len(split_lines) == 0:
+					p.drawString(x1, y, each['addt_notes'])
+					y = y - incr
+					y = page_break_called(p,y,height)
+
+			# Close the PDF object cleanly, and we're done.
+				p.drawString(x, y, 120 * '-')
+				y = y - incr
+				y = page_break_called(p,y,height)
+
+
+			p.save()
+			print 'PDF response done'
+			return response
+		else:
+			print 'get-ticket-data no valid session '
+			return JsonResponse({'status': 'session timeout'})
+
+def initpages(height):
+	incr = 15
+	x = 20
+	x1 = 130
+	y = height - 30
+	return incr, x, y, x1
+
+def page_break_called(p,y,height):
+
+	if y < 40:
+		print 'page break called height == ', str(height) + ' **  ' + str(y)
+		p.showPage()
+		(incr, x, y, x1) = initpages(height)
+		width, height = letter
+		#p.append(PageBreak())	
+		#return height
+	return y
+
+
+class ExcelDownload(View):
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(ExcelDownload, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		return JsonResponse({'status': 'success'})
+
+	def post(self, request):
+		user_id = utils.check_session_variable(request)
+		ip = utils.getip()
+		alldata = request.POST
+		api_key = None
+		api_key = request.META.get('HTTP_AUTHORIZATION')
+		print 'download request.POST alldata== ', alldata
+		print 'download ip== ', ip
+
+		if api_key is not None:
+			if api_key != settings.API_KEY:
+				return JsonResponse({'status': 'Invalid Key..Contact support!!'})
+
+		logger.debug("user_id = {0} ".format(user_id))
+		if user_id is not None or api_key == settings.API_KEY:
+			output = get_ticket_data(alldata,api_key,ip,user_id)
+			logger.debug("ip = {0} &&  output == {1}".format(ip,output))
+
+			import StringIO
+			# create a workbook in memory
+			output = StringIO.StringIO()
+			book = Workbook(output)
+
+			sheet = book.add_worksheet('test')
+			boldformat = book.add_format({'bold':True})
+
+			sheet.set_column(0,15,25)
+
+			curr_time = datetime.datetime.now(timezone('UTC'))
+			now_est = curr_time.astimezone(timezone('US/Eastern'))
+			fmt = "%Y-%m-%d %H:%M:%S %Z%z"
+
+			sheet.write(0, 0, 'Ticket Details  -- Report Generated at : ' + now_est.strftime(fmt), boldformat)
+
+			sheet.write(3, 0, 'User Id',boldformat)
+			sheet.write(3, 1, 'Create Date',boldformat)
+			sheet.write(3, 2, 'End Date',boldformat)
+			sheet.write(3, 3, 'Ticket#',boldformat)
+			sheet.write(3, 4, 'Division',boldformat)
+			sheet.write(3, 5, 'PeerGroup',boldformat)
+			sheet.write(3, 6, 'Duration',boldformat)
+			sheet.write(3, 7, 'Error Count',boldformat)
+			sheet.write(3, 8, 'Outage Caused',boldformat)
+			sheet.write(3, 9, 'System Caused',boldformat)
+			sheet.write(3, 10, 'Addt Notes',boldformat)
+			row = 4
+			data = get_ticket_data(alldata,api_key,ip,user_id)
+			for each in data:
+				sheet.write(row,0,each['crt_user_id'])
+				sheet.write(row,1,'{:%a %b %Y %H:%M:%S}'.format(each['created_dt']))
+				if each['row_end_ts'] != "":
+					sheet.write(row,2,'{:%a %b %Y %H:%M:%S}'.format(each['row_end_ts']))
+				sheet.write(row,3,each['ticket_num'])
+				sheet.write(row,4,each['division'])
+				sheet.write(row,5,','.join(each['pg']))
+				sheet.write(row,6,each['duration'])
+				sheet.write(row,7,each['error_count'])
+				sheet.write(row,8,each['outage_caused'])
+				sheet.write(row,9,each['system_caused'])
+				sheet.write(row,10,each['addt_notes'])
+				row += 1
+
+			book.close()
+			# construct response
+			output.seek(0)
+			response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+			filename = 'Service_Impact_Database_Report_' + '{:%a_%b_%Y_%H_%M_%S}'.format(datetime.datetime.now())
+			response['Content-Disposition'] = "attachment; filename=" + filename + '.xlsx'
+			return response
+		else:
+			print 'get-ticket-data no valid session '
+			return JsonResponse({'status': 'session timeout'})
+
 class UpdateTicketData(View):
 
 	@method_decorator(csrf_exempt)
@@ -612,6 +849,7 @@ class UpdateTicketData(View):
 			   ticket_num =  alldata.get('ticket_num')
 			   ticket = Tickets.objects.get(ticket_num=ticket_num)
 			   ticket.row_end_ts = datetime.datetime.now()
+			   print 'prem prem update datetime == ', ticket.row_end_ts
 			   ticket.save()
 			   return JsonResponse({'status': 'success'})
 

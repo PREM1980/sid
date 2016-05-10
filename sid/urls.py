@@ -1,15 +1,11 @@
 from django.conf.urls import include, url
 from django.contrib import admin
-from tickets.views import PostTicketData, GetTicketData,UpdateTicketData,RecordFeedBack, LoginView
+from tickets.views import PostTicketData, GetTicketData,UpdateTicketData,RecordFeedBack, LoginView,ExcelDownload, PDFDownload
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
-    # Examples:
-    # url(r'^$', 'sid.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', TemplateView.as_view(template_name="tickets/loginpage.html")),
     url(r'^login$', LoginView.as_view()),
@@ -17,7 +13,8 @@ urlpatterns = [
     url(r'^get-ticket-data$', GetTicketData.as_view(), name="get_ticket_data"),
     url(r'^update-ticket-data$', UpdateTicketData.as_view(), name="update_ticket_data"),
     url(r'^send_feedback_clean$', RecordFeedBack.as_view()),
+    url(r'^xls-download-data$', ExcelDownload.as_view()),
+    url(r'^pdf-download-data$', PDFDownload.as_view()),
     url(r'^api_docs$', TemplateView.as_view(template_name="tickets/apipage.html"))
-
 ]
-#+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+

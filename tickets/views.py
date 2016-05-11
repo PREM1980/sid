@@ -609,8 +609,8 @@ class PDFDownload(View):
 		if user_id is not None or api_key == settings.API_KEY:
 			output = get_ticket_data(alldata,api_key,ip,user_id)
 			logger.debug("ip = {0} &&  output == {1}".format(ip,output))
-
-			filename = 'Service_Impact_Database_Report_' + '{:%a_%b_%Y_%H_%M_%S}'.format(datetime.datetime.now()) + '.pdf'
+			dt = '{:%a_%b_%Y_%H_%M_%S}'.format(datetime.datetime.now())
+			filename = 'Service_Impact_Database_Report_' + dt + '.pdf'
 			response = HttpResponse(content_type='application/pdf')
 			response['Content-Disposition'] = 'attachment; filename=' + filename
 
@@ -631,76 +631,92 @@ class PDFDownload(View):
 			
 			print 'width == ', width
 			print 'height == ', height
-			
+			dt = '{:%a/%b/%Y %H:%M:%S}'.format(datetime.datetime.now())
+			p.setFont('Helvetica-Bold',16)
+			p.drawString(200, 420, 'Event Coorelation records ')
+			p.drawString(160, 400, 'Report Generated at : ' + dt)
+			p.save()
+
 			(incr, x, y, x1) = initpages(height)
-			# t1="""Hello How are you?? Hello How are you?? Hello How are you?? Hello How are you?? Hello How are you??
-			#  Hello How are you?? Hello How are you??Hello How are you??Hello How are you??Hello How are you??"""
-			# t1_len = len(t1)
-			# print t1_len
-			# n = 75
-			# split_lines = [t1[i:i+n] for i in range(0, len(t1), n)]
-			# print split_lines
-
-
-			# p.drawString(x, y, t1)
-			#p.drawString(x, y-15, t1)
-
+				
 
 			for each in output:
-				print 'value of height = {0} , value of x = {1} , value of y = {2}'.format(height,x,y)
+				# print 'value of height = {0} , value of x = {1} , value of y = {2}'.format(height,x,y)
+				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'User Id:')
+				p.setFont('Helvetica',12)
 				p.drawString(x1, y, each['crt_user_id'])
 				y = y - incr
 				y = page_break_called(p,y,height)
 
+				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'Create Date:')
+				p.setFont('Helvetica',12)
 				p.drawString(x1, y, '{:%a %b %Y %H:%M:%S}'.format(each['created_dt']))
 				y = y - incr
 				y = page_break_called(p,y,height)
 
+				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'End Date:')
+				p.setFont('Helvetica',12)
 				if each['row_end_ts'] != "":
 					#sheet.write(row,2,'{:%a %b %Y %H:%M:%S}'.format(each['row_end_ts']))
 					p.drawString(x1, y, '{:%a %b %Y %H:%M:%S}'.format(each['row_end_ts']))
 				y = y - incr
 				y = page_break_called(p,y,height)
 				
+				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'Ticket #:')
+				p.setFont('Helvetica',12)
 				p.drawString(x1, y, each['ticket_num'])
 				y = y - incr
 				y = page_break_called(p,y,height)
 				
+				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'Division:')
+				p.setFont('Helvetica',12)
 				p.drawString(x1, y, each['division'])
 				y = y - incr
 				y = page_break_called(p,y,height)
 
+				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'PeerGroup:')
+				p.setFont('Helvetica',12)
 				p.drawString(x1, y, ','.join(each['pg']))
 				y = y - incr
 				y = page_break_called(p,y,height)
 
+				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'Duration:')
+				p.setFont('Helvetica',12)
 				p.drawString(x1, y, each['duration'])
 				y = y - incr
 				y = page_break_called(p,y,height)
 
+				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'Error Count:')
+				p.setFont('Helvetica',12)
 				p.drawString(x1, y, each['error_count'])
 				y = y - incr
 				y = page_break_called(p,y,height)
 
+				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'Outage Caused:')
+				p.setFont('Helvetica',12)
 				p.drawString(x1, y, each['outage_caused'])
 				y = y - incr
 				y = page_break_called(p,y,height)
 
+				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'System Caused:')
+				p.setFont('Helvetica',12)
 				p.drawString(x1, y, each['system_caused'])
 				y = y - incr
 				y = page_break_called(p,y,height)
 
+				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'Addt Notes:')
+				p.setFont('Helvetica',12)
 				n = 75
 				split_lines = [each['addt_notes'][i:i+n] for i in range(0, len(each['addt_notes']), n)]
 
@@ -787,7 +803,7 @@ class ExcelDownload(View):
 			now_est = curr_time.astimezone(timezone('US/Eastern'))
 			fmt = "%Y-%m-%d %H:%M:%S %Z%z"
 
-			sheet.write(0, 0, 'Ticket Details  -- Report Generated at : ' + now_est.strftime(fmt), boldformat)
+			sheet.write(0, 0, 'Event Coorelation records  -- Report Generated at : ' + now_est.strftime(fmt), boldformat)
 
 			sheet.write(3, 0, 'User Id',boldformat)
 			sheet.write(3, 1, 'Create Date',boldformat)

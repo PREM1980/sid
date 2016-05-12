@@ -354,7 +354,7 @@
          console.log('data_table data == ', data)
 
          reports = ['EXCEL', 'PDF']
-         
+
          if (reports.indexOf(download_report) > -1) {
              $('#hidden_form_start_date_s').val(data['start_date_s'])
              $('#hidden_form_start_date_e').val(data['start_date_e'])
@@ -366,12 +366,13 @@
              $('#hidden_form_outage_caused').val(data['outage_caused'])
              $('#hidden_form_system_caused').val(data['system_caused'])
              $('#hidden_form_addt_notes').val(data['addt_notes'])
-             
+
              if (download_report == 'PDF') {
-                $('#downloadform').attr('action', '/pdf-download-data');
-                $('#downloadform').submit()
+                 $('#downloadform').attr('action', '/pdf-download-data');
+                 $('#downloadform').submit()
              } else {
-                $('#downloadform').submit()
+                 $('#downloadform').attr('action', '/xls-download-data');
+                 $('#downloadform').submit()
 
              }
          } else {
@@ -443,13 +444,17 @@
              } else {
                  obj.crt_user_id = ""
              }
+             console.log('bf obj.created_dt == ' + obj.created_dt)
+             //obj.created_dt = dateFormat(obj.created_dt, "default", true)
+             obj.created_dt = dateFormat(obj.created_dt, 'mmm dd, yyyy hh:MM:ss')
 
-             obj.created_dt = dateFormat(obj.created_dt, "default", true)
+             console.log('af obj.created_dt == ' + obj.created_dt)
 
              if (obj.row_end_ts == '') {
                  row_end_ts = ""
              } else {
-                 row_end_ts = dateFormat(obj.row_end_ts, "default", true)
+                 //row_end_ts = dateFormat(obj.row_end_ts, "default", true)
+                 row_end_ts = dateFormat(obj.row_end_ts, 'mmm dd, yyyy hh:mm:ss')
              }
 
              if (obj.ticket_link.length == 0) {
@@ -474,13 +479,54 @@
                  }))
              }
          })
+         // TableSort parser for date format: Jan 6, 1978
+         $.tablesorter.addParser({
+             id: 'monthDayYear',
+             is: function(s) {
+                 return false;
+             },
+             format: function(s) {
+                 //alert('prem date == '+ s)
+                 var date = s.match(/^(\w{3})[ ](\d{1,2}),[ ](\d{4})[ ](\d{2})[:](\d{2})[:](\d{2})$/);
+                 console.log('prem date == '+ date)
+                 
+                 var m = monthNames[date[1]];
+                 var d = String(date[2]);
+                 if (d.length == 1) {
+                     d = "0" + d;
+                 }
+                 var y = date[3];
+                 return '' + y + m + d;
+             },
+             type: 'numeric'
+         });
+         var monthNames = {};
+         monthNames["Jan"] = "01";
+         monthNames["Feb"] = "02";
+         monthNames["Mar"] = "03";
+         monthNames["Apr"] = "04";
+         monthNames["May"] = "05";
+         monthNames["Jun"] = "06";
+         monthNames["Jul"] = "07";
+         monthNames["Aug"] = "08";
+         monthNames["Sep"] = "09";
+         monthNames["Oct"] = "10";
+         monthNames["Nov"] = "11";
+         monthNames["Dec"] = "12";
+
 
          $("#ticket-table").tablesorter({
              sortList: [],
              headers: {
                  2: {
-                     sorter: 'time'
+                     //sorter: 'time',
+                     //sorter:'my_date_column' 
+                     //dateFormat: "ddd mmm yyyy hh:mm:ss"
+                     //sorter: 'monthDayYear'
                  },
+                 // 2:{
+                 //    sorter: true
+                 // },
                  11: {
                      sorter: false
                  },
@@ -492,6 +538,7 @@
              headerTemplate: '{content} {icon}',
              widgets: ['uitheme'],
          });
+
 
          $('[id^=end]').click(function() {
              data = {}

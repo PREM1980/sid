@@ -1,45 +1,50 @@
  $(document).ready(function() {
 
-     $('#loginid').click(function() {
-         $('#apikey').modal('show');
-     })
+     // $('#loginid').click(function() {
+     //     $('#apikey').modal('show');
+     // })
 
-     $('#logout').click(function() {
-         window.location.href = "/";
-     })
+     // $('#logout').click(function() {
+     //     window.location.href = "/";
+     // })
 
      //set up some minimal options for the feedback_me plugin
-     fm_options = {
-         //jQueryUI:true,
-         bootstrip: true,
-         show_email: true,
-         email_required: true,
-         position: "right-top",
-         show_radio_button_list: true,
-         radio_button_list_required: true,
-         radio_button_list_title: "How do you rate this application?",
-         name_placeholder: "Name please",
-         email_placeholder: "Email goes here",
-         message_placeholder: "Go ahead, type your feedback here...",
-         name_required: true,
-         message_required: true,
-         show_asterisk_for_required: true,
-         feedback_url: "/send_feedback_clean",
-         custom_params: {
-             csrf: "my_secret_token",
-             user_id: "john_doe",
-             feedback_type: "clean_complex"
-         },
-         delayed_options: {
-             success_color: "#5cb85c",
-             fail_color: "#d2322d",
-             delay_success_milliseconds: 3500,
-             send_success: "Sent successfully :)"
-         }
-     };
+     // fm_options = {
+     //     //jQueryUI:true,
+     //     bootstrip: true,
+     //     show_email: true,
+     //     email_required: true,
+     //     position: "right-top",
+     //     show_radio_button_list: true,
+     //     radio_button_list_required: true,
+     //     radio_button_list_title: "How do you rate this application?",
+     //     name_placeholder: "Name please",
+     //     email_placeholder: "Email goes here",
+     //     message_placeholder: "Go ahead, type your feedback here...",
+     //     name_required: true,
+     //     message_required: true,
+     //     show_asterisk_for_required: true,
+     //     feedback_url: "/send_feedback_clean",
+     //     custom_params: {
+     //         csrf: "my_secret_token",
+     //         user_id: "john_doe",
+     //         feedback_type: "clean_complex"
+     //     },
+     //     delayed_options: {
+     //         success_color: "#5cb85c",
+     //         fail_color: "#d2322d",
+     //         delay_success_milliseconds: 3500,
+     //         send_success: "Sent successfully :)"
+     //     }
+     // };
 
-     //init feedback_me plugin
-     fm.init(fm_options);
+     // //init feedback_me plugin
+     // fm.init(fm_options);
+     
+
+     var toType = function(obj) {
+         return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
+        }
 
      $(function() {
          $("#accordion").accordion({
@@ -83,14 +88,11 @@
 
          multiselect_widget_length = $(pg_object).multiselect("widget").find('.ui-multiselect-checkboxes li').length
 
-         console.log('multiselect_widget_length == ', multiselect_widget_length)
-         console.log('pg.length ==', pg.length)
-
          if ((multiselect_widget_length == pg.length) && (multiselect_widget_length != 0)) {
              pg = []
              pg.push('ALL')
          }
-         console.log('return pg ==', pg)
+         
          return pg;
 
      }
@@ -207,7 +209,6 @@
      });
 
 
-
      $('#radio_division').click(function() {
          if ($('#radio_division').is(':checked')) {
              $('#divisions').show()
@@ -275,6 +276,7 @@
                              'ticket_type': $('#dialog_ticket_type').html(),
                              'update': 'N',
                          }
+                         console.log('update data == ', data)
                          $.ajax({
                              url: '/update-ticket-data',
                              type: 'POST',
@@ -380,11 +382,11 @@
                  url: '/get-ticket-data',
                  type: 'POST',
                  data: data,
-
                  success: function(result) {
                      if (result.status == 'success') {
                          create_tickets(result)
                          $('#loginid').html(login_id)
+                         set_division(login_id)
                      } else if (result.status == 'session timeout') {
                          alert("Session expired -- Please relogin")
                          document.location.href = "/";
@@ -398,6 +400,41 @@
              })
          }
      }
+
+     var set_division = function(login_id){
+        $.ajax({
+         url: '/get-ninja-users',
+         type: 'GET',
+         //data: data,
+         success: function(result) {
+             if (result.status == 'success') {
+                 console.log('call success == ', result.results)
+                 //console.log(toType(result.results))
+                 ninja_users = []
+                 console.log('***'+login_id)
+                 JSON.parse(result.results).forEach(function(obj, i, a) {
+                     console.log(obj.fields.userid)
+                     if (obj.fields.userid == login_id){
+                        console.log('id matched == ' + obj.fields.region)
+                        $("#division").val(obj.fields.region);
+                        getval({'value':obj.fields.region},'inputting',[])
+                     }
+
+                     //ninja_users.push(obj.fields.userid)
+                 })
+                 console.log(ninja_users)
+
+             } else {
+                 alert("Unable to get all NinjaUsers/Division!! Contact Support");
+             }
+         },
+         error: function() {
+             alert("Call to searchproduct failed");
+         }
+     })
+    }
+
+
 
 
      load_datatable('Y')
@@ -416,7 +453,7 @@
      }
 
      function redrawData(pageNumber, event) {
-         console.log('jsondata = ' + JSON.stringify(transactiondata.results))
+         // console.log('jsondata = ' + JSON.stringify(transactiondata.results))
          transactiondata_results = transactiondata.results
          if (pageNumber) {
              if (pageNumber == 1) {
@@ -436,50 +473,52 @@
          $('#ticket-table').append('<thead class="thead-inverse"><tr><th style="display:none">id</th><th>User Id</th><th>Create Date<span style="text-align:center;color:blue"> (EST)</span></th><th>End Date</th><th>Ticket#</th><th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th></th></tr></thead>');
 
          slicedata.forEach(function(obj, i, a) {
-             obj.created_dt = new Date(obj.created_dt)
-             console.log("object == ", obj)
-             user_id = obj.crt_user_id
-             if (typeof user_id === 'string') {
 
-             } else {
-                 obj.crt_user_id = ""
-             }
-             console.log('bf obj.created_dt == ' + obj.created_dt)
-             //obj.created_dt = dateFormat(obj.created_dt, "default", true)
-             obj.created_dt = dateFormat(obj.created_dt, 'mmm dd, yyyy hh:MM:ss')
+                 //obj.created_dt = new Date(obj.created_dt)
+                 //obj.created_dt = moment.tz(obj.created_dt, "America/New_York").format();
+                 //console.log("object == ", obj)
+                 user_id = obj.crt_user_id
+                 if (typeof user_id === 'string') {
 
-             console.log('af obj.created_dt == ' + obj.created_dt)
-
-             if (obj.row_end_ts == '') {
-                 row_end_ts = ""
-             } else {
-                 //row_end_ts = dateFormat(obj.row_end_ts, "default", true)
-                 row_end_ts = dateFormat(obj.row_end_ts, 'mmm dd, yyyy hh:mm:ss')
-             }
-
-             if (obj.ticket_link.length == 0) {
-                 $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + row_end_ts + '</td><td id="id_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
-             } else {
-                 $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + row_end_ts + '</td><td id="id_ticket_num"><a href="' + obj.ticket_link + '" target="_blank" >' + obj.ticket_num + '</a></td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
-             }
-
-             login_id = obj.login_id
-
-             for (j = 0; j < obj.pg.length; j++) {
-
-                 if (obj.pg[j] == 'ALL') {
-                     pg_name = ''
                  } else {
-                     pg_name = pg_names[obj.pg[j]]
+                     obj.crt_user_id = ""
+                 }
+                 //console.log('bf obj.created_dt == ' + obj.created_dt)
+
+                 obj.created_dt = moment.utc(obj.created_dt).format('MMM DD, YYYY HH:mm:ss');
+                 //console.log('af obj.created_dt == ' + obj.created_dt)
+
+                 if (obj.row_end_ts == '') {
+                     row_end_ts = ""
+                 } else {
+                     //row_end_ts = dateFormat(obj.row_end_ts, "default", true)
+                     //row_end_ts = dateFormat(obj.row_end_ts, 'mmm dd, yyyy hh:mm:ss')
+                     row_end_ts = moment.utc(obj.row_end_ts).format('MMM DD, YYYY HH:mm:ss');
                  }
 
-                 $('#table_pg' + i).append($('<option>', {
-                     value: obj.pg[j],
-                     text: obj.pg[j] + ' ' + pg_name
-                 }))
-             }
-         })
-         // TableSort parser for date format: Jan 6, 1978
+                 if (obj.ticket_link.length == 0) {
+                     $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + row_end_ts + '</td><td style="word-wrap: break-word" id="id_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+                 } else {
+                     $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + row_end_ts + '</td><td style="word-wrap: break-word" id="id_ticket_num"><a href="' + obj.ticket_link + '" target="_blank" >' + obj.ticket_num + '</a></td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+                 }
+
+                 login_id = obj.login_id
+
+                 for (j = 0; j < obj.pg.length; j++) {
+
+                     if (obj.pg[j] == 'ALL') {
+                         pg_name = ''
+                     } else {
+                         pg_name = pg_names[obj.pg[j]]
+                     }
+
+                     $('#table_pg' + i).append($('<option>', {
+                         value: obj.pg[j],
+                         text: obj.pg[j] + ' ' + pg_name
+                     }))
+                 }
+             })
+             // TableSort parser for date format: Jan 6, 1978
          $.tablesorter.addParser({
              id: 'monthDayYear',
              is: function(s) {
@@ -488,8 +527,8 @@
              format: function(s) {
                  //alert('prem date == '+ s)
                  var date = s.match(/^(\w{3})[ ](\d{1,2}),[ ](\d{4})[ ](\d{2})[:](\d{2})[:](\d{2})$/);
-                 console.log('prem date == '+ date)
-                 
+                 console.log('prem date == ' + date)
+
                  var m = monthNames[date[1]];
                  var d = String(date[2]);
                  if (d.length == 1) {
@@ -543,7 +582,7 @@
          $('[id^=end]').click(function() {
              data = {}
              row = $(this).parent().parent()
-             ticket_num = row.find("#id_ticket_num").html()
+             ticket_num = row.find("#id_ticket_num").text()
 
              data = {
                  'ticket_num': ticket_num,

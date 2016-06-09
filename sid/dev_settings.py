@@ -39,11 +39,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 )
 
-CUSTOM_APPS = ('tickets',)
+CUSTOM_APPS = ('tickets',
+    'vbo_module')
 
-print type(CUSTOM_APPS)
 
-print type(INSTALLED_APPS)
 INSTALLED_APPS = INSTALLED_APPS + CUSTOM_APPS
 
 MIDDLEWARE_CLASSES = (

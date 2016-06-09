@@ -4,18 +4,19 @@ headers =  {
        "AUTHORIZATION": "CPT74QBAWFIDFH4U27RT"
     } 
 payload = {
-	'start_date_s':'04/01/2016',
-	'start_date_e':'04/15/2016',
+	'date':'2016/04/01 00:00:00',
+	'division': 'west',
 	'duration':'15 - 30 minutes',
-	'pg[]':["10204", "10101", "10201", "10203", "10102", "10202"],
+	'pg[]':["10101", "10102",],
 	'error_count':'5,000 - 10,000',
 	'outage_caused':'Scheduled Maintenance',
 	'system_caused':'Capacity',
-	'ticket_num':'vpsq-1235'
+	'ticket_num':'http://comcast.com/prem1245',
+	'ticket_type':'JIRA',
+	'userid':'api'
 }
 print payload
-r = requests.post('http://localhost:8000/get-ticket-data',headers=headers,data=payload)
+r = requests.post('http://localhost:8000/post-ticket-data',headers=headers,data=payload)
 
 print r.status_code
 print r.text
-

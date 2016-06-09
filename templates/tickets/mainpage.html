@@ -10,7 +10,7 @@
     <!-- <script src="http://momentjs.com/downloads/moment-timezone.min.js"></script> -->
     <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
     <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
-
+    <script src="{% static "js/customjs/common.js" %}"></script>
     <script src="{% static "js/customjs/ticket_list.js" %}"></script>
     <script>
         
@@ -72,7 +72,8 @@
     function getval(sel, caller_function, pg_cds_array) {
         
         //Enable multiselect if All is selected  and disabled
-        
+        console.log('sel == '+ JSON.stringify(sel))
+        console.log('sel.value == '+ sel.value)
         if (caller_function == "inputting") {
             pg_widget = "#peergroup";
         } else if (caller_function == "querying"){
@@ -82,14 +83,13 @@
             pg_widget = "#row_peergroup";
         }
 
-
         $(pg_widget).multiselect("enable");
-
 
         $(pg_widget).empty();
         
         if (sel.value == "Central") {
             items = central
+            console.log('central set')
         } else if (sel.value == "Northeast") {
             items = northeast
         } else if (sel.value == "Western") {
@@ -164,9 +164,9 @@
 
         <h4 style="text-align:center;color:red">Create Event Correlation Record <span style="text-align:center;color:blue">(EST)</span></h4>
         
-        <div class="row" style="background-color:#505979;"> 
+        <div class="row" style="background-color:#505978;"  > 
         
-        <div class="col-sm-11">
+        <div class="col-sm-11" style="">
 
         <table class="table table-borderless">
             <tr>
@@ -442,8 +442,9 @@
 
 
         <div style="float:right;color:red;font-weight:bold">
-
+        <a href="/charts" />Charts</a>
         <a href="#" id="exportExcel" />Excel&nbsp;<img src="{% static "images/ExcelImgSml.gif" %}" width="25" height="25" title="Export to Excel Spreadsheet" style="margin-right:10px"></a>&nbsp;
+        
         <a href="#" id="exportPdf">PDF&nbsp;<img src="{% static "images/PDFImgSml.gif" %}" width="25" height="25" title="Export to PDF"></a>&nbsp;&nbsp;&nbsp;
 
         **The table displays first 100 rows. Call <a href="api_docs" target="_blank">API</a> for more data.

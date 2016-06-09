@@ -15,6 +15,25 @@ def JSONEncoder_newdefault(self, o):
 JSONEncoder.default = JSONEncoder_newdefault
 
 
+class NinjaUsers(models.Model):
+	REGION_CHOICES = (
+		('Central', 'Central'),
+		('Northeast', 'Northeast'),
+		('Western', 'Western'),
+	)
+	ID = models.AutoField(primary_key=True,db_column='user_id')
+	fname = models.CharField(db_column='fname',max_length=200, default='')
+	lname = models.CharField(db_column='lname',max_length=200, default='')
+	userid = models.CharField(db_column='userid',max_length=200,default='')
+	region = models.CharField(db_column='region',max_length=20,choices=REGION_CHOICES,default='Central')
+	valid_flag = models.CharField(max_length=1,db_column='valid_flag',default="Y")
+	row_create_ts = models.DateTimeField(default=datetime.now())
+	class Meta:
+		db_table = 'ninjausers'
+
+	def __unicode__(self):
+		return 'First Name : ' + self.fname + ' Last Name : ' + self.lname
+
 class Division(models.Model):
 	ID = models.AutoField(primary_key=True,db_column='division_id')
 	division_name = models.CharField(db_column='division_name',max_length=200)
@@ -98,22 +117,3 @@ class AddtNotes(models.Model):
 			self.notes = ""
 		super(AddtNotes,self).save(*args,**kwargs)
 
-
-
-
-# class Tickets(Model):
-# 	ID = columns.UUIDField(primary_key=True, default=uuid.uuid4,
-#                           editable=False, db_column='ticket_id')
-#     created_dt = columns.DateTimeField(db_column='created_dt')
-#     division = columns.Text()
-#     pg = columns.Text()
-#     duration = columns.Text()
-#     error_count = columns.Text()
-#     outage_caused = columns.Text()
-#     system_caused = columns.Text()
-#     addt_notes = columns.Text()
-#     ticket_num = columns.Text()
-#     ticket_type = columns.Text()
-#     row_create_ts = columns.DateTime(default=datetime.datetime.now())
-#     row_end_ts = columns.DateTimeField(
-#         default='9999-12-31 00:00:00.00000-00', db_column='row_end_ts')

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block jscontent %}
+    <title>NINJA Analytics and Reporting Portal - VBO  Module</title>
+    {% load staticfiles %}
+    <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+    
+    <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
+    <!-- <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script> -->
+    <script src="{% static "highcharts/highcharts.js" %}"></script>
+    <script src="{% static "highcharts/exporting.js" %}"></script>
+
+    <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
+
+    <script src="{% static "js/customjs/common.js" %}"></script>
+    <script src="{% static "js/customjs/charts.js" %}"></script>
+
+<script>
+$(document).ready(function()
+{
+    if ("{{error}}" == 'N') {
+       $('#loginid').html("{{request.session.userid}}")
+    }
+}
+)
+</script>
+    
+{% endblock jscontent %}
+
+{% block content %}
+    {% load staticfiles %}
+    <div class="container-fluid" >
+        <div class="row">
+            <div id="header">
+                <img src="{% static "images/comcast_sid_logo_web.png" %}">
+                <div id="logout"style="float:right;color:red;padding-right: 15px;font-weight:bold">Logout
+                </div>
+                <div id="loginid" style="float:right;color:red;padding-right:15px;font-weight:bold">
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6" id="container_division"></div>
+            <div class="col-md-6" id="container_pg"></div>
+        </div>
+        <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
+
+        <div class="row">
+            <div class="col-md-6" id="container_duration"></div>
+            <div class="col-md-6" id="container_error_count"></div>
+        </div>
+        <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
+
+        <div class="row">
+            <div class="col-md-6" id="container_system_caused"></div>
+            <div class="col-md-6" id="container_outage_caused"></div>
+        </div>
+        <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
+
+        
+
+    <div>
+ 
+{% endblock content %}
+   

@@ -7,7 +7,7 @@ from elasticsearch import Elasticsearch, ElasticsearchException
 from elasticsearch_dsl import Search
 from elasticsearch_dsl import Search, Q
 from django.core import serializers
-from models import Tickets, Division, Duration, Pg, ErrorCount, OutageCaused, SystemCaused,AddtNotes
+from models import Tickets, Division, Duration, Pg, ErrorCount, OutageCaused, SystemCaused,AddtNotes, NinjaUsers
 from django.db import transaction
 from uuid import UUID
 from django.db import connection
@@ -53,6 +53,19 @@ class LoginView(View):
 		else:
 			return render(request,'tickets/loginpage.html',{'error':'Y','msg':result['status']})
 
+class NinjaUsersData(View):
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(NinjaUsersData, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		try:
+			results = serializers.serialize('json', NinjaUsers.objects.all())
+		except Exception as e:
+			print 'NinjaUsersDataException == ', e 		
+		return JsonResponse({'status': 'success', 'results':results})
+
+
 class PostTicketData(View):
 
 	@method_decorator(csrf_exempt)
@@ -64,20 +77,41 @@ class PostTicketData(View):
 
 	def post(self, request):
 		user_id = utils.check_session_variable(request)
-		
+		alldata = {}
 		ip = utils.getip()
-		alldata = request.POST
+
+		alldata['date'] = request.POST.get('date')
+		alldata['division'] = request.POST.get('division')
+		alldata['pg'] = request.POST.getlist('pg[]')
+		alldata['error_count'] = request.POST.get('error_count')
+		alldata['ticket_num'] = request.POST.get('ticket_num')
+		alldata['outage_caused'] = request.POST.get('outage_caused')
+		alldata['system_caused'] = request.POST.get('system_caused')
+		alldata['addt_notes'] = request.POST.get('addt_notes')
+		alldata['ticket_type'] = request.POST.get('ticket_type')
+		alldata['duration'] = request.POST.get('duration')
+		alldata['ticket_num']= request.POST.get('ticket_num')
+		alldata['ticket_link']= request.POST.get('ticket_link')
+		alldata['userid'] = request.POST.get('userid')
+
 		api_key = request.META.get('HTTP_AUTHORIZATION')
 
 		if user_id is not None or api_key == settings.API_KEY:
+			print 'api_key ==', api_key
+			if api_key is not None:
+				error  = validate_input(alldata)
+				user_id = alldata['userid']
+				if error is not None:
+					return JsonResponse({'status': error})
+						
 			logger.debug("ip = {0} && post data  == {1}".format(ip,alldata))
-
+			print 'validated data == ', alldata
 			created_dt = datetime.datetime.strptime(
 				str(alldata.get('date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
 						
 			t = Ticket(created_dt=created_dt
 				,division=alldata.get('division')
-				,pg=alldata.getlist('pg[]')
+				,pg=alldata.get('pg')
 				,error_count=alldata.get('error_count')
 				,ticket_num=alldata.get('ticket_num')
 				,outage_caused=alldata.get('outage_caused')
@@ -139,6 +173,111 @@ class PostTicketData(View):
 		else:
 			return JsonResponse({'status': 'session timeout'})
 
+def validate_input(alldata):	
+	print 'alldata == ', alldata
+	valid_division = []
+	valid_pgs = []	
+
+	central = ['10201', '10202', '10203', '10204', '10401', '10402', '10404', '11701', '11702', '11703', '11704', '11801', '11802', '11803', '12601', '12602', '12603', '12701', '12702', '12703', '12704', '13401', '13402', '13701', '13702', '13703', '13704', '13705', '13901', '13902', '14001', '14002', '14003', '14401', '14402', '14403', '14404', '14405', '14406', '14701', '14702', '14703', '14704', '14705', '14706', '14801', '14802', '14803', '14804', '14805', '14806', '18101', '21301', '21302', '21303', '21304', '21305', '21306', '23001', '23002', '23101', '23102', '23103', '23104', '23301', '23501', '23601', '23701', '23801']
+	west 	= ['10101', '10102', '12301', '12303', '13001', '13801', '14502', '14503', '16801', '16802', '16803', '17101', '17102', '17201', '17301', '17302', '17401', '17402', '17403', '17404', '17405', '17406', '17407', '17501', '17502', '17503', '17504', '17505', '17801', '17802', '17803', '17804', '17805', '17806', '17807', '17901', '18201', '21601', '21702', '21704', '24001', '24601', '24602']
+	northeast = ['10501', '10601', '10701', '10702', '10801', '10901', '11001', '11101', '11102', '11201', '11202', '11203', '11301', '11401', '11402', '13201', '13301', '13501', '13502', '13601', '14901', '15001', '15101', '15102', '15301', '15401', '15501', '15601', '15801', '15901', '16001', '16101', '16201', '16401', '16501', '16601', '16701', '16702', '16703', '16704', '16901', '16902', '17001', '18001', '18501', '18701', '18702', '18703', '18801', '18901', '19001', '19501', '19601', '19701', '19901', '20101', '20201', '20701', '22001', '22002', '22301', '22302', '23201']
+
+	national = central + west + northeast
+
+	valid_division = ['National','Central','Northeast','West']
+	valid_division_lc = ['national','central','northeast','west']
+	
+	valid_durations = ['1 - 15 minutes'
+					,'15 - 30 minutes'
+					,'30 - 60 minutes'
+					,'1 - 3 hours'
+					,'Greater than 3 hours']
+
+	valid_error_count = ['1,000 - 5,000'
+					,'5,000 - 10,000'
+					,'10,000 - 20,000'
+					,'20,000 - 50,000'
+					,'Greater than 50,000']
+
+	valid_outage_caused = ['Scheduled Maintenance'
+							,'Scheduled Maintenance resulting in Outage'
+							,'NSA Scheduled Maintenance resulting in Outage'
+							,'Comcast System Unplanned Outage'
+							,'Non-Comcast System Outage']
+
+	valid_system_caused = ['Capacity'
+							,'Backoffice'
+							,'Cisco Pump'
+							,'Arris Pump'
+							,'Network'
+							,'UDB'
+							,'Content'
+							,'Aloha Network'
+							,'Billing System'
+							,'Other']
+
+	error = None
+
+	if alldata.get('date') is None or alldata.get('division') is None or alldata.get('pg') is None or alldata.get('ticket_type') is None or alldata.get('ticket_num') is None or alldata.get('userid') is None:
+		error = 'Please pass the mandatory parameters - "date", "ticket_num", "division", "peer groups" & "ticket type" part your input'	
+
+	if  alldata.get('division').encode('ascii').lower() not in valid_division_lc:
+		error = 'Division should be one of the following option :- ' + ','.join(valid_division)
+
+	#If the API's send division names wrongly, it needs to be fixed.
+	if  alldata.get('division').encode('ascii').lower() in valid_division_lc:
+		ix = valid_division_lc.index(alldata.get('division').lower())
+		alldata['division'] = valid_division[ix]
+
+	#Check if the correct peer groups are sent for a particular division.
+	if alldata.get('division') == 'National':
+		for each in alldata.get['pg']:
+			if each not in national:
+				error = 'Not a valid peergroup for the given National division. Valid peergroups are:- ' + ' '.join(national)
+
+	if alldata.get('division') == 'Central':
+		for each in alldata.get('pg'):
+			if each not in central:
+				error = 'Not a valid peergroup for the given central division. Valid peergroups are:- ' + ' '.join(central)
+	
+	if alldata.get('division') == 'West':
+		for each in alldata.get('pg'):
+			if each not in west:
+				error = 'Not a valid peergroup for the given West division. Valid peergroups are:- ' + ' '.join(west)				
+
+	if alldata.get('division') == 'Northeast':
+		for each in alldata.get('pg'):
+			if each not in northeast:
+				error = 'Not a valid peergroup for the given NorthEast division. Valid peergroups are:- ' + ' '.join(northeast)				
+
+	if  alldata.get('duration') not in valid_durations:
+		error = 'Duration should be one of the following option :- ' + ','.join(valid_durations)
+
+	if alldata.get('error_count') not in valid_error_count:
+		error = 'Error count should be one of the following option :- ' + ','.join(valid_error_count)	
+
+	if alldata.get('outage_caused') not in valid_outage_caused:
+		error = 'Outage caused should be one of the following option :- ' + ','.join(valid_outage_caused)	
+
+	if alldata.get('system_caused') not in valid_system_caused:
+		error = 'System caused should be one of the following option :- ' + ','.join(valid_system_caused)	
+
+	#strip seconds from API timestamp to match the GUI timestamp
+	alldata['date'] = alldata['date'][:-3]
+
+	print 'prem alldata.get(ticket_num)[0:3] == ',alldata.get('ticket_num')
+	print 'prem alldata.get(ticket_num)[0:3] == ',alldata.get('ticket_num')[0:3]
+	if (alldata.get('ticket_num')[0:4] == 'http'):
+		alldata['ticket_num'] = alldata.get('ticket_num')[::-1].split('/')[0][::-1]
+		alldata['ticket_link'] = alldata['ticket_num']
+	else:
+		alldata['ticket_link'] = ''
+
+	print 'validate error == ', error
+
+	return error
+	
+
 
 class GetTicketData(View):
 
@@ -180,8 +319,6 @@ class GetTicketData(View):
 def get_ticket_data(alldata,api_key,ip,user_id):
 	
 	initial = alldata.get('initial')
-	
-
 	doc = {
 		'start_date_s': alldata.get('start_date_s'),
 		'start_date_e': alldata.get('start_date_e'),
@@ -194,7 +331,6 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 		'system_caused': alldata.get('system_caused'),
 		'ticket_type': alldata.get('ticket_type'),
 	}
-	
 	
 	if api_key is not None:
 		if doc['start_date_e'] is None and doc['start_date_s'] is not None:
@@ -513,6 +649,7 @@ def enum_results(user_id,results):
 		if prev_ticket_num == curr_ticket_num:			
 			data['ticket_num'] = each[0]
 			data['created_dt'] = each[1]
+			print 'each[1] == ', each[1]
 			if each[4].year == 9999:
 				data['row_end_ts'] = ""
 			else:
@@ -794,7 +931,7 @@ class ExcelDownload(View):
 			output = StringIO.StringIO()
 			book = Workbook(output)
 
-			sheet = book.add_worksheet('test')
+			sheet = book.add_worksheet('tickets')
 			boldformat = book.add_format({'bold':True})
 
 			sheet.set_column(0,15,25)
@@ -862,9 +999,13 @@ class UpdateTicketData(View):
 		if user_id is not None or api_key == settings.API_KEY:
 		
 			if alldata.get('update') == 'Y':
+
 			   ticket_num =  alldata.get('ticket_num')
+			   print 'ticket_num == ', ticket_num
 			   ticket = Tickets.objects.get(ticket_num=ticket_num)
-			   ticket.row_end_ts = datetime.datetime.now()
+			   eastern = timezone('US/Eastern')
+			   ticket.row_end_ts = datetime.datetime.now(eastern)
+			   ticket.row_end_ts = datetime.datetime.strftime(ticket.row_end_ts,'%Y-%m-%d %H:%M:00')
 			   print 'prem prem update datetime == ', ticket.row_end_ts
 			   ticket.save()
 			   return JsonResponse({'status': 'success'})
@@ -937,6 +1078,115 @@ class UpdateTicketData(View):
 			print 'get-ticket-data no valid session '
 			return JsonResponse({'status': 'session timeout'})
 
+class ChartsView(View):
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(ChartsView, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		userid = utils.check_session_variable(request)
+		print 'userid ==', userid
+		if userid is None:
+			return render(request,'tickets/loginpage.html',{'error':'N'})
+
+		
+		return render(request,'tickets/chartspage.html')
+
+	def post(self, request):
+		ip = utils.getip()
+		logger_feedback.debug("Ip-address == {0} && Name == {1} && Email == {2} && Message == {3} && Rating == {4}".format(ip,request.POST['name'],request.POST['email'], request.POST['message'], request.POST['radio_list_value']))
+		return JsonResponse({'status': 'success'})
+
+
+class ChartsData(View):
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(ChartsData, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		userid = utils.check_session_variable(request)
+		print 'charts datauserid ==', userid
+		if userid is None:
+			return render(request,'tickets/loginpage.html',{'error':'N'})
+		cursor = connection.cursor()
+		cursor.execute("""select x.duration, count(*) from 
+				(select tb2.duration
+				from sid.tickets tb1
+				inner join sid.duration tb2
+				on tb2.duration_id = tb1.duration_id
+				where tb1.valid_flag = 'Y') x
+				group by x.duration""")
+		results_duration= cursor.fetchall()		
+
+		cursor.execute("""select x.error, count(*) from 
+				(select tb2.error
+				from sid.tickets tb1
+				inner join sid.error_count tb2
+				on tb2.error_count_id = tb1.error_count_id
+				where tb1.valid_flag = 'Y') x
+				group by x.error""")
+		results_error_count = cursor.fetchall()		
+
+		cursor.execute("""select x.system_caused, count(*) from 
+				(select tb2.system_caused
+				from sid.tickets tb1
+				inner join sid.system_caused tb2
+				on tb2.system_caused_id = tb1.system_caused_id
+				where tb1.valid_flag = 'Y') x
+				group by x.system_caused""")
+		results_system_caused = cursor.fetchall()		
+
+		cursor.execute("""select x.outage_caused, count(*) from 
+				(select tb2.outage_caused
+				from sid.tickets tb1
+				inner join sid.outage_caused tb2
+				on tb2.outage_caused_id = tb1.outage_caused_id
+				where tb1.valid_flag = 'Y') x
+				group by x.outage_caused""")
+		results_outage_caused = cursor.fetchall()		
+
+		cursor.execute("""select x.division_name, count(*) from 
+				(select tb2.division_name
+				from sid.tickets tb1
+				inner join sid.division tb2
+				on tb2.division_id = tb1.division_id
+				where tb1.valid_flag = 'Y') x
+				group by x.division_name""")
+		results_division = cursor.fetchall()		
+
+
+		cursor.execute("""select tb3.pg_cd,count(*)  from 
+					sid.tickets_pgs tb1
+					inner join 
+					sid.tickets tb2
+					on tb1.tickets_id = tb2.ticket_num
+					inner join 
+					sid.pg tb3
+					on tb3.pg_id = tb1.pg_id
+					and tb2.valid_flag = 'y'
+					group by tb3.pg_cd
+					""")
+		results_pg = cursor.fetchall()		
+
+
+		cursor.close()
+		connection.close()
+		print 'chartdata over'
+		return JsonResponse({'status': 'success','results_duration':results_duration,'results_error_count':results_error_count,
+			'results_system_caused':results_system_caused,'results_outage_caused':results_outage_caused,
+			'results_division':results_division, 'results_pg': results_pg
+			})
+
+
+	def post(self, request):
+		ip = utils.getip()
+		logger_feedback.debug("Ip-address == {0} && Name == {1} && Email == {2} && Message == {3} && Rating == {4}".format(ip,request.POST['name'],request.POST['email'], request.POST['message'], request.POST['radio_list_value']))
+		return JsonResponse({'status': 'success'})
+
+
+
 class RecordFeedBack(View):
 
 	@method_decorator(csrf_exempt)
@@ -947,8 +1197,13 @@ class RecordFeedBack(View):
 		return JsonResponse({'status': 'success'})
 
 	def post(self, request):
+		user_id = utils.check_session_variable(request)
 		ip = utils.getip()
-		logger_feedback.debug("Ip-address == {0} && Name == {1} && Email == {2} && Message == {3} && Rating == {4}".format(ip,request.POST['name'],request.POST['email'], request.POST['message'], request.POST['radio_list_value']))
+		alldata = request.POST
+		logger.debug("ip = {0} &&  alldata == {1}".format(ip,alldata))
+		api_key = request.META.get('HTTP_AUTHORIZATION')
+		if user_id is not None or api_key == settings.API_KEY:
+			pass
 		return JsonResponse({'status': 'success'})
 
 

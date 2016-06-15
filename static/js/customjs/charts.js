@@ -68,6 +68,25 @@ $(document).ready(function() {
                          })
                          drawchart_pg()
 
+                         data_values_users_by_week_count = []
+                         data_values_users_by_week_range = []
+                         console.log('week',result.results_group_ticket_by_week_count)
+                         result.results_group_ticket_by_week.forEach(function(obj){
+                            
+                            data_values_users_by_week_count.push(obj[0])
+                            data_values_users_by_week_range.push(obj[1])
+                         })
+                         drawchart_tickets_created_by_week()
+
+
+                        data_values_users_by_count = []
+                        data_values_users = []
+                         
+                        result.results_group_users_get_count.forEach(function(obj){
+                            data_values_users_by_count.push(obj[0])
+                            data_values_users.push(obj[1])
+                         })
+                         drawchart_tickets_created_by_users()
                          //$('#loginid').html(login_id)
                          //set_division(login_id)
                      } else if (result.status == 'session timeout') {
@@ -82,6 +101,91 @@ $(document).ready(function() {
                  }
              })
 
+    var drawchart_tickets_created_by_users = function () {
+    $('#container_users_by_count').highcharts({
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Average Tickets created by Users(Name)'
+        },
+        subtitle: {
+            text: ''
+        },
+        xAxis: {
+            categories: data_values_users_by_count,
+            crosshair: true
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Tickets (counts)'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y} </b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: 'Users',
+            data: data_values_users
+            }]
+    });
+    }
+
+
+    var drawchart_tickets_created_by_week = function () {
+    $('#container_users_by_week').highcharts({
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Average Tickets created by week'
+        },
+        subtitle: {
+            text: ''
+        },
+        xAxis: {
+            categories: data_values_users_by_week_range,
+            crosshair: true
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Tickets (counts)'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y} </b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: 'Tickets',
+            data: data_values_users_by_week_count
+            }]
+    });
+    }
+    
 
 
     var drawchart_pg = function () {

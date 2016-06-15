@@ -173,6 +173,7 @@
                  'addt_notes': $('#additional_notes').val(),
                  'ticket_type': $('input[name=tkt-radio]:checked').val()
              }
+             console.log("Insert ticket data ", data)
 
              $.ajax({
                  type: "POST",
@@ -180,7 +181,7 @@
                  data: data,
                  success: function(result) {
                      if (result.status == 'success') {
-                         alert("You're stored in our DB!! Playaround!!")
+                         alert("You're stored in our DB!! Playaround!!!!")
                              //reset values
                              //multiselect both needs to be together - uncheck and refresh
                          $("#peergroup option:selected").removeAttr("selected");
@@ -272,9 +273,9 @@
                              'outage_caused': $('#row_cause').val(),
                              'system_caused': $('#row_system_cause').val(),
                              'addt_notes': $('#dialog_addt_notes').text(),
-                             'ticket_num': $('#dialog_ticket_num').html(),
+                             'ticket_num': $('#dialog_ticket_num').text(),
                              'ticket_type': $('#dialog_ticket_type').html(),
-                             'update': 'N',
+                             'update_end_dt': 'N',
                          }
                          console.log('update data == ', data)
                          $.ajax({
@@ -586,7 +587,7 @@
 
              data = {
                  'ticket_num': ticket_num,
-                 'update': 'Y',
+                 'update_end_dt': 'Y',
              }
 
              console.log('update data == ', data)

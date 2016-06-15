@@ -1,5 +1,6 @@
 import requests
 import json
+# http://tectonic.sys.comcast.net/peergroups
 r = requests.get('https://volcano.sys.comcast.net/volcano/ajax.php?m=getSiteList&tz=America%252FNew_York',verify=False)
 data =  json.loads(r.text.encode('utf-8'))
 output = {}

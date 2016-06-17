@@ -14,7 +14,8 @@ payload = {
 	'ticket_num':'vpsq-1235'
 }
 print payload
-r = requests.post('http://localhost:8000/get-ticket-data',headers=headers,data=payload)
+#r = requests.post('http://localhost:8000/get-ticket-data',headers=headers,data=payload)
+r = requests.post('http://ninja.comcast.net/get-ticket-data',headers=headers,data=payload)
 
 print r.status_code
 print r.text

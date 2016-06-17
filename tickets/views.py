@@ -21,6 +21,7 @@ import socket
 import uuid
 import datetime
 import json
+import constants
 
 logger = logging.getLogger('app_logger')
 
@@ -103,13 +104,13 @@ class PostTicketData(View):
 				user_id = alldata['userid']
 				if error is not None:
 					return JsonResponse({'status': error})
+			else:
+				logger.debug("ip = {0} && post data  == {1}".format(ip,alldata))
+				print 'insert validated data == ', alldata
+				alldata['date'] = datetime.datetime.strptime(
+					str(alldata.get('date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
 						
-			logger.debug("ip = {0} && post data  == {1}".format(ip,alldata))
-			print 'insert validated data == ', alldata
-			created_dt = datetime.datetime.strptime(
-				str(alldata.get('date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
-						
-			t = Ticket(created_dt=created_dt
+			t = Ticket(created_dt=alldata['date']
 				,division=alldata.get('division')
 				,pg=alldata.get('pg')
 				,error_count=alldata.get('error_count')
@@ -133,7 +134,7 @@ class PostTicketData(View):
 					out,created = OutageCaused.objects.get_or_create(outage_caused=t.outage_caused)
 					sys,created = SystemCaused.objects.get_or_create(system_caused=t.system_caused)
 					ticket_info = {
-						'row_create_ts': created_dt,
+						'row_create_ts': alldata['date'],
 						'ticket_num': t.ticket_num,
 						'ticket_type': t.ticket_type,
 						'division': div.ID,
@@ -143,7 +144,7 @@ class PostTicketData(View):
 						'system_caused': sys.ID,
 						'create_user_id': user_id,
 						'update_user_id': user_id,
-						'timezone': created_dt,
+						'timezone': alldata['date'],
 						'ticket_link': t.ticket_link
 					}
 					print 'ticket_info == ', ticket_info
@@ -177,45 +178,6 @@ def validate_insert_input(alldata):
 	print 'insert alldata == ', alldata
 	valid_division = []
 	valid_pgs = []	
-
-	central = ['10201', '10202', '10203', '10204', '10401', '10402', '10404', '11701', '11702', '11703', '11704', '11801', '11802', '11803', '12601', '12602', '12603', '12701', '12702', '12703', '12704', '13401', '13402', '13701', '13702', '13703', '13704', '13705', '13901', '13902', '14001', '14002', '14003', '14401', '14402', '14403', '14404', '14405', '14406', '14701', '14702', '14703', '14704', '14705', '14706', '14801', '14802', '14803', '14804', '14805', '14806', '18101', '21301', '21302', '21303', '21304', '21305', '21306', '23001', '23002', '23101', '23102', '23103', '23104', '23301', '23501', '23601', '23701', '23801']
-	west 	= ['10101', '10102', '12301', '12303', '13001', '13801', '14502', '14503', '16801', '16802', '16803', '17101', '17102', '17201', '17301', '17302', '17401', '17402', '17403', '17404', '17405', '17406', '17407', '17501', '17502', '17503', '17504', '17505', '17801', '17802', '17803', '17804', '17805', '17806', '17807', '17901', '18201', '21601', '21702', '21704', '24001', '24601', '24602']
-	northeast = ['10501', '10601', '10701', '10702', '10801', '10901', '11001', '11101', '11102', '11201', '11202', '11203', '11301', '11401', '11402', '13201', '13301', '13501', '13502', '13601', '14901', '15001', '15101', '15102', '15301', '15401', '15501', '15601', '15801', '15901', '16001', '16101', '16201', '16401', '16501', '16601', '16701', '16702', '16703', '16704', '16901', '16902', '17001', '18001', '18501', '18701', '18702', '18703', '18801', '18901', '19001', '19501', '19601', '19701', '19901', '20101', '20201', '20701', '22001', '22002', '22301', '22302', '23201']
-
-	national = central + west + northeast
-
-	valid_division = ['National','Central','Northeast','Western']
-	valid_division_lc = ['national','central','northeast','western']
-	
-	valid_durations = ['1 - 15 minutes'
-					,'15 - 30 minutes'
-					,'30 - 60 minutes'
-					,'1 - 3 hours'
-					,'Greater than 3 hours']
-
-	valid_error_count = ['1,000 - 5,000'
-					,'5,000 - 10,000'
-					,'10,000 - 20,000'
-					,'20,000 - 50,000'
-					,'Greater than 50,000']
-
-	valid_outage_caused = ['Scheduled Maintenance'
-							,'Scheduled Maintenance resulting in Outage'
-							,'NSA Scheduled Maintenance resulting in Outage'
-							,'Comcast System Unplanned Outage'
-							,'Non-Comcast System Outage']
-
-	valid_system_caused = ['Capacity'
-							,'Backoffice'
-							,'Cisco Pump'
-							,'Arris Pump'
-							,'Network'
-							,'UDB'
-							,'Content'
-							,'Aloha Network'
-							,'Billing System'
-							,'Other']
-
 	error = None
 
 	#If a ' ' or '   ' is passed, you need to strip the spaces. Most of the fields does not take spaces in SID...
@@ -232,56 +194,62 @@ def validate_insert_input(alldata):
 		or alldata.get('userid') in [None,'',' ']:
 		error = """Please pass the mandatory parameters - date, ticket_num, division, list of peer groups, ticket type and  user id. """
 
-	if  alldata.get('division').encode('ascii').lower() not in valid_division_lc:
-		error = 'Division should be one of the following option :- ' + ','.join(valid_division)
+	try:
+		alldata['date'] = datetime.datetime.strptime(
+			str(alldata.get('date')), '%Y/%m/%d %H:%S:%M').strftime('%Y-%m-%d %H:%S:%M')
+	except:
+		error = 'Date should be in the following format:- "%Y/%m/%d %H:%M:%S" '
+
+	if  alldata.get('division').encode('ascii').lower() not in constants.VALID_DIVISION_LC:
+		error = 'Division should be one of the following option :- ' + ','.join(constants.VALID_DIVISION)
 
 	#If the API's send division names wrongly, it needs to be fixed.
-	if  alldata.get('division').encode('ascii').lower() in valid_division_lc:
-		ix = valid_division_lc.index(alldata.get('division').lower())
-		alldata['division'] = valid_division[ix]
+	if  alldata.get('division').encode('ascii').lower() in constants.VALID_DIVISION_LC:
+		ix = constants.VALID_DIVISION_LC.index(alldata.get('division').lower())
+		alldata['division'] = constants.VALID_DIVISION[ix]
 
 	#Check if the correct peer groups are sent for a particular division.
-	if alldata.get('division') == valid_division[0]:
-		for each in alldata.get['pg']:
-			if each not in national:
-				error = 'Not a valid peergroup for the given National division. Valid peergroups are:- ' + ' '.join(national)
-
-	if alldata.get('division') == valid_division[1]:
+	if alldata.get('division') == constants.VALID_DIVISION[0]:
 		for each in alldata.get('pg'):
-			if each not in central:
-				error = 'Not a valid peergroup for the given central division. Valid peergroups are:- ' + ' '.join(central)
+			if each not in constants.NATIONAL:
+				error = 'Not a valid peergroup for the given National division. Valid peergroups are:- ' + ' '.join(constants.NATIONAL)
+
+	if alldata.get('division') == constants.VALID_DIVISION[1]:
+		for each in alldata.get('pg'):
+			if each not in constants.CENTRAL:
+				error = 'Not a valid peergroup for the given central division. Valid peergroups are:- ' + ' '.join(constants.CENTRAL)
 	
-	if alldata.get('division') == valid_division[2]:
+	if alldata.get('division') == constants.VALID_DIVISION[2]:
 		for each in alldata.get('pg'):
-			if each not in northeast:
-				error = 'Not a valid peergroup for the given NorthEast division. Valid peergroups are:- ' + ' '.join(northeast)				
+			if each not in constants.NORTHEAST:
+				error = 'Not a valid peergroup for the given NorthEast division. Valid peergroups are:- ' + ' '.join(constants.NORTHEAST)				
 
-	if alldata.get('division') == valid_division[3]:
+	if alldata.get('division') == constants.VALID_DIVISION[3]:
 		for each in alldata.get('pg'):
-			if each not in west:
-				error = 'Not a valid peergroup for the given West division. Valid peergroups are:- ' + ' '.join(west)				
+			if each not in constants.WEST:
+				error = 'Not a valid peergroup for the given West division. Valid peergroups are:- ' + ' '.join(constants.WEST)				
 
 	if alldata.get('duration') not in [None,'']:
-		if  alldata.get('duration') not in valid_durations:
-			error = 'Duration should be one of the following option :- ' + ','.join(valid_durations)
+		if  alldata.get('duration') not in constants.VALID_DURATION:
+			error = 'Duration should be one of the following option :- ' + ','.join(constants.VALID_DURATION)
 	else:
 		alldata['duration'] = ' '
 
 	if alldata.get('error_count') not in [None,'']:
-		if alldata.get('error_count') not in valid_error_count:
-			error = 'Error count should be one of the following option :- ' + ','.join(valid_error_count)	
+		if alldata.get('error_count') not in constants.VALID_ERROR_COUNT:
+			error = 'Error count should be one of the following option :- ' + ','.join(constants.VALID_ERROR_COUNT)	
 	else:
 		alldata['error_count'] = ' '
 
 	if alldata.get('outage_caused') not in [None,'']:
-		if alldata.get('outage_caused') not in valid_outage_caused:
-			error = 'Outage caused should be one of the following option :- ' + ','.join(valid_outage_caused)	
+		if alldata.get('outage_caused') not in constants.VALID_OUTAGE_CAUSED:
+			error = 'Outage caused should be one of the following option :- ' + ','.join(constants.VALID_OUTAGE_CAUSED)	
 	else:
 		alldata['outage_caused'] = ' '
 
 	if alldata.get('system_caused') not in [None,'']:
-		if alldata.get('system_caused') not in valid_system_caused:
-			error = 'System caused should be one of the following option :- ' + ','.join(valid_system_caused)	
+		if alldata.get('system_caused') not in constants.VALID_SYSTEM_CAUSED:
+			error = 'System caused should be one of the following option :- ' + ','.join(constants.VALID_SYSTEM_CAUSED)	
 	else:
 		alldata['system_caused'] = ' '
 
@@ -1054,31 +1022,18 @@ class UpdateTicketData(View):
 				if error is not None:
 					return JsonResponse({'status': error})
 
-
-			created_dt = None
-			end_dt = None
-
 			if alldata['created_dt'] is not None:
-				if api_key is not None:
-					#strip seconds from API timestamp to match the GUI timestamp
-					alldata['created_dt'] = alldata['created_dt'][:-3]
-				
-				created_dt = datetime.datetime.strptime(
-				str(alldata.get('created_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')			
+				if api_key is None:
+					alldata['created_dt'] = datetime.datetime.strptime(
+					str(alldata.get('created_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')			
 
 			if alldata['end_dt'] is not None:			
-				if api_key is not None:
-					#strip seconds from API timestamp to match the GUI timestamp
-					alldata['end_dt'] = alldata['end_dt'][:-3]
-				
-				end_dt = datetime.datetime.strptime(
-					str(alldata.get('end_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
-				
-				print 'end_dt ===', end_dt
+				if api_key is None:
+					alldata['end_dt'] = datetime.datetime.strptime(
+						str(alldata.get('end_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')				
 
-
-			t = Ticket(created_dt=created_dt
-				,end_dt=end_dt
+			t = Ticket(created_dt=alldata.get('created_dt')
+				,end_dt=alldata.get('end_dt')
 				,division=alldata.get('division')
 				,pg=alldata.get('pg')
 				,error_count=alldata.get('error_count')
@@ -1090,8 +1045,8 @@ class UpdateTicketData(View):
 				,duration=alldata.get('duration'))
 			
 			print 'update doc  == ', t
-
 			logger.debug("ip == {0} && Update document == {1}".format(ip,t))
+
 			if t.division is None and len(t.pg) == 0:
 				tkt = Tickets.objects.get(ticket_num=t.ticket_num)
 				t.division = Division.objects.get(ID=tkt.division).division_name
@@ -1156,45 +1111,6 @@ def validate_update_input(alldata):
 	print 'alldata == ', alldata
 	valid_division = []
 	valid_pgs = []	
-
-	central = ['10201', '10202', '10203', '10204', '10401', '10402', '10404', '11701', '11702', '11703', '11704', '11801', '11802', '11803', '12601', '12602', '12603', '12701', '12702', '12703', '12704', '13401', '13402', '13701', '13702', '13703', '13704', '13705', '13901', '13902', '14001', '14002', '14003', '14401', '14402', '14403', '14404', '14405', '14406', '14701', '14702', '14703', '14704', '14705', '14706', '14801', '14802', '14803', '14804', '14805', '14806', '18101', '21301', '21302', '21303', '21304', '21305', '21306', '23001', '23002', '23101', '23102', '23103', '23104', '23301', '23501', '23601', '23701', '23801']
-	west 	= ['10101', '10102', '12301', '12303', '13001', '13801', '14502', '14503', '16801', '16802', '16803', '17101', '17102', '17201', '17301', '17302', '17401', '17402', '17403', '17404', '17405', '17406', '17407', '17501', '17502', '17503', '17504', '17505', '17801', '17802', '17803', '17804', '17805', '17806', '17807', '17901', '18201', '21601', '21702', '21704', '24001', '24601', '24602']
-	northeast = ['10501', '10601', '10701', '10702', '10801', '10901', '11001', '11101', '11102', '11201', '11202', '11203', '11301', '11401', '11402', '13201', '13301', '13501', '13502', '13601', '14901', '15001', '15101', '15102', '15301', '15401', '15501', '15601', '15801', '15901', '16001', '16101', '16201', '16401', '16501', '16601', '16701', '16702', '16703', '16704', '16901', '16902', '17001', '18001', '18501', '18701', '18702', '18703', '18801', '18901', '19001', '19501', '19601', '19701', '19901', '20101', '20201', '20701', '22001', '22002', '22301', '22302', '23201']
-
-	national = central + west + northeast + ['All','ALL']
-
-	valid_division = ['National','Central','Northeast','Western']
-	valid_division_lc = ['national','central','northeast','western']
-	
-	valid_durations = ['1 - 15 minutes'
-					,'15 - 30 minutes'
-					,'30 - 60 minutes'
-					,'1 - 3 hours'
-					,'Greater than 3 hours']
-
-	valid_error_count = ['1,000 - 5,000'
-					,'5,000 - 10,000'
-					,'10,000 - 20,000'
-					,'20,000 - 50,000'
-					,'Greater than 50,000']
-
-	valid_outage_caused = ['Scheduled Maintenance'
-							,'Scheduled Maintenance resulting in Outage'
-							,'NSA Scheduled Maintenance resulting in Outage'
-							,'Comcast System Unplanned Outage'
-							,'Non-Comcast System Outage']
-
-	valid_system_caused = ['Capacity'
-							,'Backoffice'
-							,'Cisco Pump'
-							,'Arris Pump'
-							,'Network'
-							,'UDB'
-							,'Content'
-							,'Aloha Network'
-							,'Billing System'
-							,'Other']
-
 	error = None
 
 	#If a ' ' or '   ' is passed, you need to strip the spaces. Most of the fields does not take spaces in SID...
@@ -1203,8 +1119,22 @@ def validate_update_input(alldata):
 			if alldata[key].strip() == '':
 				alldata[key] = '' 
 
-	if alldata.get('ticket_num') is [None,''] \
-		or alldata.get('userid') is [None,'']:
+	if alldata.get('created_dt') not in [None,'']:
+		try:
+			alldata['created_dt'] = datetime.datetime.strptime(
+				str(alldata.get('created_dt')), '%Y/%m/%d %H:%S:%M').strftime('%Y-%m-%d %H:%S:00')
+		except:
+			error = 'created_dt should be in the following format:- "%Y/%m/%d %H:%M:%S" '
+
+	if alldata.get('end_dt') not in [None,'']:
+		try:
+			alldata['end_dt'] = datetime.datetime.strptime(
+				str(alldata.get('end_dt')), '%Y/%m/%d %H:%S:%M').strftime('%Y-%m-%d %H:%S:00')
+		except:
+			error = 'end_dt should be in the following format:- "%Y/%m/%d %H:%M:%S" '
+
+	if alldata.get('ticket_num') in [None,''] \
+		or alldata.get('userid') in [None,'']:
 		error = 'Please pass the mandatory parameters - "ticket number"  &  "user id" part your input'	
 
 	if alldata.get('division') not in [None,''] and len(alldata.get('pg')) == 0:
@@ -1214,60 +1144,64 @@ def validate_update_input(alldata):
 		error = 'Please pass the list of peer groups with Division'	
 
 	if alldata.get('division') not in [None,''] and len(alldata.get('pg')) != 0:
-		if  alldata.get('division').encode('ascii').lower() not in valid_division_lc:
-			error = 'Division should be one of the following option :- ' + ','.join(valid_division)
+		if  alldata.get('division').encode('ascii').lower() not in constants.VALID_DIVISION_LC:
+			error = 'Division should be one of the following option :- ' + ','.join(constants.VALID_DIVISION)
 
 		#If the API's send division names wrongly, it needs to be fixed.
-		if  alldata.get('division').encode('ascii').lower() in valid_division_lc:
-			ix = valid_division_lc.index(alldata.get('division').lower())
-			alldata['division'] = valid_division[ix]
+		if  alldata.get('division').encode('ascii').lower() in constants.VALID_DIVISION_LC:
+			ix = constants.VALID_DIVISION_LC.index(alldata.get('division').lower())
+			alldata['division'] = constants.VALID_DIVISION[ix]
 
 		#Check if the correct peer groups are sent for a particular division.
-		if alldata.get('division') == valid_division[0]:
+		if alldata.get('division') == constants.VALID_DIVISION[0]:
 			for each in alldata.get('pg'):
-				if each not in national:
-					error = 'Not a valid peergroup for the given National division. Valid peergroups are:- ' + ' '.join(national)
+				if each not in constants.NATIONAL:
+					error = 'Not a valid peergroup for the given National division. Valid peergroups are:- ' + ' '.join(constants.NATIONAL)
 
-		if alldata.get('division') == valid_division[1]:
+		if alldata.get('division') == constants.VALID_DIVISION[1]:
 			for each in alldata.get('pg'):
-				if each not in central:
-					error = 'Not a valid peergroup for the given central division. Valid peergroups are:- ' + ' '.join(central)
+				if each not in constants.CENTRAL:
+					error = 'Not a valid peergroup for the given central division. Valid peergroups are:- ' + ' '.join(constants.CENTRAL)
 		
-		if alldata.get('division') == valid_division[2]:
+		if alldata.get('division') == constants.VALID_DIVISION[2]:
 			for each in alldata.get('pg'):
-				if each not in northeast:
-					error = 'Not a valid peergroup for the given NorthEast division. Valid peergroups are:- ' + ' '.join(northeast)				
+				if each not in constants.NORTHEAST:
+					error = 'Not a valid peergroup for the given NorthEast division. Valid peergroups are:- ' + ' '.join(constants.NORTHEAST)				
 
-		if alldata.get('division') == valid_division[3]:
+		if alldata.get('division') == constants.VALID_DIVISION[3]:
 			for each in alldata.get('pg'):
-				if each not in west:
-					error = 'Not a valid peergroup for the given West division. Valid peergroups are:- ' + ' '.join(west)						
+				if each not in constants.WEST:
+					error = 'Not a valid peergroup for the given West division. Valid peergroups are:- ' + ' '.join(constants.WEST)						
 
 	if alldata.get('duration') not in [None,'']:
-		if alldata.get('duration') not in valid_durations:
-			error = 'Duration should be one of the following option :- ' + ','.join(valid_durations)
+		if alldata.get('duration') not in constants.VALID_DURATION:
+			error = 'Duration should be one of the following option :- ' + ','.join(constants.VALID_DURATION)
 	else:
 		alldata['duration'] = ' '
 
 	if alldata.get('error_count') not in [None,'']:
-		if alldata.get('error_count') not in valid_error_count:
-			error = 'Error count should be one of the following option :- ' + ','.join(valid_error_count)	
+		if alldata.get('error_count') not in constants.VALID_ERROR_COUNT:
+			error = 'Error count should be one of the following option :- ' + ','.join(constants.VALID_ERROR_COUNT)	
 	else:
 		alldata['error_count'] = ' '
 
 
 	if alldata.get('outage_caused') not in [None,'']:
-		if alldata.get('outage_caused') not in valid_outage_caused:
-			error = 'Outage caused should be one of the following option :- ' + ','.join(valid_outage_caused)	
+		if alldata.get('outage_caused') not in constants.VALID_OUTAGE_CAUSED:
+			error = 'Outage caused should be one of the following option :- ' + ','.join(constants.VALID_OUTAGE_CAUSED)	
 	else:
 		alldata['outage_caused'] = ' '
 
 	if alldata.get('system_caused') not in [None,'']:
-		if alldata.get('system_caused') not in valid_system_caused:
-			error = 'System caused should be one of the following option :- ' + ','.join(valid_system_caused)	
+		if alldata.get('system_caused') not in constants.VALID_SYSTEM_CAUSED:
+			error = 'System caused should be one of the following option :- ' + ','.join(constants.VALID_SYSTEM_CAUSED)	
 	else:
 		alldata['system_caused'] = ' '
 
+	if alldata.get('addt_notes') not in [None,'']:
+		pass
+	else:
+		alldata['addt_notes'] = ' '
 
 	print 'alldata.get("ticket_num")[0:4] == ', alldata.get('ticket_num')[0:4]
 	ticket_num, ticket_link = convert_link_to_ticket_num(alldata.get('ticket_num'))
@@ -1467,7 +1401,7 @@ class Ticket(object):
 		,addt_notes = {7}
 		,ticket_type = {8}
 		,duration = {9}""".format(
-			self.created_dt, self.division, str(self.pg), self.error_count,self.ticket_num,self.outage_caused,self.system_caused,self.addt_notes,
+			self.created_dt, self.division, str(self.pg), self.error_count,self.ticket_num,self.outage_caused,self.system_caused,self.addt_notes.encode('utf-8','ignore'),
 			self.ticket_type,self.duration)
 
 

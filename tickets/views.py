@@ -1017,7 +1017,6 @@ class UpdateTicketData(View):
 
 			if api_key is not None:
 				error = validate_update_input(alldata)
-
 				print 'update validated data == ', alldata
 				if error is not None:
 					return JsonResponse({'status': error})
@@ -1027,8 +1026,9 @@ class UpdateTicketData(View):
 					alldata['created_dt'] = datetime.datetime.strptime(
 					str(alldata.get('created_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')			
 
-			if alldata['end_dt'] is not None:			
-				if api_key is None:
+			print 'alldata[end_dt]==', alldata['end_dt']
+			if alldata['end_dt'] not in [None,'']:	
+				if api_key is None and alldata['end_dt'] not in [None,'']:
 					alldata['end_dt'] = datetime.datetime.strptime(
 						str(alldata.get('end_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')				
 
@@ -1079,14 +1079,17 @@ class UpdateTicketData(View):
 							ticket.system_caused = sys.ID
 
 						ticket.update_user_id = user_id
-						if t.created_dt is not None:
+
+						if t.created_dt not in [None,'']:
 							ticket.row_create_ts = t.created_dt
 						
-						if t.end_dt is not None:
+						if t.end_dt not in [None,'']:
 							ticket.row_end_ts = t.end_dt
 						
 						ticket.save()
+						print 'working here-1'
 						AddtNotes.objects.get(Id=ticket).delete()
+						print 'working here-2'
 						AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)
 					except Tickets.DoesNotExist:
 						ticket = None
@@ -1398,10 +1401,9 @@ class Ticket(object):
 		,ticket_num = {4}
 		,outage_caused = {5}
 		,system_caused = {6}
-		,addt_notes = {7}
-		,ticket_type = {8}
-		,duration = {9}""".format(
-			self.created_dt, self.division, str(self.pg), self.error_count,self.ticket_num,self.outage_caused,self.system_caused,self.addt_notes.encode('utf-8','ignore'),
+		,ticket_type = {7}
+		,duration = {8}""".format(
+			self.created_dt, self.division, str(self.pg), self.error_count,self.ticket_num,self.outage_caused,self.system_caused,
 			self.ticket_type,self.duration)
 
 

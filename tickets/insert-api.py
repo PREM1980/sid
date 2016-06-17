@@ -11,10 +11,10 @@ payload = {
 	'error_count':'',
 	'outage_caused':'',
 	'system_caused':'',
-	'ticket_num':'tkt-4',
+	'ticket_num':'tkt-7',
 	'ticket_type':'JIRA',
 	'userid':'api',
-	'addt_notes':'hello'
+	# 'addt_notes':'hello'
 }
 print payload
 

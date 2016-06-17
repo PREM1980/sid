@@ -623,7 +623,6 @@
                  //pg = row.find("td:nth-child(6), select")
              pg = row.find("#id_pg, select")
              duration = row.find("#id_duration").html()
-
              error_count = row.find("#id_error_count").html()
              outage_caused = row.find('#id_outage_caused').html()
              system_caused = row.find("#id_system_caused").html()

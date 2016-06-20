@@ -24,13 +24,13 @@ payload = {
 	'error_count':'5,000 - 10,000',
 	'outage_caused':'Scheduled Maintenance',
 	'system_caused':'Backoffice',
-	'ticket_num':'tkt-4',
-	'addt_notes':'',
+	'ticket_num':'tkt-7',
+	'addt_notes':'This is test',
 	'userid':'api' 
 }
 print payload
-r = requests.post('http://localhost:8000/update-ticket-data',headers=headers,data=payload)
-#r = requests.post('http://ninja.comcast.net/update-ticket-data',headers=headers,data=payload)
+# r = requests.post('http://localhost:8000/update-ticket-data',headers=headers,data=payload)
+r = requests.post('http://ninja.comcast.net/update-ticket-data',headers=headers,data=payload)
 
 print r.status_code
 print r.text

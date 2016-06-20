@@ -386,7 +386,7 @@
                  success: function(result) {
                      if (result.status == 'success') {
                          create_tickets(result)
-                         $('#loginid').html(login_id)
+                         // $('#loginid').html(login_id)
                          set_division(login_id)
                      } else if (result.status == 'session timeout') {
                          alert("Session expired -- Please relogin")

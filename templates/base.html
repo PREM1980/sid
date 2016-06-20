@@ -48,10 +48,24 @@
     {% block jscontent %}
     {% endblock jscontent %}
 
+    <script>
+    $(document).ready(function(){
+        $('#loginid').text("{{request.session.userid}}")
+    })
+    </script>
   </head>
 
 <body>
+    <div class="container-fluid">
+    <div class="row">
+            <div id="header"><img src="{% static "images/comcast_ninja.png" %}"></div>           
+            <div id="logout"style="float:right;color:red;padding-right: 15px;font-weight:bold">Logout
+                </div>
+                <div id="loginid" style="float:right;color:red;padding-right:15px;font-weight:bold">
+                </div>
+    </div>
      {% block content %}{% endblock content %}    
+     </div>
 </body>
 
 </html>

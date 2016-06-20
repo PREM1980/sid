@@ -1,63 +1,72 @@
-{% extends "base.html" %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/19999/xhtml">
 
+<head>
+    <meta charset="utf-8">
 
-{% block jscontent %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>NINJA Analytics and Reporting Portal</title>
     {% load staticfiles %}
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    
+
+    
     <link rel="stylesheet" href="{% static "css/loginpage.css" %}">
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
-{% endblock jscontent %}
 
-{% block content %}
+    <script>
+        $(document).ready(function() {
+            if ("{{error}}" == 'Y') {
+                $('#valid-login').hide()
+                $('#invalid-login').show()
+                $('#invalid-login').text('{{msg}}')
+            }
+        })
+    </script>
 
-<script>
-$(document).ready(function(){
- if ("{{error}}" == 'Y') {
-        $('#valid-login').hide()
-        $('#invalid-login').show()
-        $('#invalid-login').text('{{msg}}')
-    }
-}
-)
-</script>
+</head>
 
-<div class="container">
+<body>
+    <div class="container">
 
-  <div class="row">
-            <div id="header"><img src="{% static "images/comcast_ninja.png" %}"></div>           
-  </div>
-  <div class="row">
-    
-      <div class="col-sm-4 col-md-4 col-md-offset-4" style="padding-top: 250px;">
-        <!-- <form action="/login" method="post" id="loginForm"> -->
-        <form action="/vbo/login" method="post" id="loginForm">
-          <div class="form-group input-group">
-            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-            <input class="form-control" type="text" name='username' placeholder="username"/>          
-          </div>
-          <div class="form-group input-group">
-            <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-            <input class="form-control" type="password" name='password' placeholder="password"/>     
-          </div>
-          <!-- <div class="checkbox">
+        <div class="row">
+            <div id="header"><img src="{% static "images/comcast_ninja.png" %}"></div>
+        </div>
+        <div class="row">
+
+            <div class="col-sm-4 col-md-4 col-md-offset-4" style="padding-top: 250px;">
+                <form action="/login" method="post" id="loginForm">
+                    <form action="/vbo/login" method="post" id="loginForm">
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                            <input class="form-control" type="text" name='username' placeholder="username" />
+                        </div>
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                            <input class="form-control" type="password" name='password' placeholder="password" />
+                        </div>
+                        <!-- <div class="checkbox">
             <label>
               <input type="checkbox"> I agree to the <a href="#">Terms and Conditions</a>
             </label>
           </div> -->
-          <div class="form-group">
-            <input type="submit" class="btn btn-primary btn-block" value="Login with NT credentials">
-          </div>
-          <div class="alert alert-info text-center" id="valid-login" style="display:none">
-            <label>Login with NT credentials</label>
-          </div>
+                        <div class="form-group">
+                            <input type="submit" class="btn btn-primary btn-block" value="Login with NT credentials">
+                        </div>
+                        <div class="alert alert-info text-center" id="valid-login" style="display:none">
+                            <label>Login with NT credentials</label>
+                        </div>
 
-          <div class="alert alert-danger" style="display:none" id="invalid-login">
-            <strong>Check!</strong> Invalid User Name/Password
-          </div>
-          
-        </form>        
-      </div>  
-    </div>    
-  </div>
-</div>
-{% endblock content %}
+                        <div class="alert alert-danger" style="display:none" id="invalid-login">
+                            <strong>Check!</strong> Invalid User Name/Password
+                        </div>
+
+                    </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

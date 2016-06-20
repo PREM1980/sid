@@ -1,4 +1,4 @@
-print 'loading qry '
+
 all_query = {'generic': """
 					select   tb1.ticket_num
 							,tb1.row_create_ts
@@ -12,6 +12,9 @@ all_query = {'generic': """
 							,tb6.system_caused
 							,tb8.pg_cd
 							,tb9.notes
+							,tb1.crt_user_id
+							,tb1.upd_user_id
+							,tb1.ticket_link
 							from sid.tickets tb1
 							inner join
 							sid.division tb2
@@ -37,6 +40,7 @@ all_query = {'generic': """
 							left outer join
 							sid.addt_notes tb9
 							on tb1.ticket_num = tb9.notes_id
+							where tb1.valid_flag = "Y"
 							order by tb1.row_create_ts desc,tb1.ticket_num desc
 					""",
 
@@ -53,6 +57,9 @@ all_query = {'generic': """
 							,tb6.system_caused
 							,tb8.pg_cd
 							,tb9.notes
+							,tb1.crt_user_id
+							,tb1.upd_user_id
+							,tb1.ticket_link
 							from sid.tickets tb1
 							inner join
 							sid.division tb2
@@ -78,8 +85,7 @@ all_query = {'generic': """
 							left outer join
 							sid.addt_notes tb9
 							on tb1.ticket_num = tb9.notes_id
-
-
+							where tb1.valid_flag = "Y"
 					""",
 		'pg_conditions':"""
 					select   tb1.ticket_num
@@ -94,6 +100,9 @@ all_query = {'generic': """
 							,tb6.system_caused
 							,tb8.pg_cd
 							,tb9.notes
+							,tb1.crt_user_id
+							,tb1.upd_user_id
+							,tb1.ticket_link
 							from sid.tickets tb1
 							inner join
 							sid.division tb2
@@ -119,6 +128,7 @@ all_query = {'generic': """
 							left outer join
 							sid.addt_notes tb9
 							on tb1.ticket_num = tb9.notes_id
+							where tb1.valid_flag = "Y"
 					"""}
 
 #print 'qry loaded == ', p1

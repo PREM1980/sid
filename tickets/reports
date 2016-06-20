@@ -1,0 +1,159 @@
+Chicago Tune Error Percentage by ServiceGroup!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup=1170* ((EventType=SessionTorndown ClientReasonCode="0x8001") OR EventType=SessionCreated)  ComponentName=SM 
+|eval isTuneError=if((like(EventType,"SessionTorndown")),1,0) | eval isSuccess=if((like(EventType,"SessionCreated")),1,0) 
+|chart sum(isTuneError) as TuneError, sum(isSuccess) as Success by ServiceGroup idType
+|rename "Success: ALIAS" as LegacySuccess, "Success: ATP" as X1Success, "TuneError: ALIAS" as LegacyTuneError "TuneError: ATP" as X1TuneError
+|eval LegacyErrorRate=LegacyTuneError/LegacySuccess | eval X1ErrorRate=X1TuneError/X1Success 
+|addtotals fieldname=TotalSuccess LegacySuccess X1Success 
+|addtotals fieldname=TotalTuneError LegacyTuneError X1TuneError
+|addtotals fieldname=TotalErrorRate LegacyErrorRate X1ErrorRate
+|fieldformat TotalErrorRate=tostring(round(TotalErrorRate,4)*50)."%"
+|fieldformat LegacyErrorRate=tostring(round(LegacyErrorRate,4)*100)."%"
+|fieldformat X1ErrorRate=tostring(round(X1ErrorRate,4)*100)."%" |sort -TotalErrorRate
+|fields ServiceGroup LegacySuccess X1Success TotalSuccess LegacyTuneError X1TuneError TotalTuneError LegacyErrorRate X1ErrorRate TotalErrorRate]]></s:key>
+
+Chicago Tune Errors and Successes by Frequency!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup=1170*  (EventType=SessionTorndown OR EventType=SessionCreated) ComponentName=SM | eval isSuccess=if((like(EventType,"SessionCreated")),1,0) | eval isTuneError=if((like(EventType,"SessionTorndown") AND (ClientReasonCode="0x8001")),1,0) |timechart span=1h limit=20 sum(isSuccess) as "Successes", sum(isTuneError) as "TuneError" by Frequency | rename _time AS Time | eval Time=strftime(Time, "%m/%d/%Y %H:%M CST")]]></s:key>Chicago Tune Errors on 573Mhz by ClientSessionId!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup=1170* Frequency=573000 (EventType=SessionTorndown) ClientReasonCode="0x8001" ComponentName=SM | eval MAC=substr(ClientSessionId, 1, 12)| chart count as Total, count(eval(idType="ATP")) as X1, count(eval(idType="ALIAS")) as Legacy by MAC|sort -Total]]></s:key>Drop Down - Data Center Name Selection!!!!!!<s:key name="qualifiedSearch"> inputlookup solution_node.csv | fields Data_Center | dedup Data_Center | eval Label=Data_Center | eval Value=Data_Center | table Label Value | sort Label</s:key>Drop Down - simpleCacheName Selection!!!!!!<s:key name="qualifiedSearch">search index=dht_snapshot earliest=-5m@m | dedup CacheName | eval Label=CacheName | eval Value=CacheName | dedup Label | table Label Value | sort Label</s:key>Errors in the last 24 hours!!!!!!<s:key name="qualifiedSearch">search error OR failed OR severe OR ( sourcetype=access_* ( 404 OR 500 OR 503 ) )</s:key>Errors in the last hour!!!!!!<s:key name="qualifiedSearch">search error OR failed OR severe OR ( sourcetype=access_* ( 404 OR 500 OR 503 ) )</s:key>GQAMs with Most Teardown Errors!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm ChannelName=net.beaumaris.session (EventType=SessionTorndown) tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 ComponentName=SM (QamName=1902* OR (QamName>=1904* AND QamName<=1908*) OR (QamName>=1910* AND QamName<=1917*) OR QamName=1920* OR (QamName>=1924* AND QamName<=1926*) OR QamName=1929* OR QamName=1931* OR QamName=1933* OR QamName=1935*) (ClientReasonCode="0x8001" OR ClientReasonCode="0x8002" OR ClientReasonCode="0x8012"OR ClientReasonCode="0x8017")|
+stats count by QamName EdgeDeviceName| sort -count]]></s:key>License Usage Data Cube!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=_internal source=*license_usage.log type="Usage" | eval h=if(len(h)=0 OR isnull(h),"(SQUASHED)",h) | eval s=if(len(s)=0 OR isnull(s),"(SQUASHED)",s) | eval idx=if(len(idx)=0 OR isnull(idx),"(UNKNOWN)",idx) | bin _time span=1d | stats sum(b) as b by _time, pool, s, st, h, idx]]></s:key>PompanoDade Tune Errors and Successes by Frequency!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) (peerGroup=14401 OR peerGroup=14402)  (EventType=SessionTorndown OR EventType=SessionCreated) ComponentName=SM | eval isSuccess=if((like(EventType,"SessionCreated")),1,0) | eval isTuneError=if((like(EventType,"SessionTorndown") AND (ClientReasonCode="0x8001")),1,0) |timechart span=1h limit=20 sum(isSuccess) as "Successes", sum(isTuneError) as "TuneError" by Frequency | rename _time AS Time | eval Time=strftime(Time, "%m/%d/%Y %H:%M CST")]]></s:key>Portland_Scorecard_Success_Failure_full_STB_breakout!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm ChannelName=net.beaumaris.session (EventType=SessionCreated OR SessionCreateFailed OR SessionTorndown) tag=PROD (peerGroup=16801 OR peerGroup=16802 OR peerGroup=16803) ComponentName=SM |
+eval isX1Success=if((like(EventType,"SessionCreated") AND idType="ATP"),1,0) | 
+eval isLegacySuccess=if((like(EventType,"SessionCreated") AND idType="ALIAS"),1,0) | 
+eval isX1Failure=if((like(EventType,"SessionCreateFailed") AND idType="ATP" AND NOT (ResultCode="931" OR ResultCode="932" OR ResultCode="1409" OR ResultCode="1410" OR ResultCode="1411" OR ResultCode="1412" OR ResultCode="1414" OR ResultCode="407")),1,0) | 
+eval isLegacyFailure=if((like(EventType,"SessionCreateFailed") AND idType="ALIAS" AND NOT (ResultCode="931" OR ResultCode="932" OR ResultCode="1409" OR ResultCode="1410" OR ResultCode="1411" OR ResultCode="1412" OR ResultCode="1414" OR ResultCode="407")),1,0) | 
+eval isX1BRFailure=if((like(EventType,"SessionCreateFailed") AND idType="ATP" AND (ResultCode="931" OR ResultCode="932" OR ResultCode="1409" OR ResultCode="1410" OR ResultCode="1411" OR ResultCode="1412" OR ResultCode="1414" OR ResultCode="407")),1,0)| 
+eval isLegacyBRFailure=if((like(EventType,"SessionCreateFailed") AND idType="ALIAS" AND (ResultCode="931" OR ResultCode="932" OR ResultCode="1409" OR ResultCode="1410" OR ResultCode="1411" OR ResultCode="1412" OR ResultCode="1414" OR ResultCode="407")),1,0)| 
+eval isX1UDBError=if((like(EventType,"SessionCreateFailed") AND idType="ATP" AND (ResultCode="922" OR ResultCode="926" OR ResultCode="930" OR ResultCode="1413" OR ResultCode="1415")),1,0) | 
+eval isLegacyUDBError=if((like(EventType,"SessionCreateFailed") AND idType="ALIAS" AND (ResultCode="922" OR ResultCode="926" OR ResultCode="930" OR ResultCode="1413" OR ResultCode="1415")),1,0) | 
+eval isX1PlantSetupError=if((like(EventType,"SessionCreateFailed") AND idType="ATP" AND (ResultCode="700" OR ResultCode="701" OR ResultCode="705" OR ResultCode="706" OR ResultCode="708" OR ResultCode="709" OR ResultCode="711" OR ResultCode="712" OR ResultCode="716" OR ResultCode="717" OR ResultCode="720" OR ResultCode="761" OR ResultCode="924")),1,0) | 
+eval isLegacyPlantSetupError=if((like(EventType,"SessionCreateFailed") AND idType="ALIAS" AND (ResultCode="700" OR ResultCode="701" OR ResultCode="705" OR ResultCode="706" OR ResultCode="708" OR ResultCode="709" OR ResultCode="711" OR ResultCode="712" OR ResultCode="716" OR ResultCode="717" OR ResultCode="720" OR ResultCode="761" OR ResultCode="924")),1,0) |
+eval isX1PlantTeardownError=if((like(EventType,"SessionTorndown") AND idType="ATP" AND (ClientReasonCode="0x8013" OR ClientReasonCode="0x8017")),1,0) |
+eval isLegacyPlantTeardownError=if((like(EventType,"SessionTorndown") AND idType="ALIAS" AND (ClientReasonCode="0x8013" OR ClientReasonCode="0x8017")),1,0) |
+eval isX1BNIError=if((like(EventType,"SessionCreateFailed") AND idType="ATP" AND (ResultCode="500" OR ResultCode="501" OR ResultCode="715" OR ResultCode="718" OR ResultCode="750" OR ResultCode="990" OR ResultCode="992" OR ResultCode="1001" OR ResultCode>="1020" AND ResultCode<="1033")),1,0) | 
+eval isLegacyBNIError=if((like(EventType,"SessionCreateFailed") AND idType="ALIAS" AND (ResultCode="500" OR ResultCode="501" OR ResultCode="715" OR ResultCode="718" OR ResultCode="750" OR ResultCode="990" OR ResultCode="992" OR ResultCode="1001" OR ResultCode>="1020" AND ResultCode<="1033")),1,0) | 
+eval isX1PumpSetupError=if((like(EventType,"SessionCreateFailed") AND idType="ATP" AND (ResultCode>="790" AND ResultCode<="918")),1,0) | 
+eval isLegacyPumpSetupError=if((like(EventType,"SessionCreateFailed") AND idType="ALIAS" AND (ResultCode>="790" AND ResultCode<="918")),1,0) | 
+eval isX1PumpTeardownError=if((like(EventType,"SessionTorndown") AND idType="ATP" AND ((TeardownReasonCode="408" OR TeardownReasonCode="409") AND ClientReasonCode="0x9998")),1,0) | 
+eval isLegacyPumpTeardownError=if((like(EventType,"SessionTorndown") AND idType="ALIAS" AND ((TeardownReasonCode="408" OR TeardownReasonCode="409") AND ClientReasonCode="0x9998")),1,0) | 
+eval isX1X1Error=if(like(EventType,"SessionTorndown") AND idType="ATP" AND (ClientReasonCode="0x2"),1,0) | 
+eval isLegacyX1Error=if(like(EventType,"SessionTorndown") AND idType="ALIAS" AND (ClientReasonCode="0x2"),1,0) | 
+eval isX1TuneError=if(like(EventType,"SessionTorndown") AND idType="ATP" AND (ClientReasonCode="0x8001"),1,0) |
+eval isLegacyTuneError=if(like(EventType,"SessionTorndown") AND idType="ALIAS" AND (ClientReasonCode="0x8001"),1,0) |
+eval isX1CMCONNECTError=if(like(EventType,"SessionTorndown") AND idType="ATP" AND ((TeardownReasonCode="408") AND (ClientReasonCode="0x8002")),1,0) | 
+eval isLegacyCMCONNECTError=if(like(EventType,"SessionTorndown") AND idType="ALIAS" AND ((TeardownReasonCode="408") AND (ClientReasonCode="0x8002")),1,0) | 
+eval isX1VLQOKError=if(like(EventType,"SessionTorndown") AND idType="ATP" AND ((TeardownReasonCode="408") AND (ClientReasonCode="0x8012")),1,0) |
+eval isLegacyVLQOKError=if(like(EventType,"SessionTorndown") AND idType="ALIAS" AND ((TeardownReasonCode="408") AND (ClientReasonCode="0x8012")),1,0) |
+eval isX1TeardownError=if((like(EventType,"SessionTeardownFailed") AND idType="ATP"),1,0)| 
+eval isLegacyTeardownError=if((like(EventType,"SessionTeardownFailed") AND idType="ALIAS"),1,0)| 
+addTotals fieldname=TotalSuccesses isX1Success isLegacySuccess | addTotals fieldname=TotalSetupFailures isX1Failure isLegacyFailure | 
+addTotals fieldname=isBRFailure isX1BRFailure isLegacyBRFailure |addTotals fieldname=isUDBError isX1UDBError isLegacyUDBError | addTotals fieldname=isPlantSetupError isX1PlantSetupError isLegacyPlantSetupError | addTotals fieldname=isPlantTeardownError isX1PlantTeardownError isLegacyPlantTeardownError | addTotals fieldname=isPumpSetupError isX1PumpSetupError isLegacyPumpSetupError | addTotals fieldname=isPumpTeardownError isX1PumpTeardownError isLegacyPumpTeardownError | addTotals fieldname=isBNIError isX1BNIError isLegacyBNIError | addTotals fieldname=isX1Error isX1X1Error isLegacyX1Error | addTotals fieldname=isTuneError isX1TuneError isLegacyTuneError | addTotals fieldname=isCMCONNECTError isX1CMCONNECTError isLegacyCMCONNECTError | addTotals fieldname=isVLQOKError isX1VLQOKError isLegacyVLQOKError | addTotals fieldname=isTeardownError isX1TeardownError isLegacyTeardownError |
+timechart span=1m sum(isX1Success) as "X1 Successes", sum(isLegacySuccess) as "Legacy Successes", sum(TotalSuccesses) as "Total Successes", sum(isX1Failure) as "X1 Setup Failures", sum(isLegacyFailure) as "Legacy Setup Failures", sum(TotalSetupFailures) as "Total Setup Failures", sum(isX1BRFailure) as "X1 BR Denials", sum(isLegacyBRFailure) as "Legacy BR Denials", sum(isBRFailure) as "Total BR Denials", sum(isX1UDBError) as "X1 UDB Errors", sum(isLegacyUDBError) as "Legacy UDB Errors", sum(isUDBError) as "Total UDB Errors", sum(isX1PlantSetupError) as "X1 Field/Plant Setup Errors", sum(isLegacyPlantSetupError) as "Legacy Field/Plant Setup Errors", sum(isPlantSetupError) as "Total Field/Plant Setup Errors", sum(isX1PlantTeardownError) as "X1 Field/Plant Teardown Errors", sum(isLegacyPlantTeardownError) as "Legacy Field/Plant Teardown Errors", sum(isPlantTeardownError) as "Total Field/Plant Teardown Errors", sum(isX1PumpSetupError) as "X1 CCDN Setup Errors", sum(isLegacyPumpSetupError) as "Legacy CCDN Setup Errors", sum(isPumpSetupError) as "Total CCDN Setup Errors", sum(isX1PumpTeardownError) as "X1 CCDN Teardown Errors", sum(isLegacyPumpTeardownError) as "Legacy CCDN Teardown Errors", sum(isPumpTeardownError) as "Total CCDN Teardown Errors", sum(isX1BNIError) as "X1 VCP Errors", sum(isLegacyBNIError) as "Legacy VCP Errors", sum(isBNIError) as "Total VCP Errors", sum(isX1X1Error) as "X1 Infinite Retry Errors", sum(isLegacyX1Error) as "Legacy Infinite Retry Errors", sum(isX1Error) as "Total X1 Infinite Retry Errors", sum(isX1TuneError) as "X1 Tune Errors",  sum(isLegacyTuneError) as "Legacy Tune Errors",  sum(isTuneError) as "Total Tune Errors", sum(isX1CMCONNECTError) as "X1 CM_CONNECT Errors", sum(isLegacyCMCONNECTError) as "Legacy CM_CONNECT Errors", sum(isCMCONNECTError) as "Total CM_CONNECT Errors", sum(isX1VLQOKError) as "X1 VLQOK Errors", sum(isLegacyVLQOKError) as "Legacy VLQOK Errors", sum(isVLQOKError) as "Total VLQOK Errors", sum(isX1TeardownError) as "X1 Teardown Failures",  sum(isLegacyTeardownError) as "Legacy Teardown Failures",  sum(isTeardownError) as "Total Teardown Failures" | rename _time AS Time | eval Time=strftime(Time, "%m/%d/%Y %H:%M CST")]]></s:key>Report - 0x9998 Errors Weekly by PG!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 (EventType=SessionTorndown) ClientReasonCode="0x9998" TeardownReasonCode=409 ComponentName=SM | chart limit=200 count by peerGroup idType |rename ALIAS as "Legacy inNGODNetworkResourceFailure Errors" |rename ATP as "X1 inNGODNetworkResourceFailure Errors" | addtotals fieldname=Total *inNGODNetworkResourceFailure* | sort -Total]]></s:key>Report - 0x9998 Errors Weekly by SopName!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 (EventType=SessionTorndown) ClientReasonCode="0x9998" TeardownReasonCode=409 ComponentName=SM | chart limit=200 count by SopName idType |rename ALIAS as "Legacy inNGODNetworkResourceFailure Errors" |rename ATP as "X1 inNGODNetworkResourceFailure Errors" | addtotals fieldname=Total *inNGODNetworkResourceFailure* | sort -Total]]></s:key>Report - CMCONNECT Error Rate - Top PGs!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 peerGroup!=10404 ((EventType=SessionTorndown ClientReasonCode="0x8002") OR EventType=SessionCreated)  ComponentName=SM 
+|eval isCMCONNECTError=if((like(EventType,"SessionTorndown")),1,0) | eval isSuccess=if((like(EventType,"SessionCreated")),1,0) 
+|chart sum(isCMCONNECTError) as CMCONNECTError, sum(isSuccess) as Success by peerGroup idType
+|rename "Success: ALIAS" as LegacySuccess, "Success: ATP" as X1Success, "CMCONNECTError: ALIAS" as LegacyCMCONNECTError "CMCONNECTError: ATP" as X1CMCONNECTError
+|eval LegacyErrorRate=LegacyCMCONNECTError/LegacySuccess | eval X1ErrorRate=X1CMCONNECTError/X1Success 
+|addtotals fieldname=TotalSuccess LegacySuccess X1Success 
+|addtotals fieldname=TotalCMCONNECTError LegacyCMCONNECTError X1CMCONNECTError
+|addtotals fieldname=TotalErrorRate LegacyErrorRate X1ErrorRate
+|fieldformat TotalErrorRate=tostring(round(TotalErrorRate,4)*50)."%"
+|fieldformat LegacyErrorRate=tostring(round(LegacyErrorRate,4)*100)."%"
+|fieldformat X1ErrorRate=tostring(round(X1ErrorRate,4)*100)."%" |sort -TotalErrorRate
+|fields peerGroup LegacySuccess X1Success TotalSuccess LegacyCMCONNECTError X1CMCONNECTError TotalCMCONNECTError LegacyErrorRate X1ErrorRate TotalErrorRate]]></s:key>Report - Insufficient QAM Bandwidth Error Rate - Top PGs!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 peerGroup!=10404 ((EventType=SessionCreateFailed ResultCode=701) OR EventType=SessionCreated)  ComponentName=SM 
+|eval isQAMBWError=if((like(EventType,"SessionCreateFailed")),1,0) | eval isSuccess=if((like(EventType,"SessionCreated")),1,0) 
+|chart sum(isQAMBWError) as QAMBWError, sum(isSuccess) as Success by peerGroup idType
+|rename "Success: ALIAS" as LegacySuccess, "Success: ATP" as X1Success, "QAMBWError: ALIAS" as LegacyQAMBWError "QAMBWError: ATP" as X1QAMBWError
+|eval LegacyErrorRate=LegacyQAMBWError/LegacySuccess | eval X1ErrorRate=X1QAMBWError/X1Success 
+|addtotals fieldname=TotalSuccess LegacySuccess X1Success 
+|addtotals fieldname=TotalQAMBWError LegacyQAMBWError X1QAMBWError
+|addtotals fieldname=TotalErrorRate LegacyErrorRate X1ErrorRate
+|fieldformat TotalErrorRate=tostring(round(TotalErrorRate,4)*50)."%"
+|fieldformat LegacyErrorRate=tostring(round(LegacyErrorRate,4)*100)."%"
+|fieldformat X1ErrorRate=tostring(round(X1ErrorRate,4)*100)."%" |sort -TotalErrorRate
+|fields peerGroup LegacySuccess X1Success TotalSuccess LegacyQAMBWError X1QAMBWError TotalQAMBWError LegacyErrorRate X1ErrorRate TotalErrorRate]]></s:key>Report - NBRF-Errors-by-STB!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 (EventType=SessionCreateFailed OR EventType=SessionTorndown) ComponentName=SM NOT (ResultCode="931" OR ResultCode="932" OR ResultCode="1409" OR ResultCode="1410" OR ResultCode="1411" OR ResultCode="1412" OR ResultCode="1414" OR ClientReasonCode=0x19 OR ClientReasonCode=0x8005 OR TeardownReasonCode=200 OR (ClientReasonCode=0x9998 AND (TeardownReasonCode=201 OR TeardownReasonCode=400 OR TeardownReasonCode=403 OR TeardownReasonCode=407 OR TeardownReasonCode=420 OR TeardownReasonCode=550)) OR (ClientReasonCode=0x9997 AND (TeardownReasonCode=403)))         
+|eval ResultCode=coalesce(ResultCode, " ")
+|eval TeardownReasonCode=coalesce(TeardownReasonCode, " ") 
+|eval   ClientReasonCode=coalesce(ClientReasonCode, " ")   
+|eval ResultText=coalesce(ResultText, " ")       
+|eval ErrorCode = (ResultCode + " " + ClientReasonCode + "/" + TeardownReasonCode + " " + ResultText)     
+| stats count as Total, count(eval(idType="ATP")) as X1, count(eval(idType="ALIAS")) as Legacy by ErrorCode|addcoltotals labelfield=ErrorCode label="All NBRF Errors" Total* X1* Legacy* | sort -Total]]></s:key>Report - NetworkResourceError Rate - Top PGs!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 peerGroup!=10404 ((EventType=SessionTorndown ClientReasonCode="0x9998" (TeardownReasonCode=409 OR TeardownReasonCode=408)) OR EventType=SessionCreated)  ComponentName=SM 
+|eval isNetworkResourceError=if((like(EventType,"SessionTorndown")),1,0) | eval isSuccess=if((like(EventType,"SessionCreated")),1,0) 
+|chart sum(isNetworkResourceError) as NetworkResourceError, sum(isSuccess) as Success by peerGroup idType
+|rename "Success: ALIAS" as LegacySuccess, "Success: ATP" as X1Success, "NetworkResourceError: ALIAS" as LegacyNetworkResourceError "NetworkResourceError: ATP" as X1NetworkResourceError
+|eval LegacyErrorRate=LegacyNetworkResourceError/LegacySuccess | eval X1ErrorRate=X1NetworkResourceError/X1Success 
+|addtotals fieldname=TotalSuccess LegacySuccess X1Success 
+|addtotals fieldname=TotalNetworkResourceError LegacyNetworkResourceError X1NetworkResourceError
+|addtotals fieldname=TotalErrorRate LegacyErrorRate X1ErrorRate
+|fieldformat TotalErrorRate=tostring(round(TotalErrorRate,4)*50)."%"
+|fieldformat LegacyErrorRate=tostring(round(LegacyErrorRate,4)*100)."%"
+|fieldformat X1ErrorRate=tostring(round(X1ErrorRate,4)*100)."%" |sort -TotalErrorRate
+|fields peerGroup LegacySuccess X1Success TotalSuccess LegacyNetworkResourceError X1NetworkResourceError TotalNetworkResourceError LegacyErrorRate X1ErrorRate TotalErrorRate]]></s:key>Report - Spike Analysis Sample!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm earliest=2/17/2016:4:00:00 latest=2/17/2016:7:04:00 peerGroup!=70001 (host=ve* OR host=vw*)
+
+(EventType=SessionCreateFailed OR EventType=SessionTorndown) ComponentName=SM (NOT (ClientReasonCode=0x19 OR ClientReasonCode=0x8005))      
+|eval ResultCode=coalesce(ResultCode, " ")
+|eval TeardownReasonCode=coalesce(TeardownReasonCode, " ") 
+|eval ClientReasonCode=coalesce(ClientReasonCode, " ") 
+|eval ResultText=coalesce(ResultText, " ")       
+|eval ErrorCode = (ResultCode + " " + ClientReasonCode + "/" + TeardownReasonCode + " " + ResultText) 
+   | fields + ErrorCode peerGroup | fields - _* 
+| multireport [ top limit=10 showperc=f countfield=Total ErrorCode |mvexpand ErrorCode]
+              [ top limit=10 showperc=f countfield="PG Total" peerGroup by ErrorCode
+                    | mvexpand peerGroup | rename peerGroup as PeerGroup ]
+| stats list(*) as * by ErrorCode | where isnotnull(Total)| sort - Total 
+|table ErrorCode, Total, PeerGroup, "PG Total"]]></s:key>Report - Tune Error Rate - Top PGs!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 peerGroup!=10404 ((EventType=SessionTorndown ClientReasonCode="0x8001") OR EventType=SessionCreated)  ComponentName=SM 
+|eval isTuneError=if((like(EventType,"SessionTorndown")),1,0) | eval isSuccess=if((like(EventType,"SessionCreated")),1,0) 
+|chart sum(isTuneError) as TuneError, sum(isSuccess) as Success by peerGroup idType
+|rename "Success: ALIAS" as LegacySuccess, "Success: ATP" as X1Success, "TuneError: ALIAS" as LegacyTuneError "TuneError: ATP" as X1TuneError
+|eval LegacyErrorRate=LegacyTuneError/LegacySuccess | eval X1ErrorRate=X1TuneError/X1Success 
+|addtotals fieldname=TotalSuccess LegacySuccess X1Success 
+|addtotals fieldname=TotalTuneError LegacyTuneError X1TuneError
+|addtotals fieldname=TotalErrorRate LegacyErrorRate X1ErrorRate
+|fieldformat TotalErrorRate=tostring(round(TotalErrorRate,4)*50)."%"
+|fieldformat LegacyErrorRate=tostring(round(LegacyErrorRate,4)*100)."%"
+|fieldformat X1ErrorRate=tostring(round(X1ErrorRate,4)*100)."%" |sort -TotalErrorRate
+|fields peerGroup LegacySuccess X1Success TotalSuccess LegacyTuneError X1TuneError TotalTuneError LegacyErrorRate X1ErrorRate TotalErrorRate]]></s:key>Report - Tune Errors Weekly by PG!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 (EventType=SessionTorndown) ClientReasonCode="0x8001" ComponentName=SM | chart limit=200 count by peerGroup idType |rename ALIAS as "Legacy Tune Errors" |rename ATP as "X1 Tune Errors" | addtotals fieldname=Total *Tune* | sort -Total]]></s:key>Report - Tune Errors Weekly by SopName!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 (EventType=SessionTorndown) ClientReasonCode="0x8001" ComponentName=SM | chart limit=200 count by SopName idType |rename ALIAS as "Legacy Tune Errors" |rename ATP as "X1 Tune Errors" | addtotals fieldname=Total *Tune* | sort -Total]]></s:key>Report - VLQOK Error Rate - Top PGs!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 peerGroup!=10404 ((EventType=SessionTorndown ClientReasonCode="0x8012") OR EventType=SessionCreated)  ComponentName=SM 
+|eval isVLQOKError=if((like(EventType,"SessionTorndown")),1,0) | eval isSuccess=if((like(EventType,"SessionCreated")),1,0) 
+|chart sum(isVLQOKError) as VLQOKError, sum(isSuccess) as Success by peerGroup idType
+|rename "Success: ALIAS" as LegacySuccess, "Success: ATP" as X1Success, "VLQOKError: ALIAS" as LegacyVLQOKError "VLQOKError: ATP" as X1VLQOKError
+|eval LegacyErrorRate=LegacyVLQOKError/LegacySuccess | eval X1ErrorRate=X1VLQOKError/X1Success 
+|addtotals fieldname=TotalSuccess LegacySuccess X1Success 
+|addtotals fieldname=TotalVLQOKError LegacyVLQOKError X1VLQOKError
+|addtotals fieldname=TotalErrorRate LegacyErrorRate X1ErrorRate
+|fieldformat TotalErrorRate=tostring(round(TotalErrorRate,4)*50)."%"
+|fieldformat LegacyErrorRate=tostring(round(LegacyErrorRate,4)*100)."%"
+|fieldformat X1ErrorRate=tostring(round(X1ErrorRate,4)*100)."%" |sort -TotalErrorRate
+|fields peerGroup LegacySuccess X1Success TotalSuccess LegacyVLQOKError X1VLQOKError TotalVLQOKError LegacyErrorRate X1ErrorRate TotalErrorRate]]></s:key>Report-All-Errors-by-PeerGroup!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 (EventType=SessionCreateFailed OR EventType=SessionTorndown) ComponentName=SM NOT (ResultCode="931" OR ResultCode="932" OR ResultCode="1409" OR ResultCode="1410" OR ResultCode="1411" OR ResultCode="1412" OR ResultCode="1414" OR ClientReasonCode=0x19 OR ClientReasonCode=0x8005 OR TeardownReasonCode=200 OR (ClientReasonCode=0x9998 AND (TeardownReasonCode=407 OR TeardownReasonCode=420 OR TeardownReasonCode=550)))      
+|eval ResultCode=coalesce(ResultCode, " ")
+|eval TeardownReasonCode=coalesce(TeardownReasonCode, " ") 
+|eval ClientReasonCode=coalesce(ClientReasonCode, " ") 
+|eval ResultText=coalesce(ResultText, " ")       
+|eval ErrorCode = (ResultCode + " " + ClientReasonCode + "/" + TeardownReasonCode + " " + ResultText) 
+    | fields + ErrorCode peerGroup | fields - _* 
+| multireport [ top limit=100 showperc=f countfield=Total ErrorCode |mvexpand ErrorCode]
+              [ top limit=5 showperc=f countfield="PG Total" peerGroup by ErrorCode
+                    | mvexpand peerGroup | rename peerGroup as PeerGroup ]
+| stats list(*) as * by ErrorCode | where isnotnull(Total)| sort - Total 
+|table ErrorCode, Total, PeerGroup, "PG Total"]]></s:key>Report-All-Errors-by-STBType!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 (EventType=SessionCreateFailed OR EventType=SessionTorndown) ComponentName=SM       
+|eval ResultCode=coalesce(ResultCode,   "No RC")
+|eval TeardownReasonCode=coalesce(TeardownReasonCode,   "No TeardownReasonCode") 
+|eval   ClientReasonCode=coalesce(ClientReasonCode, "No ClientReasonCode")   
+|eval ResultText=coalesce(ResultText, "No RT")       
+|eval   ResultAndClientAndTeardown=ResultCode.ClientReasonCode.TeardownReasonCode       
+|lookup ErrorBucketLookup.csv   ResultAndClientAndTeardown OUTPUT Ownership Description       
+|eval Ownership=coalesce(Ownership,"no-ownership")
+|eval Description=coalesce(Description,"no-description")
+|eval ERROR=   ResultAndClientAndTeardown.",".ResultText      
+| stats count as Total, count(eval(idType="ATP")) as X1, count(eval(idType="ALIAS")) as Legacy by EventType ResultCode ResultText ClientReasonCode TeardownReasonCode Ownership Description|sort ResultCode]]></s:key>Report-Stripe_Setup_Timings_Detail!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm ChannelName=net.beaumaris.session EventType=SessionCreated (host=ve* OR host=vw*) peerGroup!=70001 ComponentName="SM"  |eval stripe=substr(host, 1, 3) 
+| timechart span=1h  p1(SessionSetupTime) as 1st%, p50(SessionSetupTime) as 50th%, p99(SessionSetupTime) as 99th% by stripe
+| rename _time AS Time | eval Time=strftime(Time, "%m/%d/%Y %H:%M CST")]]></s:key>Report_Workflow_Timings!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD EventType=ServiceResponseTime (ServiceName=*CATV-Comcast-S1-SessionInProgress.js/SessionPersistenceService.persistSessionObject/SessionDHTClientImpl.persist OR ServiceName="workflows/CATV-Comcast-S1-Setup.js" OR ServiceName=*CATV-Comcast-S1-Setup.js/ADMClientService.expandPlaylist OR ServiceName=*CATV-Comcast-S1-Setup.js/ERMService.setupERMSession OR ServiceName=*CATV-Comcast-S1-Setup.js/ODRMService.setupODRMSession OR ServiceName=*CATV-Comcast-S1-Setup.js/SessionPersistenceService.getSettopStatus OR ServiceName="workflows/CATV-Comcast-S1-Setup.js/ValidatePlayEligibilityTotal/UDBService.validatePlayEligibility" OR ServiceName=*CATV-Comcast-S1-Setup.js/getSOPList OR ServiceName=*CATV-Comcast-S1-Teardown.js) | timechart span=1h p1(ResponseTime) as "1st% Response Time" p50(ResponseTime) as "50th% Response Time" p99(ResponseTime) as "99th% Response Time" count by ServiceName | rename _time AS Time | eval Time=strftime(Time, "%m/%d/%Y %H:%M CST")]]></s:key>Taylor-9998ErrorsByEdgeDevice!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm peerGroup=12601 ((EventType=SessionTorndown ClientReasonCode="0x9998" TeardownReasonCode=409) OR EventType=SessionCreated) ComponentName=SM 
+|eval isError=if((like(EventType,"SessionTorndown")),1,0) 
+|eval isSuccess=if((like(EventType,"SessionCreated")),1,0) 
+|chart sum(isError) as Error, sum(isSuccess) as Success by EdgeDeviceName 
+|eval ErrorRate=Error/Success 
+|fieldformat ErrorRate=tostring(round(ErrorRate,4)*100)."%"
+|sort -ErrorRate]]></s:key>X1 Errors by StreamingZone!!!!!!<s:key name="qualifiedSearch"><![CDATA[search index=dsm tag=PROD (host=ve* OR host=vw*) peerGroup!=70001 (EventType=SessionCreateFailed OR EventType=SessionTorndown) (NOT (ResultCode="931" OR ResultCode="932" OR ResultCode="1409" OR ResultCode="1410" OR ResultCode="1411" OR ResultCode="1412" OR ResultCode="1414" OR TeardownReasonCode=407 OR ClientReasonCode=0x8005 OR TeardownReasonCode=550 OR TeardownReasonCode=420)) ComponentName=SM idType=ATP (NOT (EventType=SessionTorndown AND ClientReasonCode=0x19))       
+|eval ResultCode=coalesce(ResultCode,   "No RC")
+|eval TeardownReasonCode=coalesce(TeardownReasonCode,   "No TeardownReasonCode") 
+|eval   ClientReasonCode=coalesce(ClientReasonCode, "No ClientReasonCode")   
+|eval ResultText=coalesce(ResultText, "No RT")       
+|eval   ResultAndClientAndTeardown=ResultCode.ClientReasonCode.TeardownReasonCode       
+|lookup ErrorBucketLookup.csv   ResultAndClientAndTeardown OUTPUT Ownership Description       
+|eval Ownership=coalesce(Ownership,"no-ownership")
+|eval Description=coalesce(Description,"no-description")
+|eval ERROR=   ResultAndClientAndTeardown.",".ResultText       
+|stats count as TOTAL by StreamingZone EventType   ResultCode ResultText ClientReasonCode TeardownReasonCode]]></s:key>

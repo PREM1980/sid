@@ -39,11 +39,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 )
 
-CUSTOM_APPS = ('tickets',)
+CUSTOM_APPS = ('tickets',
+    'vbo_module')
 
-print type(CUSTOM_APPS)
 
-print type(INSTALLED_APPS)
 INSTALLED_APPS = INSTALLED_APPS + CUSTOM_APPS
 
 MIDDLEWARE_CLASSES = (
@@ -120,7 +119,7 @@ STATIC_URL = '/static/'
 # logging
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
             'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
@@ -131,10 +130,24 @@ LOGGING = {
         },
     },
     'handlers': {
+        'django': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': '/var/www//logs/sid.log',
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'verbose',
+        }, 
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': '/var/www//logs/sid.log',
+            'formatter': 'verbose'
+        },
+        'feedback_log_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/www//logs/feedback.log',
             'formatter': 'verbose'
         },
     },
@@ -144,9 +157,18 @@ LOGGING = {
             'propagate': True,
             'level': 'DEBUG',
         },
-        'tickets': {
+        'app_logger': {
             'handlers': ['file'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
+        'feedback_logger': {
+            'handlers': ['feedback_log_file'],
             'level': 'DEBUG',
         },
     }
 }
+
+SESSION_COOKIE_AGE = 500* 60
+
+API_KEY = 'CPT74QBAWFIDFH4U27RT'

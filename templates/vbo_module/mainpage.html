@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block jscontent %}
+    <title>NINJA Analytics and Reporting Portal - VBO  Module</title>
+    {% load staticfiles %}
+    <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+    
+    <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
+    <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
+    <script src="{% static "js/customjs/common.js" %}"></script>
+    <script src="{% static "js/customjs/vbo.js" %}"></script>
+
+<script>
+$(document).ready(function()
+{
+    if ("{{error}}" == 'N') {
+       $('#loginid').html("{{request.session.userid}}")
+    }
+}
+)
+</script>
+    
+{% endblock jscontent %}
+
+{% block content %}
+    {% load staticfiles %}
+    <div class="container-fluid" >
+        <div class="row">
+            <div id="header">
+                <img src="{% static "images/comcast_sid_logo_web.png" %}">
+                <div id="logout"style="float:right;color:red;padding-right: 15px;font-weight:bold">Logout
+                </div>
+                <div id="loginid" style="float:right;color:red;padding-right:15px;font-weight:bold">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            
+            <div class="col-sm-4" id="report_names">
+            <br>
+                <span style="font-weight:bold;size:15px;color:red">Report Names</span>
+                <br><br>
+                <ul id="report_list">
+                </ul>
+            </div>
+
+            <!-- <div class="col-sm-4">
+            <br>
+                <span style="font-weight:bold;size:15px;color:red">Run Reports</span>
+                <br>
+                <br>
+                <input type="button" value="Run Report"></input>
+            </div> -->
+            
+            <div class="col-sm-4">
+            <br>
+                <span style="font-weight:bold;size:15px;color:red">List of Reports</span>
+                <style>
+    .demo {
+        border:1px solid #C0C0C0;
+        border-collapse:collapse;
+        padding:5px;
+    }
+    .demo th {
+        border:1px solid #C0C0C0;
+        padding:5px;
+        background:#F0F0F0;
+    }
+    .demo td {
+        border:1px solid #C0C0C0;
+        padding:5px;
+    }
+</style>
+<table class="demo">
+    <caption></caption>
+    <thead>
+    <tr>
+        <th>Run Date</th>
+        <th>Report Link</th>
+        
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>June 9 2016</td>
+        <td><a href="http://google.com">Click Here</a></td>
+        
+    </tr>
+    <tr>
+        <td>June 8  2016</td>
+        <td><a href="http://google.com">Click Here</a></td>
+    </tr>
+    <tr>
+        <td>June 7 2016</td>
+        <td><a href="http://google.com">Click Here</a></td>
+        
+    </tr>
+    <tr>
+        <td>June 6 2016</td>
+        <td><a href="http://google.com">Click Here</a></td>
+    </tr>
+    </tbody>
+</table>
+            </div>
+        </div>
+    <div>
+ 
+{% endblock content %}
+   

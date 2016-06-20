@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import NinjaUsers
+
+@admin.register(NinjaUsers)
+class NinjaUsers(admin.ModelAdmin):
+    pass

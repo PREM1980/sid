@@ -40,8 +40,26 @@
 
      // //init feedback_me plugin
      // fm.init(fm_options);
+
+     $('#errorcount, #row_error_count').change(function() { 
+        n = $(this).val()
+        n = n.replace(/,/g, '')
+
+        var parts=n.toString().split(".");
+        val =  parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "")
+        $(this).val(val)
+         });
      
 
+     $("#dropdown-menu li").not('.emptyMessage').click(function() {
+          $('#errorcount').val($(this).text())
+        });
+
+    $("#dialog-dropdown-menu li").not('.emptyMessage').click(function() {
+          $('#row_error_count').val($(this).text())
+        });
+
+     
      var toType = function(obj) {
          return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
         }
@@ -174,7 +192,7 @@
                  'ticket_type': $('input[name=tkt-radio]:checked').val()
              }
              console.log("Insert ticket data ", data)
-
+             alert(error_count)
              $.ajax({
                  type: "POST",
                  url: '/post-ticket-data',
@@ -263,6 +281,7 @@
                      } else {
                          data = {}
                          pg = get_pgs('#row_peergroup')
+                         
                          data = {
                              'created_dt': $('#dialog_created_dt').val(),
                              'end_dt': $('#dialog_end_dt').val(),
@@ -446,7 +465,7 @@
          $("<div class='CSSTableGenerator1'></div>").appendTo("#ticket_list");
          $('#pagination').pagination({
              items: transactiondata.results.length,
-             itemsOnPage: 12,
+             itemsOnPage: 50,
              onInit: redrawData,
              onPageClick: redrawData,
              cssStyle: 'light-theme'
@@ -458,14 +477,14 @@
          transactiondata_results = transactiondata.results
          if (pageNumber) {
              if (pageNumber == 1) {
-                 slicedata = transactiondata_results.slice(0, 12)
+                 slicedata = transactiondata_results.slice(0, 50)
              } else {
                  // slicedata = transactiondata_results.slice(pageNumber * 5,
                  //     Math.min((pageNumber + 1) * 5, transactiondata_results.length));
-                 slicedata = transactiondata_results.slice(((pageNumber - 1) * 12), 12 * pageNumber + 1)
+                 slicedata = transactiondata_results.slice(((pageNumber - 1) * 50), 50 * pageNumber + 1)
              }
          } else {
-             slicedata = transactiondata_results.slice(0, 12)
+             slicedata = transactiondata_results.slice(0, 50)
          }
 
          $(".CSSTableGenerator1").empty()
@@ -659,7 +678,8 @@
              getval(division, 'setting', pg_cds_array)
 
              $("#dialog_duration select").val(duration)
-             $("#dialog_error_count select").val(error_count)
+             //$("#dialog_error_count select").val(error_count)
+             $("#row_error_count").val(error_count)
              $("#dialog_outage_caused select").val(outage_caused)
              $("#dialog_system_caused select").val(system_caused)
              $("#dialog_addt_notes").html(addt_notes)

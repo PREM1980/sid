@@ -69,6 +69,13 @@
     var northeast = [10501, 10601, 10701, 10702, 10801, 10901, 11001, 11101, 11102, 11201, 11202, 11203, 11301, 11401, 11402, 13201, 13301, 13501, 13502, 13601, 14901, 15001, 15101, 15102, 15301, 15401, 15501, 15601, 15801, 15901, 16001, 16101, 16201, 16401, 16501, 16601, 16701, 16702, 16703, 16704, 16901, 16902, 17001, 18001, 18501, 18701, 18702, 18703, 18801, 18901, 19001, 19501, 19601, 19701, 19901, 20101, 20201, 20701, 22001, 22002, 22301, 22302, 23201]
     //var northeast = ['10501 Baltimore City', '10601 Baltimore County', '10701 Howard/Harford', '10702 Carrol County', '10801 Chesapeake Bay Group', '10901 Delmarva / Salisbury', '11001 Derry', '11101 Exeter', '11102 Exeter', '11201 Foxboro', '11202 Needham', '11203 Brockton', '11301 Mashpee', '11401 Maynard', '11402 Boston', '13201 Harrisburg', '13301 Lancaster', '13501 Hartford (Bristol)', '13502 Hartford (Bristol)', '13601 New Haven (Hamden)', '14901 Central Jersey', '15001 Monmouth Ocean', '15101 Union', '15102 Verona', '15301 Bucks County', '15401 Burlington, Gloucester', '15501 Chester County', '15601 Delaware County', '15801 Garden State', '15901 Montgomery County PA', '16001 New Castle', '16101 Philly Areas 3/4', '16201 Pleasantville', '16401 Trenton', '16501 Vineland', '16601 Willow Grove', '16701 Pittsburgh', '16702 Pittsburgh, Youngstown', '16703 Pittsburgh, Wheeling', '16704 Pittsburgh', '16901 Chesterfield', '16902 Spotsylvania', '17001 Richmond', '18001 Springfield / Holyoke', '18501 Alexandria, Arlington', '18701 Montgomery Cty', '18702 Montgomery Cty', '18703 Frederick Cty', '18801 Prince George County', '18901 Prince William County', '19001 Washington DC', '19501 State College', '19601 Scranton', '19701 Philly Area 2', '19901 Plymouth', '20101 Londonderry', '20201 Blairsville', '20701 Huntington', '22001 Philly Area 1', '22002 CorporateCenter', '22301 Blue Ridge', '22302 Loudoun', '23201 York']
     var national = central.concat(western).concat(northeast)
+    
+    // function set_error_count(){
+
+    //     $('#errorcount').val("dei")
+    //     // alert($('#dropdown-menu :selected').text())
+    //     alert($(this).text)
+    // }
 
     function getval(sel, caller_function, pg_cds_array) {
         
@@ -171,13 +178,7 @@
 
         <table class="table table-borderless">
             <tr>
-                <!-- <th>Date</th>
-                <th>Division</th>
-                <th>Peergroup</th>
-                <th>Duration (in minutes)</th>
-                <th>Error Count</th>
-                <th>Outage Cause</th>
-                <th>System Caused</th> -->
+                
             </tr>
             <tr>
                 <td>
@@ -215,23 +216,29 @@
                         </select>
                     </div>
                 </td>
-                <td>
-                    <div>
-                        <select id="errorcount" class="form-control input-sm">
-                            <option selected='selected'>Error Count</option>
-                            <option>less than 1,000</option>
-                            <option>1,000 - 5,000</option>
-                            <option>5,000 - 10,000</option>
-                            <option>10,000 - 20,000</option>
-                            <option>20,000 - 50,000</option>
-                            <option>50,000 - 100,000</option>
-                            <option>100,000 - 150,000</option>
-                            <option>150,000 - 200,000</option>
-                            <option>200,000 - 250,000</option>
-                            <option>250,000 - 500,000</option>
-                            <option>Greater than 500,000</option>
-                        </select>
+                <td> 
+                    <div class="input-group">
+                          <input type="text" class="form-control" style="width:calc(100% - 34px);" id="errorcount" size="" placeholder="Error Count">
+                          <div class="input-group" >
+                            <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" id="dropdown-menu">
+                              <li><a href="#"><i class="icon-pencil"></i>less than 1,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>1,000 - 5,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>5,000 - 10,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>10,000 - 20,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>20,000 - 50,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>50,000 - 100,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>100,000 - 150,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>150,000 - 200,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>200,000 - 250,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>250,000 - 500,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>Greater than 500,000</a></li>
+                            </ul>
+                            </div>
                     </div>
+                    
                 </td>
                 <td>
                     <div>
@@ -550,7 +557,32 @@
                             <option>Greater than 3 hours</option>
                         </select></td>
             <tr>
-            <td class="leftcols">Error Count</td><td id="dialog_error_count">
+            
+            <td class="leftcols">Error Count</td>
+            <td>
+            <div class="input-group">
+                          <input type="text" class="form-control" style="width:calc(100% - 34px);" id="row_error_count" size="" value="Error" >
+                          <div class="input-group" >
+                            <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" id="dialog-dropdown-menu">
+                              <li><a href="#"><i class="icon-pencil"></i>less than 1,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>1,000 - 5,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>5,000 - 10,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>10,000 - 20,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>20,000 - 50,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>50,000 - 100,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>100,000 - 150,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>150,000 - 200,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>200,000 - 250,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>250,000 - 500,000</a></li>
+                                <li><a href="#"><i class="icon-pencil"></i>Greater than 500,000</a></li>
+                            </ul>
+                            </div>
+                    </div>
+            </td>
+            <!-- <td class="leftcols">Error Count</td><td id="dialog_error_count">
                         <select class="form-control input-sm" id="row_error_count">
                             <option></option>
                             <option>less than 1,000</option>
@@ -564,7 +596,7 @@
                             <option>200,000 - 250,000</option>
                             <option>250,000 - 500,000</option>
                             <option>Greater than 500,000</option>
-                        </select></td>
+                        </select></td> -->
             </tr>
             <tr>
             <td class="leftcols">Outage Caused</td><td id="dialog_outage_caused">

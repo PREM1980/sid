@@ -58,6 +58,7 @@ class Duration(models.Model):
 class ErrorCount(models.Model):
 	ID = models.AutoField(primary_key=True, db_column='error_count_id')
 	error = models.CharField(db_column='error',max_length=200)
+	error_count_actuals = models.IntegerField(db_column='error_actuals',default=0)
 	class Meta:
 		db_table = 'error_count'
 
@@ -86,6 +87,7 @@ class Tickets(models.Model):
 	pgs = models.ManyToManyField(Pg)
 	duration = models.IntegerField(db_column='duration_id')
 	error_count = models.IntegerField(db_column='error_count_id')
+	# error_count_actuals = models.IntegerField(db_column='error_count_actuals')
 	outage_caused = models.IntegerField(db_column='outage_caused_id')
 	system_caused = models.IntegerField(db_column='system_caused_id')
 	ticket_type = models.CharField(max_length=20, db_column='ticket_type',db_index=True)

@@ -6,7 +6,13 @@ FROM sid.tickets
 GROUP BY WEEK(date(row_create_ts))
 ORDER BY WEEK(date(row_create_ts))
 
+delete from sid.tickets;
 
+delete from sid.tickets_pgs
+
+delete from sid.addt_notes
+
+delete from sid.error_count
 
 select count(*) from sid.tickets
 where crt_user_id = 'bhartm000';
@@ -32,7 +38,7 @@ select   tb1.ticket_num
 							,tb4.error
 							,tb5.outage_caused
 							,tb6.system_caused
-							,tb8.pg_cd
+								,tb8.pg_cd
 							,tb9.notes
 							,tb1.crt_user_id
 							,tb1.upd_user_id
@@ -63,4 +69,10 @@ select   tb1.ticket_num
 							sid.addt_notes tb9
 							on tb1.ticket_num = tb9.notes_id
 							where tb1.valid_flag = "Y"
-							order by tb1.row_create_ts desc,tb1.ticket_num desc
+					 and tb4.error_actuals   < 999  ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc
+
+
+select * from sid.error_count
+where error_actuals = 3000
+order by error_count_id;
+

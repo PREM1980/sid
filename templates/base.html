@@ -51,13 +51,18 @@
     <script>
     $(document).ready(function(){
         $('#loginid').text("{{request.session.userid}}")
+
+        $('#header').click(function(){
+            document.location.href = "/login";
+        })
     })
+
     </script>
   </head>
 
 <body>
     <div class="container-fluid">
-    <div class="row">
+    <div class="row" id='header' style="cursor: pointer;">
             <div id="header"><img src="{% static "images/comcast_ninja.png" %}"></div>           
             <div id="logout"style="float:right;color:red;padding-right: 15px;font-weight:bold">Logout
                 </div>

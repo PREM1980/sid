@@ -109,6 +109,13 @@ class PostTicketData(View):
 				print 'insert validated data == ', alldata
 				alldata['date'] = datetime.datetime.strptime(
 					str(alldata.get('date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
+			try:
+				error_count_actuals = constants.VALID_ERROR_COUNT_NUMERALS[alldata.get('error_count')]
+			except:
+				if alldata['error_count'].strip() == '':
+					error_count_actuals = 0
+				else:
+					error_count_actuals = int(alldata.get('error_count'))
 						
 			t = Ticket(created_dt=alldata['date']
 				,division=alldata.get('division')
@@ -130,7 +137,7 @@ class PostTicketData(View):
 				with transaction.atomic():
 					div,created = Division.objects.get_or_create(division_name=t.division)
 					dur,created = Duration.objects.get_or_create(duration=t.duration)
-					err,created = ErrorCount.objects.get_or_create(error=t.error_count)
+					err,created = ErrorCount.objects.get_or_create(error=t.error_count,error_count_actuals=error_count_actuals)
 					out,created = OutageCaused.objects.get_or_create(outage_caused=t.outage_caused)
 					sys,created = SystemCaused.objects.get_or_create(system_caused=t.system_caused)
 					ticket_info = {
@@ -229,6 +236,11 @@ def validate_insert_input(alldata):
 			if each not in constants.WEST:
 				error = 'Not a valid peergroup for the given West division. Valid peergroups are:- ' + ' '.join(constants.WEST)				
 
+	# for each in alldata.get('pg'):
+	# 	if each in ['All','all']:
+	# 		alldata.get['pg'] = ['ALL']
+	# 	break
+
 	if alldata.get('duration') not in [None,'']:
 		if  alldata.get('duration') not in constants.VALID_DURATION:
 			error = 'Duration should be one of the following option :- ' + ','.join(constants.VALID_DURATION)
@@ -237,10 +249,18 @@ def validate_insert_input(alldata):
 
 	if alldata.get('error_count') not in [None,'']:
 		if alldata.get('error_count') not in constants.VALID_ERROR_COUNT:
-			error = 'Error count should be one of the following option :- ' + ','.join(constants.VALID_ERROR_COUNT)	
+			print 'alldata[error_count] == ', alldata['error_count']
+			if int(alldata['error_count'].replace(',','').isdigit()):
+				alldata['error_count'] = alldata['error_count'].replace(',','')
+			else:
+				error = 'Error count should be numeric(ex:- 2,000) or one of the following option :- ' + ','.join(constants.VALID_ERROR_COUNT)	
 	else:
 		alldata['error_count'] = ' '
 
+			
+	
+		#replace commas in numbers
+	
 	if alldata.get('outage_caused') not in [None,'']:
 		if alldata.get('outage_caused') not in constants.VALID_OUTAGE_CAUSED:
 			error = 'Outage caused should be one of the following option :- ' + ','.join(constants.VALID_OUTAGE_CAUSED)	
@@ -390,7 +410,8 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				error_count_qry = ""
 			else:
 				error_count_qry_set = True
-				error_count_qry = " tb4.error = '{error}' ".format(error=doc['error_count'])
+				# error_count_qry = " tb4.error = '{error}' ".format(error=doc['error_count'])
+				error_count_qry = "tb4.error_actuals  {error} ".format(error=constants.VALID_ERROR_COUNT_NUMERALS_QUERY[doc['error_count']])
 
 
 			if doc['duration'] in ['Duration (in mins)','All']:
@@ -1014,6 +1035,14 @@ class UpdateTicketData(View):
 			   ticket.row_end_ts = datetime.datetime.strftime(ticket.row_end_ts,'%Y-%m-%d %H:%M:00')
 			   ticket.save()
 			   return JsonResponse({'status': 'success'})
+			print 'prem alldata == ', alldata.get('error_count')
+			try:
+				error_count_actuals = constants.VALID_ERROR_COUNT_NUMERALS[alldata.get('error_count')]
+			except:
+				if alldata['error_count'].strip() == '':
+					error_count_actuals = 0
+				else:
+					error_count_actuals = int(alldata.get('error_count'))
 
 			if api_key is not None:
 				error = validate_update_input(alldata)
@@ -1026,7 +1055,6 @@ class UpdateTicketData(View):
 					alldata['created_dt'] = datetime.datetime.strptime(
 					str(alldata.get('created_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')			
 
-			print 'alldata[end_dt]==', alldata['end_dt']
 			if alldata['end_dt'] not in [None,'']:	
 				if api_key is None and alldata['end_dt'] not in [None,'']:
 					alldata['end_dt'] = datetime.datetime.strptime(
@@ -1060,7 +1088,7 @@ class UpdateTicketData(View):
 					
 					div,created = Division.objects.get_or_create(division_name=t.division)
 					dur,created = Duration.objects.get_or_create(duration=t.duration)
-					err,created = ErrorCount.objects.get_or_create(error=t.error_count)
+					err,created = ErrorCount.objects.get_or_create(error=t.error_count,error_count_actuals=error_count_actuals)
 					out,created = OutageCaused.objects.get_or_create(outage_caused=t.outage_caused)
 					sys,created = SystemCaused.objects.get_or_create(system_caused=t.system_caused)
 					
@@ -1088,9 +1116,11 @@ class UpdateTicketData(View):
 						
 						ticket.save()
 						print 'working here-1'
-						AddtNotes.objects.get(Id=ticket).delete()
-						print 'working here-2'
-						AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)
+						try:
+							AddtNotes.objects.get(Id=ticket).delete()
+							print 'working here-2'
+						except:
+							AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)
 					except Tickets.DoesNotExist:
 						ticket = None
 
@@ -1184,9 +1214,13 @@ def validate_update_input(alldata):
 
 	if alldata.get('error_count') not in [None,'']:
 		if alldata.get('error_count') not in constants.VALID_ERROR_COUNT:
-			error = 'Error count should be one of the following option :- ' + ','.join(constants.VALID_ERROR_COUNT)	
+			if int(alldata['error_count'].replace(',','').isdigit()):
+				alldata['error_count'] = alldata['error_count'].replace(',','')
+			else:
+				error = 'Error count should be numeric(ex:- 2,000) or one of the following option :- ' + ','.join(constants.VALID_ERROR_COUNT)	
 	else:
 		alldata['error_count'] = ' '
+
 
 
 	if alldata.get('outage_caused') not in [None,'']:
@@ -1315,7 +1349,14 @@ class ChartsData(View):
 					and tb2.valid_flag = 'y'
 					group by tb3.pg_cd
 					""")
-		results_pg = cursor.fetchall()		
+		output = cursor.fetchall()	
+		results_pg = []
+		for each in output:
+			if each[0].lower() == 'all':
+				results_pg.append([each[0], each[1] ])	
+			else:
+				results_pg.append([constants.PG_NAMES[each[0]] + ' - ' + each[0], each[1] ])	
+
 		# """
 		# SELECT  count(*) AS count, CONCAT(dt, ' - ', dt + INTERVAL 6 DAY) AS week from 
 		# 	(select date(row_create_ts) as dt from sid.tickets where valid_flag = 'Y') x
@@ -1378,7 +1419,7 @@ class RecordFeedBack(View):
 
 
 class Ticket(object):
-	def __init__(self, created_dt = None, end_dt = None, division = None, pg = None, error_count = None, ticket_num = None, outage_caused = None, system_caused = None, addt_notes = None, ticket_type = None, duration = None, timezone = None, ticket_link = None):
+	def __init__(self, created_dt = None, end_dt = None, division = None, pg = None, error_count = None, ticket_num = None, outage_caused = None, system_caused = None, addt_notes = None, ticket_type = None, duration = None, timezone = None, ticket_link = None, ):
 		self.created_dt = created_dt
 		self.end_dt = end_dt
 		self.division = division 
@@ -1392,6 +1433,7 @@ class Ticket(object):
 		self.duration = duration	
 		self.timezone = timezone	
 		self.ticket_link = ticket_link
+		
 
 	def __str__(self):
 		return """ created_dt == {0} 

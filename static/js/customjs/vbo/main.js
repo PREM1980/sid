@@ -9,6 +9,8 @@ $(document).ready(function() {
         success: function(result) {
             if (result.status == 'success') {
                 console.log('chart results == ', result)
+                $('#animation,#animation-space').hide()
+                
                 x1 = result.results.results_nbrf_x1_error_rates
                 legacy = result.results.results_nbrf_legacy_error_rates
 

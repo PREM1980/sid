@@ -26,6 +26,13 @@ $(document).ready(function()
 }
 )
 </script>
+<style>
+.center {
+     float: none;
+     margin-left: auto;
+     margin-right: auto;
+}
+</style>
     
 {% endblock jscontent %}
 
@@ -47,13 +54,20 @@ $(document).ready(function()
             <div class="col-sm-2" >
                   <input type="submit" class="btn btn-primary" value="Submit" id="report-submit">
             </div>
+        <div id='animation-space'>
+        <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
+        </div>
 
+        <div class="col-md-8 col-md-offset-4" id="animation">
+                <img src="{% static "animations/gauge-animation-2.gif" %}" alt="home background image">
+        </div><!-- /.bg -->
+        
 
         <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
 
 
         <div class="row">
-            <div class="col-md-11" id="vbo_stb_error_rates">STB Error</div>
+            <div class="col-md-11" id="vbo_stb_error_rates"></div>
             <!-- <div class="col-md-6" id="container_users_by_count"></div> -->
         </div>
 

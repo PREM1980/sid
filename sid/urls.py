@@ -28,5 +28,6 @@ urlpatterns = [
     #Urls for VBO Modules
 
     url(r'^vbo/',include('vbo_module.urls'))
+    
 ]
 

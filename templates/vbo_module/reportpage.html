@@ -7,15 +7,12 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
     
     <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
-
     <script src="{% static "highcharts/highcharts.js" %}"></script>
     <script src="{% static "highcharts/exporting.js" %}"></script>
 
-
-    <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
     <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
     <script src="{% static "js/customjs/common.js" %}"></script>
-    <script src="{% static "js/customjs/vbo/main.js" %}"></script>
+    <script src="{% static "js/customjs/vbo/charts.js" %}"></script> 
 
 <script>
 $(document).ready(function()
@@ -33,25 +30,6 @@ $(document).ready(function()
     {% load staticfiles %}
     <div class="container-fluid" >
         
-        <div class="row">            
-            <div class="col-sm-4" >
-                  <select class="form-control" id="report_names">
-                    <option>Pick Your Report</option>
-                  </select>
-            </div>
-            <div class="col-sm-4" >
-                  <select class="form-control" id="report_dates">
-                    <option>Pick Your Run Date</option>
-                  </select>
-            </div>
-            <div class="col-sm-2" >
-                  <input type="submit" class="btn btn-primary" value="Submit" id="report-submit">
-            </div>
-
-
-        <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
-
-
         <div class="row">
             <div class="col-md-11" id="vbo_stb_error_rates">STB Error</div>
             <!-- <div class="col-md-6" id="container_users_by_count"></div> -->
@@ -72,7 +50,6 @@ $(document).ready(function()
         </div>
 
 
-        </div>        
     <div>
  
 {% endblock content %}

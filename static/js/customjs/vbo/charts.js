@@ -1,14 +1,21 @@
 $(document).ready(function() {
 
+    var set_summarry = function(){
+        alert('hi)
+        return;
+    }
     $.ajax({
         url: '/vbo/report-data',
         type: 'GET',
         //data: data,
         success: function(result) {
             if (result.status == 'success') {
-                console.log('chart results == ', result)
+                console.log('chart results1 == ', result)
+                alert('dei')
                 x1 = result.results.results_nbrf_x1_error_rates
                 legacy = result.results.results_nbrf_legacy_error_rates
+
+                
 
                 udb_errors_rate = [x1.x1_udb_error_rate, legacy.legacy_udb_error_rate]
                 plant_errors_rate = [x1.x1_plant_error_rate, legacy.legacy_plant_error_rate]

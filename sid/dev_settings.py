@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import socket
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -27,6 +28,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Get HostName
+
+HOSTNAME = socket.gethostname()
+
+LOCAL_TEST_NINJA = True
 
 # Application definition
 
@@ -57,7 +63,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'sid.urls'
-print 'BASE_DIR == ', BASE_DIR
+
 
 TEMPLATES = [
     {
@@ -80,15 +86,25 @@ WSGI_APPLICATION = 'sid.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+if HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
+    if hostname == 'test-ninja-web-server':
+        host = ''
+    else:
+        host = ''
+elif HOSTNAME in ['test-sid-web-server','prod-sid-web-server']:
+    host = 'localhost'
+else:
+    host = 'localhost'
+
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'NAME': 'sid',
-        'USER': 'sid',
-        'PASSWORD': 'sid',
-        'HOST': 'localhost',
+        'USER': 'ninja',
+        'PASSWORD': 'ninja!@#$',
+        'HOST': host,
     }
 }
 
@@ -174,3 +190,4 @@ SESSION_COOKIE_AGE = 500* 60
 API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
 VBO_SERVER = 'http://localhost:9000/'
+

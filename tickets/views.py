@@ -30,6 +30,7 @@ logger_feedback = logging.getLogger('feedback_logger')
 import queries
 import utils
 from pytz import timezone
+import socket
 
 class LoginView(View):
 	@method_decorator(csrf_exempt)
@@ -40,7 +41,15 @@ class LoginView(View):
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
 			return render(request,'tickets/loginpage.html',{'error':'N'})
-		return render(request,'tickets/mainpage.html',{'error':'N'})
+
+		if settings.LOCAL_TEST_NINJA == True:
+			return render(request,'tickets/mainpage.html',{'error':'N' })				
+			#return render(request,'vbo_module/mainpage.html',{'error':'N'})				
+		else:
+			print 'local_test_ninja == ', settings.LOCAL_TEST_NINJA
+			if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
+				return render(request,'vbo_module/mainpage.html',{'error':'N'})				
+			return render(request,'tickets/mainpage.html',{'error':'N' })
 
 	def post(self, request):
 		ip = utils.getip()
@@ -50,8 +59,17 @@ class LoginView(View):
 		result = utils.check_user_auth(request.POST['username'],request.POST['password'])
 		if result['status'] == 'success':
 			request.session['userid'] = request.POST['username']
-			return render(request,'tickets/mainpage.html',{'error':'N' })
+
+			if settings.LOCAL_TEST_NINJA == True:
+				#return render(request,'tickets/mainpage.html',{'error':'N' })				
+				return render(request,'vbo_module/mainpage.html',{'error':'N'})				
+			else:
+				print 'local_test_ninja == ', settings.LOCAL_TEST_NINJA
+				if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
+					return render(request,'vbo_module/mainpage.html',{'error':'N'})				
+				return render(request,'tickets/mainpage.html',{'error':'N' })
 		else:
+
 			return render(request,'tickets/loginpage.html',{'error':'Y','msg':result['status']})
 
 class NinjaUsersData(View):

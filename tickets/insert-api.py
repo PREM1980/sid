@@ -4,14 +4,14 @@ headers =  {
        "AUTHORIZATION": "CPT74QBAWFIDFH4U27RT"
     } 
 payload = {
-	'date':'2016/06/20 23:22:00',#
+	'date':'2016/07/05 23:22:00',#
 	'division': 'westerN',
-	'duration':'',
+	'duration':'15 - 30 minutes',
 	'pg[]':["10101", "10102",],
-	'error_count':' ',
+	'error_count':'5,000 - 10,000',
 	'outage_caused':'',
 	'system_caused':'',
-	'ticket_num':'tkt-10',
+	'ticket_num':'tkt-13',
 	'ticket_type':'JIRA',
 	'userid':'plaksh007c',
 	# 'addt_notes':'hello'

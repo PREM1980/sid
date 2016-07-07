@@ -1,5 +1,81 @@
 $(document).ready(function() {
 
+    function roundoff(nbr){
+        console.log('nbr ==', nbr)
+        result = (Math.round(nbr * 100 * 100) / 100) 
+        console.log('result ==', result)
+
+        return result
+    }
+    var set_summarry = function(x1){
+        console.log(JSON.stringify(x1))
+        $('#successful-setup-total').text(x1.successful_setup_total)
+        
+        $('#business-rules-total').text(x1.business_rules_total)
+        $('#business-rules-success').text(100 - x1.business_rules_success + '%')
+        $('#business-rules-error').text(x1.business_rules_success + '%')
+
+        $('#non-business-rules-total').text(x1.non_business_rules_total)
+        $('#non-business-rules-success').text(100 - x1.non_business_rules_success + '%')
+        $('#non-business-rules-error').text(x1.non_business_rules_success + '%')
+
+
+        $('#udb-total').text(x1.udb_total)
+        $('#udb-success').text(100 - x1.udb_success + '%')
+        $('#udb-error').text(x1.udb_success + '%')
+        $('#udb-nbr').text(roundoff(x1.udb_total/x1.non_business_rules_total)  + '%')
+
+        $('#cdn-total').text(x1.cdn_setup_total + x1.cdn_connect_total)
+
+        $('#cdn-setup-total').text(x1.cdn_setup_total)
+        $('#cdn-setup-success').text(100 - x1.cdn_setup_success + '%')
+        $('#cdn-setup-error').text(x1.cdn_setup_success + '%')
+        $('#cdn-setup-nbr').text(roundoff(x1.cdn_setup_total/x1.non_business_rules_total) + '%')
+
+        $('#cdn-connect-total').text(x1.cdn_connect_total)
+        $('#cdn-connect-success').text(100 - x1.cdn_connect_success + '%')
+        $('#cdn-connect-error').text(x1.cdn_connect_success + '%')
+        $('#cdn-connect-nbr').text(roundoff(x1.cdn_connect_total/x1.non_business_rules_total) + '%')
+
+        $('#net-total').text(x1.net_total)
+        $('#net-success').text(100 - x1.net_success + '%')
+        $('#net-error').text(x1.net_success + '%')
+        $('#net-nbr').text(roundoff(x1.net_total/x1.non_business_rules_total) + '%')
+
+        $('#field-total').text(x1.field_plant_total + x1.video_total + x1.tune_total)
+
+        $('#field-plant-total').text(x1.field_plant_total)
+        $('#field-plant-success').text(100 - x1.field_plant_success + '%')
+        $('#field-plant-error').text(x1.field_plant_success + '%')
+        $('#field-plant-nbr').text(roundoff(x1.field_plant_total/x1.non_business_rules_total) + '%')
+
+        $('#video-total').text(x1.video_total)
+        $('#video-success').text(100 - x1.video_success + '%')
+        $('#video-error').text(x1.video_success + '%')
+        $('#video-nbr').text(roundoff(x1.video_total/x1.non_business_rules_total) + '%')
+
+        $('#tune-total').text(x1.tune_total)
+        $('#tune-success').text(100 - x1.tune_success + '%')
+        $('#tune-error').text(x1.tune_success + '%')
+        $('#tune-nbr').text(roundoff(x1.tune_total/x1.non_business_rules_total) + '%')
+
+        $('#vcp-total').text(x1.vcp_total)
+        $('#vcp-success').text(100 - x1.vcp_success + '%')
+        $('#vcp-error').text(x1.vcp_success + '%')
+        $('#vcp-nbr').text(roundoff(x1.vcp_total/x1.non_business_rules_total) + '%')
+
+        $('#other-setup-total').text(x1.other_setup_total)
+        $('#other-setup-success').text(100 - x1.other_setup_success + '%')
+        $('#other-setup-error').text(x1.other_setup_success + '%')
+        $('#other-setup-nbr').text(roundoff(x1.other_setup_total/x1.non_business_rules_total) + '%')+ '%'
+
+        $('#x1-stb-nbr-rate').text(x1.x1_stb_nbr_rates)
+        $('#legacy-stb-nbr-rate').text(x1.legacy_stb_nbr_rates)
+        $('#national-stb-nbr-rate').text(x1.national_stb_nbr_rates)
+
+        return;
+    }
+
     var generate_report = function() {
         
         $.ajax({
@@ -10,9 +86,12 @@ $(document).ready(function() {
             if (result.status == 'success') {
                 console.log('chart results == ', result)
                 $('#animation,#animation-space').hide()
+                $('#vbo-stb-error-rates-comments, #vbo-nbrf-spikes-comments, #vbo-x1-vs-legacy-comments, #vbo-x1-vs-legacy-comments, #html-reports-btn').show()
                 
                 x1 = result.results.results_nbrf_x1_error_rates
                 legacy = result.results.results_nbrf_legacy_error_rates
+
+                set_summarry(x1)
 
                 udb_errors_rate = [x1.x1_udb_error_rate, legacy.legacy_udb_error_rate]
                 plant_errors_rate = [x1.x1_plant_error_rate, legacy.legacy_plant_error_rate]
@@ -73,7 +152,7 @@ $(document).ready(function() {
     })
 
     var drawchart_x1_vs_legacy = function() {
-        $('#vbo_x1_vs_legacy').highcharts({
+        $('#vbo-x1-vs-legacy').highcharts({
             title: {
                 text: 'Spikes NBRF %',
                 x: -20 //center
@@ -125,7 +204,7 @@ $(document).ready(function() {
     }
 
     var drawchart_nbrf_spikes = function() {
-        $('#vbo_nbrf_spikes').highcharts({
+        $('#vbo-nbrf-spikes').highcharts({
             title: {
                 text: 'Spikes NBRF %',
                 x: -20 //center
@@ -219,7 +298,7 @@ $(document).ready(function() {
     }
 
     var drawchart_stacked_stb_error_rates = function() {
-        $('#vbo_stb_error_rates').highcharts({
+        $('#vbo-stb-error-rates').highcharts({
             chart: {
                 type: 'column'
             },

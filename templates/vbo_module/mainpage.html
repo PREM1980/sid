@@ -64,24 +64,193 @@ $(document).ready(function()
         
 
         <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
+        
+        <button class="btn-success" data-toggle="collapse" data-target="#html-reports" id="html-reports-btn" style="display:none">Summary</button>
 
+        <div id="html-reports" class="collapse">
+        <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
+            <table>
+    <thead>
+        <tr class="tableizer-firstrow">
+            <th>May 31st, 2016</th>
+            <th>Total</th>
+            <th>Success %</th>
+            <th>Error %</th>
+            <th>Contribution of NBR Error %</th>
+            <th>Definitions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Successful Setups</td>
+            <td id='successful-setup-total'>15,297,155</td>
+            <td id='successful-setup-success'>&nbsp;</td>
+            <td id='successful-setup-error'>&nbsp;</td>
+            <td id='successful-setup-nbr'>&nbsp;</td>
+            <td>Only successful setups (includes sessions that later resulted in a teardown failure)</td>
+        </tr>
+        <tr>
+            <td>Business Rules</td>
+            <td id='business-rules-total'>29,906</td>
+            <td id='business-rules-success'>99.80%</td>
+            <td id='business-rules-error'>0.20%</td>
+            <td id='business-rules-nbr'>&nbsp;</td>
+            <td>Total of all BR denials listed on https://wiki.io.comcast.net/display/VIDSS/VBO+-+Troubleshooting+-+BNI+VOD+Errors</td>
+        </tr>
+        <tr>
+            <td>Non Business Rules</td>
+            <td id='non-business-rules-total'>156,924</td>
+            <td id='non-business-rules-success'>98.99%</td>
+            <td id='non-business-rules-error'>1.01%</td>
+            <td id='non-business-rules-nbr'>&nbsp;</td>
+            <td>All error mappings for each bucket listed on https://wiki.io.comcast.net/display/VIDSS/VBO+-+Troubleshooting+-+BNI+VOD+Errors</td>
+        </tr>
+        <tr>
+            <td>UDB</td>
+            <td id='udb-total'>2,048</td>
+            <td id='udb-success'>99.99%</td>
+            <td id='udb-error'>0.01%</td>
+            <td id='udb-nbr'>1.31%</td>
+            <td>NBRFs categorized as related to UDB</td>
+        </tr>
+        <tr>
+            <td>CDN</td>
+            <td id='cdn-total'>36,208</td>
+            <td id='cdn-success'>&nbsp;</td>
+            <td id='cdn-error'>&nbsp;</td>
+            <td id='cdn-nbr'>23.07%</td>
+            <td>NBRFs categorized as related to CDN</td>
+        </tr>
+        <tr>
+            <td> CDN Setup</td>
+            <td id='cdn-setup-total'>36,208</td>
+            <td id='cdn-setup-success'>&nbsp;</td>
+            <td id='cdn-setup-error'>&nbsp;</td>
+            <td id='cdn-setup-nbr'>23.07%</td>
+            <td>NBRFs categorized as related to Streamer setup issues</td>
+        </tr>
+        <tr>
+            <td> CM Connect (CDN)</td>
+            <td id='cdn-connect-total'>36,208</td>
+            <td id='cdn-connect-success'>&nbsp;</td>
+            <td id='cdn-connect-error'>&nbsp;</td>
+            <td id='cdn-connect-nbr'>23.07%</td>
+            <td>NBRFs categorized as CM_CONNECT errors (0x8002/408)</td>
+        </tr>
+        <tr>
+            <td>Network (Network Teardowns)</td>
+            <td id='net-total'>36,208</td>
+            <td id='net-success'>&nbsp;</td>
+            <td id='net-error'>&nbsp;</td>
+            <td id='net-nbr'>23.07%</td>
+            <td>NBRFs categorized as related to Network teardowns (specifically, 0x9998/408 and 0x9998/409)</td>
+        </tr>
+        <tr>
+            <td>Field</td>
+            <td id='field-total'>36,208</td>
+            <td id='field-success'>&nbsp;</td>
+            <td id='field-error'>&nbsp;</td>
+            <td id='field-nbr'>23.07%</td>
+            <td>NBRFs categorized as related to Field</td>
+        </tr>
+        <tr>
+            <td> Field/Plant</td>
+            <td id='field-plant-total'>36,208</td>
+            <td id='field-plant-success'>&nbsp;</td>
+            <td id='field-plant-error'>&nbsp;</td>
+            <td id='field-plant-nbr'>23.07%</td>
+            <td>NBRFs categorized as related to Plant-related issues associated with the edge devices or network-related setup issues</td>
+        </tr>
+        <tr>
+            <td> VideoLost QAM OK</td>
+            <td id='video-total'>36,208</td>
+            <td id='video-success'>&nbsp;</td>
+            <td id='video-error'>&nbsp;</td>
+            <td id='video-nbr'>23.07%</td>
+            <td>NBRFs categorized as VideoLost QAM OK Errors (0x8012/408)</td>
+        </tr>
+        <tr>
+            <td> Tune Errors</td>
+            <td id='tune-total'>36,208</td>
+            <td id='tune-success'>&nbsp;</td>
+            <td id='tune-error'>&nbsp;</td>
+            <td id='tune-nbr'>23.07%</td>
+            <td>NBRFs categorized as tune errors (0x8001/400)</td>
+        </tr>
+        <tr>
+            <td>VCP</td>
+            <td id='vcp-total'>36,208</td>
+            <td id='vcp-success'>&nbsp;</td>
+            <td id='vcp-error'>&nbsp;</td>
+            <td id='vcp-nbr'>23.07%</td>
+            <td>NBRFs categorized as related to internal to the VBO</td>
+        </tr>
+        <tr>
+            <td>Other Setup</td>
+            <td id='other-setup-total'>36,208</td>
+            <td id='other-setup-success'>&nbsp;</td>
+            <td id='other-setup-error'>&nbsp;</td>
+            <td id='other-setup-nbr'>23.07%</td>
+            <td>NBRFs categorized as not belonging to any of the categories listed above</td>
+        </tr>
+    </tbody>
+</table>
+        <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
+
+
+        <table class="tableizer-table">
+        <thead><tr class="tableizer-firstrow"><th>STB Type View</th><th>Daily</th></tr></thead><tbody>
+         <tr><td>X1 STB NBRF Rate</td><td id="x1-stb-nbr-rate">0.95%</td></tr>
+         <tr><td>Legacy STB NBRF Rate</td><td id="legacy-stb-nbr-rate">1.12%</td></tr>
+         <tr><td>National NBRF Rate</td><td id="national-stb-nbr-rate">1.01%</td></tr>
+        </tbody></table>
+
+        <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
+
+        </div>
 
         <div class="row">
-            <div class="col-md-11" id="vbo_stb_error_rates"></div>
+            <div class="col-md-8" id="vbo-stb-error-rates"></div>
+            <div class="col-md-4" id="vbo-stb-error-rates-comments" style="display:none">
+                <div class="form-group">
+                    <textarea class="form-control" rows="10" id="vbo-stb-error-rates-comments-txt" placeholder="Please provide your comments here..."></textarea>
+                </div>
+                <div class="col-sm-2" >
+                  <input type="submit" class="btn btn-success" value="Update Comments" id="report-submit">
+                </div>
+            </div>
+
+        </div>
             <!-- <div class="col-md-6" id="container_users_by_count"></div> -->
         </div>
 
         <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
 
         <div class="row">
-            <div class="col-md-11" id="vbo_nbrf_spikes"></div>
+            <div class="col-md-8" id="vbo-nbrf-spikes"></div>
+            <div class="col-md-4" id="vbo-nbrf-spikes-comments" style="display:none">
+                <div class="form-group">
+                    <textarea class="form-control" rows="10" id="vbo-nbrf-spikes-comments-txt" placeholder="Please provide your comments here..."></textarea>
+                </div>
+                <div class="col-sm-2" >
+                  <input type="submit" class="btn btn-success" value="Update Comments" id="report-submit">
+                </div>
+            </div>
             
         </div>
 
                 <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
 
         <div class="row">
-            <div class="col-md-11" id="vbo_x1_vs_legacy"></div>
+            <div class="col-md-8" id="vbo-x1-vs-legacy"></div>
+            <div class="col-md-4" id="vbo-x1-vs-legacy-comments" style="display:none">
+                <div class="form-group">
+                    <textarea class="form-control" rows="10" id="vbo-x1-vs-legacy-comments-txt" placeholder="Please provide your comments here..."></textarea>
+                </div>
+                <div class="col-sm-2" >
+                  <input type="submit" class="btn btn-success" value="Update Comments" id="report-submit">
+                </div>
+            </div>
             
         </div>
 

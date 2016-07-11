@@ -32,7 +32,7 @@ ALLOWED_HOSTS = []
 
 HOSTNAME = socket.gethostname()
 
-LOCAL_TEST_NINJA = True
+
 
 # Application definition
 
@@ -87,8 +87,8 @@ WSGI_APPLICATION = 'sid.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 if HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
-    if hostname == 'test-ninja-web-server':
-        host = ''
+    if HOSTNAME == 'test-ninja-web-server':
+        host = 'test-sid-web-server'
     else:
         host = ''
 elif HOSTNAME in ['test-sid-web-server','prod-sid-web-server']:
@@ -128,8 +128,9 @@ USE_TZ = True
 
 #STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_ROOT = '/var/www/sid/static/'
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+print 'STATICFILES_DIRS == ', STATICFILES_DIRS
 STATIC_URL = '/static/'
 
 # logging
@@ -190,4 +191,7 @@ SESSION_COOKIE_AGE = 500* 60
 API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
 VBO_SERVER = 'http://localhost:9000/'
+
+LOCAL_TEST_NINJA = True
+NINJA = True 
 

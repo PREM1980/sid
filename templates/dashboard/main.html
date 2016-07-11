@@ -1,0 +1,43 @@
+{% extends "base_ninja.html" %}
+
+{% block jscontent %}
+    <title>NINJA Analytics and Reporting Portal - VBO  Module</title>
+    {% load staticfiles %}
+    <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+    
+    <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
+
+    <script src="{% static "highcharts/highcharts.js" %}"></script>
+    <script src="{% static "highcharts/exporting.js" %}"></script>
+
+
+    <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
+    <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
+    <script src="{% static "js/customjs/common.js" %}"></script>
+    <script src="{% static "js/customjs/vbo/main.js" %}"></script>
+
+<script>
+$(document).ready(function()
+{
+    if ("{{error}}" == 'N') {
+       $('#loginid').html("{{request.session.userid}}")
+    }
+}
+)
+</script>
+<style>
+.center {
+     float: none;
+     margin-left: auto;
+     margin-right: auto;
+}
+</style>
+    
+{% endblock jscontent %}
+
+{% block content %}
+    {% load staticfiles %}
+    Health Check
+{% endblock content %}
+   

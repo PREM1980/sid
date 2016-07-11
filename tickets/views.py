@@ -43,13 +43,14 @@ class LoginView(View):
 			return render(request,'tickets/loginpage.html',{'error':'N'})
 
 		if settings.LOCAL_TEST_NINJA == True:
-			return render(request,'tickets/mainpage.html',{'error':'N' })				
-			#return render(request,'vbo_module/mainpage.html',{'error':'N'})				
+			if settings.NINJA == True:
+				return render(request,'dashboard/main.html',{'error':'N'})								
+			else:				
+				return render(request,'tickets/sid_mainpage.html',{'hide':utils.hide_sid_create_section()})		
 		else:
-			print 'local_test_ninja == ', settings.LOCAL_TEST_NINJA
 			if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
-				return render(request,'vbo_module/mainpage.html',{'error':'N'})				
-			return render(request,'tickets/mainpage.html',{'error':'N' })
+				return render(request,'dashboard/main.html',{'error':'N'})											
+			return render(request,'tickets/ninja_mainpage.html',{'hide':utils.hide_sid_create_section()})
 
 	def post(self, request):
 		ip = utils.getip()
@@ -61,16 +62,31 @@ class LoginView(View):
 			request.session['userid'] = request.POST['username']
 
 			if settings.LOCAL_TEST_NINJA == True:
-				#return render(request,'tickets/mainpage.html',{'error':'N' })				
-				return render(request,'vbo_module/mainpage.html',{'error':'N'})				
-			else:
-				print 'local_test_ninja == ', settings.LOCAL_TEST_NINJA
+				if settings.NINJA == True:
+					return render(request,'dashboard/main.html',{'error':'N'})				
+				else:
+					return render(request,'tickets/sid_mainpage.html',{'hide':utils.hide_sid_create_section()})		
+			else:				
 				if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
-					return render(request,'vbo_module/mainpage.html',{'error':'N'})				
-				return render(request,'tickets/mainpage.html',{'error':'N' })
+					return render(request,'dashboard/main.html',{'error':'N'})										
+				
+				return render(request,'tickets/ninja_mainpage.html',{'hide':utils.hide_sid_create_section()})
 		else:
 
 			return render(request,'tickets/loginpage.html',{'error':'Y','msg':result['status']})
+
+
+class SIDView(View):
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(SIDView, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		user_id = utils.check_session_variable(request)
+		if user_id is None:
+			return render(request,'tickets/loginpage.html',{'error':'N'})
+
+		return render(request,'tickets/ninja_mainpage.html',{'hide':utils.hide_sid_create_section()})								
 
 class NinjaUsersData(View):
 	@method_decorator(csrf_exempt)
@@ -1133,10 +1149,9 @@ class UpdateTicketData(View):
 							ticket.row_end_ts = t.end_dt
 						
 						ticket.save()
-						print 'working here-1'
+						
 						try:
 							AddtNotes.objects.get(Id=ticket).delete()
-							print 'working here-2'
 						except:
 							AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)
 					except Tickets.DoesNotExist:
@@ -1285,13 +1300,21 @@ class ChartsView(View):
 
 	def get(self, request):
 		userid = utils.check_session_variable(request)
-		print 'userid ==', userid
+
 		if userid is None:
 			return render(request,'tickets/loginpage.html',{'error':'N'})
 
+		if settings.LOCAL_TEST_NINJA == True:
+			if settings.NINJA == True:
+				return render(request,'tickets/ninja_chartspage.html')
+			else:
+				return render(request,'tickets/sid_chartspage.html')
+		else:				
+			if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
+				return render(request,'tickets/ninja_chartspage.html')
+			else:
+				return render(request,'tickets/sid_chartspage.html')
 		
-		return render(request,'tickets/chartspage.html')
-
 	def post(self, request):
 		ip = utils.getip()
 		logger_feedback.debug("Ip-address == {0} && Name == {1} && Email == {2} && Message == {3} && Rating == {4}".format(ip,request.POST['name'],request.POST['email'], request.POST['message'], request.POST['radio_list_value']))

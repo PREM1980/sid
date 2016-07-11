@@ -62,8 +62,7 @@ class SplunkReportNames(View):
 	def get(self, request):
 		return JsonResponse({'status': 'success'})
 
-	def post(self, request):
-		print 'called'
+	def post(self, request):		
 		user_id = utils.check_session_variable(request)
 		
 		ip = utils.getip()
@@ -72,14 +71,11 @@ class SplunkReportNames(View):
 
 		if user_id is not None or api_key == settings.API_KEY:			
 			try:
-				
 				# results = requests.get('http://localhost:9000/get-report-names')
 				results = requests.get(settings.VBO_SERVER + 'get-report-names')
-				print 'response from splunk vcp == ', results.json()
 				return JsonResponse({'status':'success', 'results':[results.json()]})
 			except Exception as e:
-				print 'Exception == ', e 
-				logger.debug("MySQLException == {0}".format(e))
+				logger.debug("ReportData VBO-Module Exception == {0}".format(e))
 				return JsonResponse({'status': 'Contact Support Team'})
 
 			return JsonResponse({'status': 'success'})
@@ -106,22 +102,18 @@ class ReportData(View):
 		return super(ReportData, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):
+
 		userid = utils.check_session_variable(request)
-		print 'charts datauserid ==', userid
+		
 		if userid is None:
 			return render(request,'tickets/loginpage.html',{'error':'N'})
 		try:
-			
 			report_name= request.GET.get('report_name')
-			report_run_date = request.GET.get('report_run_date')
-			print 'report_run_date == ', report_run_date
-			# results = requests.get('http://localhost:9000/get-report-names')
-			results = requests.get(settings.VBO_SERVER + 'get-nbrf-data/?' + 'report_name=' + report_name + '&report_run_date='+report_run_date )
-			print 'response from splunk vcp == ', results
+			report_run_date = request.GET.get('report_run_date')			
+			results = requests.get(settings.VBO_SERVER + 'get-nbrf-data/?' + 'report_name=' + report_name + '&report_run_date='+report_run_date )			
 			return JsonResponse({'status':'success', 'results':results.json()})
 		except Exception as e:
-			print 'Exception == ', e 
-			logger.debug("MySQLException == {0}".format(e))
+			logger.debug("ReportData VBO-Module Exception == {0}".format(e))
 			return JsonResponse({'status': 'Contact Support Team'})
 		
 
@@ -141,10 +133,40 @@ class ReportData(View):
 				return JsonResponse({'status':'success', 'results':[results.json()]})
 			except Exception as e:
 				print 'Exception == ', e 
-				logger.debug("MySQLException == {0}".format(e))
+				logger.debug("ReportData VBO-Module == {0}".format(e))
 				return JsonResponse({'status': 'Contact Support Team'})
 
 			return JsonResponse({'status': 'success'})
 		else:
 			return JsonResponse({'status': 'session timeout'})
+
+
+class UpdateCallouts(View):
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(UpdateCallouts, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		return JsonResponse({'status': 'success'})
+
+	def post(self, request):		
+		user_id = utils.check_session_variable(request)
+		
+		ip = utils.getip()
+		alldata = request.POST
+		api_key = request.META.get('HTTP_AUTHORIZATION')
+
+		if user_id is not None or api_key == settings.API_KEY:			
+			try:
+				results = requests.get(settings.VBO_SERVER + 'update-callouts/?' + 'report_num=' + request.GET.get('report_name') )			
+				return JsonResponse({'status':'success', 'results':[results.json()]})
+			except Exception as e:
+				logger.debug("ReportData VBO-Module Exception == {0}".format(e))
+				return JsonResponse({'status': 'Contact Support Team'})
+
+			return JsonResponse({'status': 'success'})
+		else:
+			return JsonResponse({'status': 'session timeout'})
+
 	

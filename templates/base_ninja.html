@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/19999/xhtml">
+
+<head>
+    <meta charset="utf-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css">
+
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
+    <script src="{% static "js/customjs/date.js" %}"></script>
+
+    <script src="{% static "js/jquery.timepicker.min.js" %}"></script>
+    <script src="{% static "js/jquery.datetimepicker.full.min.js" %}"></script>
+
+    <!--<script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "bower_components/bootstrap/dist/css/bootstrap.min.css" %}"></script>-->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="{% static "css/jquery.datetimepicker.css" %}"/>
+    <link rel="stylesheet" href="{% static "css/jquery.timepicker.css" %}">
+    
+    <script src="{% static "js/simplePagination.js/jquery.simplePagination.js" %}"></script>
+    <link rel="stylesheet" href="{% static "js/simplePagination.js/simplePagination.css" %}" />
+
+    <script src="{% static "multiselect/jquery.multiselect.min.js" %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static "multiselect/jquery.multiselect.css" %}"/>
+
+    <script src="{% static "multiselect/jquery.multiselect.filter.js" %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static "multiselect/jquery.multiselect.filter.css" %}"/>
+
+    
+
+    <!-- <link rel="stylesheet"  type="text/css" media="print, projection, screen" href="{% static "__jquery.tablesorter/themes/blue/style.css" %}"/>
+    <link rel="stylesheet"  type="text/css" media="print, projection, screen" href="{% static "__jquery.tablesorter/themes/bootstrap/theme.bootstrap.css" %}"/> -->
+
+    <link rel="stylesheet"  type="text/css" media="print, projection, screen" href="{% static "tablesorter-master/css/theme.bootstrap.css" %}"/>
+
+    <script src="{% static "tablesorter-master/js/jquery.tablesorter.js" %}"></script>
+    <script src="{% static "tablesorter-master/js/jquery.tablesorter.widgets.js" %}"></script>
+    {% block jscontent %}
+    {% endblock jscontent %}
+
+    <script>
+    $(document).ready(function(){
+        $('#loginid').text("{{request.session.userid}}")
+
+        $('#header').click(function(){
+            document.location.href = "/login";
+        })
+    })
+
+    </script>
+  </head>
+
+<body>
+    <div class="container-fluid">
+    <br>
+    <div class="row"  >
+            <div id="header" style="cursor: pointer;" ><img src="{% static "images/comcast_ninja.png" %}"></div>           
+            <div id="logout"style="float:right;color:red;padding-right: 15px;font-weight:bold">Logout
+                </div>
+                <div id="loginid" style="float:right;color:red;padding-right:15px;font-weight:bold">
+                </div>
+    </div>
+    <br>
+    <nav class="navbar navbar-inverse">
+  
+    
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="/login">Home</a></li>
+      <li><a href="/vbo/main">VBO</a></li>
+      <li><a href="/sid/main">SID</a></li>
+      <li><a href="#">Charlie Herrin</a></li>
+    </ul>
+  
+</nav>
+     
+     {% block content %}{% endblock content %}    
+     </div>
+</body>
+
+</html>

@@ -25,13 +25,13 @@ def check_user_auth(username,password):
 		connect.unbind_s()
 		print "authentication error == ", e
 		# return {'status':'success'}
-		# return {'status':'Authentication failed!! Enter correct username/password'}
+		return {'status':'Authentication failed!! Enter correct username/password'}
 
 def check_session_variable(request):
 	if 'userid' in request.session:
 		print 'utils session id set ==', request.session['userid']
-		print 'utils session get_expiry date ==', request.session.get_expiry_date()
-		print 'utils session get_expiry age ==', request.session.get_expiry_age()
+		# print 'utils session get_expiry date ==', request.session.get_expiry_date()
+		# print 'utils session get_expiry age ==', request.session.get_expiry_age()
 		return request.session['userid']
 	else:
 		return None		

@@ -50,7 +50,7 @@ class LoginView(View):
 		else:
 			if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
 				return render(request,'dashboard/main.html',{'error':'N'})											
-			return render(request,'tickets/ninja_mainpage.html',{'hide':utils.hide_sid_create_section()})
+			return render(request,'tickets/sid_mainpage.html',{'hide':utils.hide_sid_create_section()})
 
 	def post(self, request):
 		ip = utils.getip()
@@ -70,7 +70,7 @@ class LoginView(View):
 				if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
 					return render(request,'dashboard/main.html',{'error':'N'})										
 				
-				return render(request,'tickets/ninja_mainpage.html',{'hide':utils.hide_sid_create_section()})
+				return render(request,'tickets/sid_mainpage.html',{'hide':utils.hide_sid_create_section()})
 		else:
 
 			return render(request,'tickets/loginpage.html',{'error':'Y','msg':result['status']})

@@ -89,12 +89,15 @@ WSGI_APPLICATION = 'sid.wsgi.application'
 if HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
     if HOSTNAME == 'test-ninja-web-server':
         host = 'test-sid-web-server'
+        VBO_SERVER = 'test-api-web-server'
     else:
         host = ''
+        VBO_SERVER = 'prod-api-web-server'
 elif HOSTNAME in ['test-sid-web-server','prod-sid-web-server']:
     host = 'localhost'
 else:
     host = 'localhost'
+    VBO_SERVER = 'http://localhost:9000/'
 
 
 DATABASES = {
@@ -130,7 +133,7 @@ USE_TZ = True
 STATIC_ROOT = '/var/www/sid/static/'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
-print 'STATICFILES_DIRS == ', STATICFILES_DIRS
+
 STATIC_URL = '/static/'
 
 # logging
@@ -190,8 +193,8 @@ SESSION_COOKIE_AGE = 500* 60
 
 API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
-VBO_SERVER = 'http://localhost:9000/'
 
-LOCAL_TEST_NINJA = True
-NINJA = True 
+
+LOCAL_TEST_NINJA = False
+NINJA = False
 

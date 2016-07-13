@@ -25,6 +25,7 @@ $(document).ready(function() {
             //data: data,
             success: function(result) {
                 if (result.status == 'success') {
+                    alert('comments updated')
                     console.log('chart results == ', result)
                 } else if (result.status == 'session timeout') {
                     alert("Session expired -- Please relogin")

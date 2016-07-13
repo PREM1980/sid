@@ -192,7 +192,7 @@
                  'ticket_type': $('input[name=tkt-radio]:checked').val()
              }
              console.log("Insert ticket data ", data)
-             alert(error_count)
+             
              $.ajax({
                  type: "POST",
                  url: '/post-ticket-data',

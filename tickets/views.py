@@ -149,7 +149,10 @@ class PostTicketData(View):
 				if alldata['error_count'].strip() == '':
 					error_count_actuals = 0
 				else:
-					error_count_actuals = int(alldata.get('error_count'))
+					if int(alldata['error_count'].replace(',','').isdigit()):
+						error_count_actuals = alldata['error_count'].replace(',','')
+					else:
+						error_count_actuals = int(alldata['error_count'])
 						
 			t = Ticket(created_dt=alldata['date']
 				,division=alldata.get('division')
@@ -280,10 +283,9 @@ def validate_insert_input(alldata):
 			error = 'Duration should be one of the following option :- ' + ','.join(constants.VALID_DURATION)
 	else:
 		alldata['duration'] = ' '
-
+	
 	if alldata.get('error_count') not in [None,'']:
 		if alldata.get('error_count') not in constants.VALID_ERROR_COUNT:
-			print 'alldata[error_count] == ', alldata['error_count']
 			if int(alldata['error_count'].replace(',','').isdigit()):
 				alldata['error_count'] = alldata['error_count'].replace(',','')
 			else:
@@ -1076,7 +1078,10 @@ class UpdateTicketData(View):
 				if alldata['error_count'].strip() == '':
 					error_count_actuals = 0
 				else:
-					error_count_actuals = int(alldata.get('error_count'))
+					if int(alldata['error_count'].replace(',','').isdigit()):
+						error_count_actuals = alldata['error_count'].replace(',','')
+					else:
+						error_count_actuals = int(alldata['error_count'])
 
 			if api_key is not None:
 				error = validate_update_input(alldata)

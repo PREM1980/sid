@@ -1,17 +1,25 @@
 $(document).ready(function() {
 
-    function roundoff(nbr) {
-        console.log('nbr ==', nbr)
+    function roundoff(nbr) {        
         result = (Math.round(nbr * 100 * 100) / 100)
-        console.log('result ==', result)
-
         return result
     }
     $('#report-1-submit, #report-2-submit, #report-3-submit').click(function() {
-        report_num = this.id.split('-')[1]
-        alert(report_num)
+        report_num = this.id.split('-')[1]        
+        
+        if (report_num == '1'){
+            comments = $('#report-1-comments-txt').val()
+        }
+        else if (report_num == '2'){
+            comments = $('#report-2-comments-txt').val()
+        }
+        else
+        {
+            comments = $('#report-3-comments-txt').val()
+        }
+        
         $.ajax({
-            url: '/vbo/update-report-callouts/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_run_date=' + $('#report_dates').val() + '&report_num=' + report_num + '&report_callouts=' + report_num,
+            url: '/vbo/update-report-callouts/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() +  '&report_num=' + report_num + '&report_callouts=' + comments,
             // url: '/vbo/update-report-callouts/?'+'report_num='+report_num,
             type: 'GET',
             //data: data,
@@ -30,71 +38,74 @@ $(document).ready(function() {
             }
         })
     })
-    var set_summarry = function(x1) {
-        console.log(JSON.stringify(x1))
-        $('#successful-setup-total').text(x1.successful_setup_total)
+    var set_summary = function(x1) {
+        console.log('prem report_create_Time == ', x1.report_create_time)
+        report_create_time = moment.utc(x1.report_create_time).format('MMM DD, YYYY');
+        console.log('prem formatter report_create_Time == ', report_create_time)
+        $('#report-date').text(report_create_time)
+        $('#successful-setup-total').text(x1.successful_setup_total.toLocaleString())
 
-        $('#business-rules-total').text(x1.business_rules_total)
+        $('#business-rules-total').text(x1.business_rules_total.toLocaleString())
         $('#business-rules-success').text(100 - x1.business_rules_success + '%')
         $('#business-rules-error').text(x1.business_rules_success + '%')
 
-        $('#non-business-rules-total').text(x1.non_business_rules_total)
+        $('#non-business-rules-total').text(x1.non_business_rules_total.toLocaleString())
         $('#non-business-rules-success').text(100 - x1.non_business_rules_success + '%')
         $('#non-business-rules-error').text(x1.non_business_rules_success + '%')
 
 
-        $('#udb-total').text(x1.udb_total)
+        $('#udb-total').text(x1.udb_total.toLocaleString())
         $('#udb-success').text(100 - x1.udb_success + '%')
         $('#udb-error').text(x1.udb_success + '%')
         $('#udb-nbr').text(roundoff(x1.udb_total / x1.non_business_rules_total) + '%')
 
-        $('#cdn-total').text(x1.cdn_setup_total + x1.cdn_connect_total)
+        $('#cdn-total').text((x1.cdn_setup_total + x1.cdn_connect_total).toLocaleString())
 
-        $('#cdn-setup-total').text(x1.cdn_setup_total)
+        $('#cdn-setup-total').text(x1.cdn_setup_total.toLocaleString())
         $('#cdn-setup-success').text(100 - x1.cdn_setup_success + '%')
         $('#cdn-setup-error').text(x1.cdn_setup_success + '%')
         $('#cdn-setup-nbr').text(roundoff(x1.cdn_setup_total / x1.non_business_rules_total) + '%')
 
-        $('#cdn-connect-total').text(x1.cdn_connect_total)
+        $('#cdn-connect-total').text(x1.cdn_connect_total.toLocaleString())
         $('#cdn-connect-success').text(100 - x1.cdn_connect_success + '%')
         $('#cdn-connect-error').text(x1.cdn_connect_success + '%')
         $('#cdn-connect-nbr').text(roundoff(x1.cdn_connect_total / x1.non_business_rules_total) + '%')
 
-        $('#net-total').text(x1.net_total)
+        $('#net-total').text(x1.net_total.toLocaleString())
         $('#net-success').text(100 - x1.net_success + '%')
         $('#net-error').text(x1.net_success + '%')
         $('#net-nbr').text(roundoff(x1.net_total / x1.non_business_rules_total) + '%')
 
         $('#field-total').text(x1.field_plant_total + x1.video_total + x1.tune_total)
 
-        $('#field-plant-total').text(x1.field_plant_total)
+        $('#field-plant-total').text(x1.field_plant_total.toLocaleString())
         $('#field-plant-success').text(100 - x1.field_plant_success + '%')
         $('#field-plant-error').text(x1.field_plant_success + '%')
         $('#field-plant-nbr').text(roundoff(x1.field_plant_total / x1.non_business_rules_total) + '%')
 
-        $('#video-total').text(x1.video_total)
+        $('#video-total').text(x1.video_total.toLocaleString())
         $('#video-success').text(100 - x1.video_success + '%')
         $('#video-error').text(x1.video_success + '%')
         $('#video-nbr').text(roundoff(x1.video_total / x1.non_business_rules_total) + '%')
 
-        $('#tune-total').text(x1.tune_total)
+        $('#tune-total').text(x1.tune_total.toLocaleString())
         $('#tune-success').text(100 - x1.tune_success + '%')
         $('#tune-error').text(x1.tune_success + '%')
         $('#tune-nbr').text(roundoff(x1.tune_total / x1.non_business_rules_total) + '%')
 
-        $('#vcp-total').text(x1.vcp_total)
+        $('#vcp-total').text(x1.vcp_total.toLocaleString())
         $('#vcp-success').text(100 - x1.vcp_success + '%')
         $('#vcp-error').text(x1.vcp_success + '%')
         $('#vcp-nbr').text(roundoff(x1.vcp_total / x1.non_business_rules_total) + '%')
 
-        $('#other-setup-total').text(x1.other_setup_total)
+        $('#other-setup-total').text(x1.other_setup_total.toLocaleString())
         $('#other-setup-success').text(100 - x1.other_setup_success + '%')
         $('#other-setup-error').text(x1.other_setup_success + '%')
         $('#other-setup-nbr').text(roundoff(x1.other_setup_total / x1.non_business_rules_total) + '%') + '%'
 
-        $('#x1-stb-nbr-rate').text(x1.x1_stb_nbr_rates)
-        $('#legacy-stb-nbr-rate').text(x1.legacy_stb_nbr_rates)
-        $('#national-stb-nbr-rate').text(x1.national_stb_nbr_rates)
+        $('#x1-stb-nbr-rate').text(x1.x1_stb_nbr_rates + '%')
+        $('#legacy-stb-nbr-rate').text(x1.legacy_stb_nbr_rates + '%')
+        $('#national-stb-nbr-rate').text(x1.national_stb_nbr_rates + '%')
 
         return;
     }
@@ -114,7 +125,7 @@ $(document).ready(function() {
                     x1 = result.results.results_nbrf_x1_error_rates
                     legacy = result.results.results_nbrf_legacy_error_rates
 
-                    set_summarry(x1)
+                    set_summary(x1)
 
                     udb_errors_rate = [x1.x1_udb_error_rate, legacy.legacy_udb_error_rate]
                     plant_errors_rate = [x1.x1_plant_error_rate, legacy.legacy_plant_error_rate]
@@ -125,6 +136,7 @@ $(document).ready(function() {
 
                     vlqok_errors_rate = [x1.x1_vlqok_error_rate, legacy.legacy_vlqok_error_rate]
                     tune_errors_rate = [x1.x1_tune_error_rate, legacy.legacy_tune_error_rate]
+
                     drawchart_stacked_stb_error_rates()
 
                     spikes = result.results.results_nbrf_spikes
@@ -162,6 +174,11 @@ $(document).ready(function() {
                         x1_vs_legacy_x1_nbr_error_rate.push(obj.x1_nbr_error_rate)
                     })
                     drawchart_x1_vs_legacy()
+
+                    comments = result.results.report_comments
+                    $('#report-1-comments-txt').val(comments.report_1_comments)
+                    $('#report-2-comments-txt').val(comments.report_2_comments)
+                    $('#report-3-comments-txt').val(comments.report_3_comments)
                 } else if (result.status == 'session timeout') {
                     alert("Session expired -- Please relogin")
                     document.location.href = "/";
@@ -177,7 +194,7 @@ $(document).ready(function() {
         var drawchart_x1_vs_legacy = function() {
             $('#vbo-x1-vs-legacy').highcharts({
                 title: {
-                    text: 'Spikes NBRF %',
+                    text: 'National Error Rate by STB Type',
                     x: -20 //center
                 },
                 subtitle: {
@@ -462,7 +479,7 @@ $(document).ready(function() {
             }
 
         })
-        console.log('report_dates == ', report_dates)
+        
         report_dates.forEach(function(each) {
             $('#report_dates')
                 .append($("<option></option>")

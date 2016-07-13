@@ -89,7 +89,7 @@ WSGI_APPLICATION = 'sid.wsgi.application'
 if HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
     if HOSTNAME == 'test-ninja-web-server':
         host = 'test-sid-web-server'
-        VBO_SERVER = 'test-api-web-server'
+        VBO_SERVER = 'http://test-api-box:9000/'
     else:
         host = ''
         VBO_SERVER = 'prod-api-web-server'
@@ -193,8 +193,6 @@ SESSION_COOKIE_AGE = 500* 60
 
 API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
-
-
-LOCAL_TEST_NINJA = False
-NINJA = False
+LOCAL_TEST_NINJA = True
+NINJA = True
 

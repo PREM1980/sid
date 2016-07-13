@@ -44,5 +44,6 @@ def hide_sid_create_section():
 	else:				
 		if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
 			hide = False
-		hide = True
+		else:
+			hide = True
 	return hide

@@ -11,6 +11,6 @@ urlpatterns = [
     url(r'^report-view$', ReportView.as_view()),
     url(r'^report-data/$', ReportData.as_view()),
     url(r'^get-report-names$', SplunkReportNames.as_view()),
-    url(r'^update-report-callouts$', UpdateCallouts.as_view())    
+    url(r'^update-report-callouts/$', UpdateCallouts.as_view())    
 ]
 

@@ -1,6 +1,11 @@
 import socket
 import ldap
 from django.conf import settings
+from dateutil import parser
+from django.utils.timezone import localtime
+import iso8601
+import pytz
+
 
 def getip():
 	try:
@@ -8,7 +13,15 @@ def getip():
 	except:
 		return ''
 
-
+def get_utc_ts(date):
+	print 'get_utc_ts == ', date
+	# return localtime(parser.parse(date))
+	# d
+	dt_time = iso8601.parse_date(date)
+	return_date = dt_time.astimezone(pytz.utc)
+	print 'return_date == ', return_date
+	return return_date
+	
 
 def check_user_auth(username,password):
 	ldap.OPT_REFERRALS = 0

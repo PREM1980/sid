@@ -24,7 +24,8 @@
         // curr_date = moment(new Date())
         // curr_date = curr_date.tz('America/New_York')
         
-        var curr_date = moment.tz(new Date(), "America/New_York").format();
+        // var curr_date = moment.tz(new Date(), "America/New_York").format();
+        var curr_date = new Date()
         var curr_date_3 = moment.tz(new Date(), "America/New_York").format();
         
         $('#datepicker').datetimepicker({
@@ -320,13 +321,25 @@
 
 
         <div style="float:right;color:red;font-weight:bold">
+        
+        <form style=" display:inline!important;border:1px solid;padding:2px" id="tzForm">
+            <label style="color:green">Timezone</label>
+            <label class="radio-local" style="color:#337ab7"><input type="radio" name="optradio" id="radio-local"  value='local' checked>&nbsp;Local</label>
+            &nbsp;
+            <label class="radio-est" style="color:#337ab7">&nbsp;<input type="radio" name="optradio" id="radio-est" value='est'>&nbsp;EST</label>
+            &nbsp;
+            <label class="radio-utc" style="color:#337ab7">&nbsp;<input type="radio" name="optradio" id="radio-utc" value='utc'>&nbsp;UTC</label>
+            &nbsp;
+        </form>
+        &nbsp;
+
 
         {% if hide %}
             <a href="/charts" />Charts</a>
         {% else %}
             <a href="/charts" />Charts</a>
         {% endif %}
-
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <a href="#" id="exportExcel" />Excel&nbsp;<img src="{% static "images/ExcelImgSml.gif" %}" width="25" height="25" title="Export to Excel Spreadsheet" style="margin-right:10px"></a>&nbsp;
         
         <a href="#" id="exportPdf">PDF&nbsp;<img src="{% static "images/PDFImgSml.gif" %}" width="25" height="25" title="Export to PDF"></a>&nbsp;&nbsp;&nbsp;
@@ -384,13 +397,13 @@
             <table class="table table-striped dialog-table" border="0" cellpadding="15px">
             <!--<table class="CSSTableGenerator">-->
             <tr>
-            <td class="leftcols">Created Date<span style="text-align:center;color:blue">(EST)</span></td>
+            <td class="leftcols">Created Date</td>
             <td>
                 <input type="text" class="form-control input-sm" id="dialog_created_dt" tabindex="-1"  >
                 </td>
             </tr>
             <tr>
-            <td class="leftcols">End Date<span style="text-align:center;color:blue">(EST)</span></td>
+            <td class="leftcols">End Date</td>
             <td>
                 <input type="text" class="form-control input-sm" id="dialog_end_dt" tabindex="-1"  >
             </td>

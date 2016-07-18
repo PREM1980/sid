@@ -1,12 +1,14 @@
 from django.db import models
 import uuid
 from datetime import datetime
+import pytz
 from json import JSONEncoder
 from uuid import UUID
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 
 JSONEncoder_olddefault = JSONEncoder.default
-
 
 def JSONEncoder_newdefault(self, o):
 	if isinstance(o, UUID):
@@ -91,10 +93,14 @@ class Tickets(models.Model):
 	outage_caused = models.IntegerField(db_column='outage_caused_id')
 	system_caused = models.IntegerField(db_column='system_caused_id')
 	ticket_type = models.CharField(max_length=20, db_column='ticket_type',db_index=True)
-	row_create_ts = models.DateTimeField(default=datetime.now())
-	row_update_ts = models.DateTimeField(default=datetime.now())
+	row_create_ts = models.DateTimeField(default=datetime.now(tz=pytz.utc).isoformat())
+	row_update_ts = models.DateTimeField(default=datetime.now(tz=pytz.utc).isoformat())
+	# row_create_ts_utc = models.DateTimeField(default=datetime.now())
+	# row_update_ts_utc = models.DateTimeField(default=datetime.now())
 	row_end_ts = models.DateTimeField(
 		default='9999-12-31 00:00:00.00000-00', db_column='row_end_ts')
+	# row_end_ts_utc = models.DateTimeField(
+	# 	default='9999-12-31 00:00:00.00000-00', db_column='row_end_ts_utc')
 	create_user_id = models.CharField(max_length=50, db_column='crt_user_id',null=True)
 	update_user_id = models.CharField(max_length=50, db_column='upd_user_id',null=True)
 	valid_flag = models.CharField(max_length=1,db_column='valid_flag',default="Y")
@@ -103,6 +109,10 @@ class Tickets(models.Model):
 
 	class Meta:
 		db_table = 'tickets'
+
+	# def get_utc_ts(date)
+	# 	return dateutil.parser.parse(date).utcnow()
+
 
 class AddtNotes(models.Model):
 	Id = models.OneToOneField(
@@ -118,4 +128,18 @@ class AddtNotes(models.Model):
 		if self.notes is None:
 			self.notes = ""
 		super(AddtNotes,self).save(*args,**kwargs)
+
+# @receiver(pre_save, sender=Tickets)
+# def my_handler(sender, instance, *args, **kwargs):
+# 	print 'instance.row_create_ts == ', instance.row_create_ts
+# 	print 'instance.row_update_ts == ', instance.row_update_ts
+# 	print 'instance.row_end_ts == ', instance.row_end_ts
+# 	try:
+# 		instance.row_create_ts = dateutil.parser.parse(instance.row_create_ts).utcnow()
+# 		# instance.row_update_ts = dateutil.parser.parse(instance.row_update_ts).utcnow()
+# 		# instance.row_end_ts = dateutil.parser.parse(instance.row_end_ts).utcnow()
+# 	except Exception as e:
+# 		print 'Exception == {0}'.format(e)
+# 		raise ('Unable to convert the timestamp to UTC')
+
 

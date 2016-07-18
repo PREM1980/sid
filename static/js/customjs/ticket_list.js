@@ -41,6 +41,37 @@
      // //init feedback_me plugin
      // fm.init(fm_options);
 
+     function disable_local_tz(){
+        var d = new Date();
+        var n = d.getTimezoneOffset();
+        var timezone = n / -60;
+        if (timezone == -4){
+            $('.radio-est').hide()
+        }
+     }
+
+     disable_local_tz()
+
+     $('#radio-local,#radio-est,#radio-utc').click(function(){        
+        set_tz(this)
+     })
+     var set_tz = function(elem){
+        if (elem.id == 'radio-local'){
+            $('.local-col').show()
+            $('.est-col').hide()
+            $('.utc-col').hide()
+        }else if (elem.id == 'radio-est'){
+            $('.est-col').show()
+            $('.local-col').hide()
+            $('.utc-col').hide()
+        }else {
+            $('.local-col').hide()
+            $('.est-col').hide()
+            $('.utc-col').show()
+        }
+
+     }
+
      $('#errorcount, #row_error_count').change(function() { 
         n = $(this).val()
         n = n.replace(/,/g, '')
@@ -123,6 +154,9 @@
      }
 
      $('#upload').click(function(event) {
+        create_dt = moment($('#datepicker').val(),'YYYY/MM/DD HH:mm');
+        console.log(create_dt.format())         
+
          event.preventDefault();
          event.stopPropagation();
 
@@ -175,11 +209,13 @@
                  ticket_num = ticket_num_n_link
                  ticket_link = ''
              }
-
+             
+             //alert(dt.format())
+             // 2016/07/13 16:35
 
              data = {
                  //'date': new Date($('#datepicker').val()),
-                 'date': $('#datepicker').val(),
+                 'date': create_dt.format(),
                  'division': $('#division').val(),
                  'pg': pg,
                  'duration': duration,
@@ -222,9 +258,7 @@
                      }
                  },
              });
-
          }
-
      });
 
 
@@ -281,10 +315,11 @@
                      } else {
                          data = {}
                          pg = get_pgs('#row_peergroup')
-                         
+                         create_dt = moment($('#dialog_created_dt').val(),'YYYY/MM/DD HH:mm');
+                         end_dt = moment($('#dialog_end_dt').val(),'YYYY/MM/DD HH:mm');
                          data = {
-                             'created_dt': $('#dialog_created_dt').val(),
-                             'end_dt': $('#dialog_end_dt').val(),
+                             'created_dt': create_dt.format(),
+                             'end_dt': end_dt.format(),
                              'division': $('#row_division').val(),
                              'pg': pg,
                              'duration': $('#row_duration').val(),
@@ -407,6 +442,10 @@
                          create_tickets(result)
                          // $('#loginid').html(login_id)
                          set_division(login_id)
+                         disable_local_tz()
+                         elem = $('input[name=optradio]:checked', '#tzForm').val()             
+                         set_tz(elem)
+
                      } else if (result.status == 'session timeout') {
                          alert("Session expired -- Please relogin")
                          document.location.href = "/";
@@ -454,9 +493,6 @@
      })
     }
 
-
-
-
      load_datatable('Y')
 
      function create_tickets(jsondata) {
@@ -490,7 +526,9 @@
          $(".CSSTableGenerator1").empty()
 
          $("<table id='ticket-table' class='table  tablesorter' style='table-layout:fixed; width:100%'> </table>").appendTo('.CSSTableGenerator1')
-         $('#ticket-table').append('<thead class="thead-inverse"><tr><th style="display:none">id</th><th>User Id</th><th>Create Date<span style="text-align:center;color:blue"> (EST)</span></th><th>End Date</th><th>Ticket#</th><th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th></th></tr></thead>');
+         $('#ticket-table').append('<thead class="thead-inverse"><tr><th style="display:none">id</th><th>User Id</th><th class="local-col">Create Date<span style="text-align:center;color:blue"> (Local)</span></th><th class="est-col" style="display:none">Create Date <span style="text-align:center;color:blue"> (EST)</span></th>' 
+            + '<th class="utc-col" style="display:none">Create Date<span style="text-align:center;color:blue"> (UTC)</span></th><th class="local-col">End Date</th><th class="est-col" style="display:none">End Date</th><th class="utc-col" style="display:none">End Date</th><th>Ticket#</th>'
+            + '<th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th></th></tr></thead>');
 
          slicedata.forEach(function(obj, i, a) {
 
@@ -503,23 +541,49 @@
                  } else {
                      obj.crt_user_id = ""
                  }
-                 //console.log('bf obj.created_dt == ' + obj.created_dt)
+                 console.log('before obj.ticket_num == ', obj.ticket_num)
+                 console.log('before obj.created_dt == ', obj.created_dt)
+                 // obj.created_dt = moment(obj.created_dt).format('MMM DD, YYYY HH:mm:ss');
 
-                 obj.created_dt = moment.utc(obj.created_dt).format('MMM DD, YYYY HH:mm:ss');
-                 //console.log('af obj.created_dt == ' + obj.created_dt)
+                 created_dt_local = moment(obj.created_dt).format('MMM DD, YYYY HH:mm:ss');
+                 created_dt_est = moment(obj.created_dt).tz("America/New_York").format('MMM DD, YYYY HH:mm:ss');
+                 created_dt_utc = moment.utc(obj.created_dt).format('MMM DD, YYYY HH:mm:ss');
 
+                 console.log('obj.created_dt_est == ', created_dt_est)
+                 console.log('obj.created_dt_utc == ', created_dt_utc)
+                 console.log('obj.created_dt == ', created_dt_local)
+                 
+                 console.log('obj.row_end_ts == ', obj.row_end_ts)
                  if (obj.row_end_ts == '') {
                      row_end_ts = ""
+                     row_end_ts_est = ""
+                     row_end_ts_utc = ""
                  } else {
                      //row_end_ts = dateFormat(obj.row_end_ts, "default", true)
                      //row_end_ts = dateFormat(obj.row_end_ts, 'mmm dd, yyyy hh:mm:ss')
-                     row_end_ts = moment.utc(obj.row_end_ts).format('MMM DD, YYYY HH:mm:ss');
+                     row_end_ts = moment(obj.row_end_ts).format('MMM DD, YYYY HH:mm:ss');
+                     row_end_ts_est = moment(obj.row_end_ts).tz("America/New_York").format('MMM DD, YYYY HH:mm:ss');
+                     row_end_ts_utc = moment.utc(obj.row_end_ts).format('MMM DD, YYYY HH:mm:ss');
+
+                    console.log('row_end_ts_local == ', row_end_ts)
+                    console.log('row_end_ts_est == ', row_end_ts_est)
+                    console.log('row_end_ts_utc == ', row_end_ts_utc)
                  }
+                 console.log('*************************************')
+                 
+                 
+                 // console.log('obj.row_end_ts == ', obj.created_dt)
 
                  if (obj.ticket_link.length == 0) {
-                     $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + row_end_ts + '</td><td style="word-wrap: break-word" id="id_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+                     $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt" class="local-col">' + created_dt_local + '</td> <td id="id_created_dt_est" class="est-col" style="display:none">' 
+                        + created_dt_est + '</td> <td id="id_created_dt_utc" class="utc-col" style="display:none">' + created_dt_utc + '</td> <td id="id_row_end_ts" class="local-col">' + row_end_ts + '</td><td id="id_row_end_ts_est" class="est-col" style="display:none">' + row_end_ts_est + '</td> <td id="id_row_end_ts_utc" class="utc-col" style="display:none">' + row_end_ts_utc + '</td> <td style="word-wrap: break-word" id="id_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division 
+                        + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused 
+                        + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
                  } else {
-                     $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt">' + obj.created_dt + '</td><td id="id_row_end_ts">' + row_end_ts + '</td><td style="word-wrap: break-word" id="id_ticket_num"><a href="' + obj.ticket_link + '" target="_blank" >' + obj.ticket_num + '</a></td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+                     $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt" class="local-col">' + created_dt_local + '</td> <td id="id_created_dt_est" class="est-col" style="display:none">' 
+                        + created_dt_est + '</td> <td id="id_created_dt_utc" class="utc-col" style="display:none">' + created_dt_utc + '</td> <td id="id_row_end_ts" class="local-col">' + row_end_ts + '</td><td id="id_row_end_ts_est" class="est-col" style="display:none">' + row_end_ts_est + '</td><td id="id_row_end_ts_utc" class="utc-col" style="display:none">' + row_end_ts_utc + '</td><td style="word-wrap: break-word" id="id_ticket_num"><a href="' + obj.ticket_link + '" target="_blank" >' 
+                        + obj.ticket_num + '</a></td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' 
+                        + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
                  }
 
                  login_id = obj.login_id
@@ -573,23 +637,19 @@
          monthNames["Nov"] = "11";
          monthNames["Dec"] = "12";
 
-
          $("#ticket-table").tablesorter({
              sortList: [],
              headers: {
-                 2: {
-                     //sorter: 'time',
-                     //sorter:'my_date_column' 
-                     //dateFormat: "ddd mmm yyyy hh:mm:ss"
-                     //sorter: 'monthDayYear'
-                 },
-                 // 2:{
-                 //    sorter: true
+                 // 2: {
+                 //     //sorter: 'time',
+                 //     //sorter:'my_date_column' 
+                 //     //dateFormat: "ddd mmm yyyy hh:mm:ss"
+                 //     //sorter: 'monthDayYear'
                  // },
-                 11: {
+                 10: {
                      sorter: false
                  },
-                 12: {
+                 16: {
                      sorter: false
                  }
              },
@@ -635,8 +695,19 @@
              var id = $(this).attr('id');
              row = $(this).parent().parent()
              ticket_type = row.find("#id_ticket_type").html()
-             created_dt = row.find("#id_created_dt").html()
-             end_dt = row.find("#id_row_end_ts").html()
+             tz = $('input[name=optradio]:checked', '#tzForm').val()             
+             if (tz == 'local'){
+                created_dt = row.find("#id_created_dt").html()  
+                end_dt = row.find("#id_row_end_ts").html()              
+             } else if (tz == 'est') {
+                created_dt = row.find("#id_created_dt_est").html()                
+                end_dt = row.find("#id_row_end_ts_est").html()              
+             } else {
+                created_dt = row.find("#id_created_dt_utc").html()                
+                end_dt = row.find("#id_row_end_ts_utc").html()              
+             }
+             alert(end_dt)
+             // end_dt = row.find("#id_row_end_ts").html()
              ticket_num = row.find("#id_ticket_num").html()
              division = row.find("#id_division").html()
                  //pg = row.find("td:nth-child(6), select")

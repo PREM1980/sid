@@ -15,6 +15,7 @@ from django.conf import settings
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from xlsxwriter.workbook import Workbook
+from dateutil.parser import parse
 
 import logging
 import socket
@@ -22,6 +23,7 @@ import uuid
 import datetime
 import json
 import constants
+import pytz
 
 logger = logging.getLogger('app_logger')
 
@@ -141,8 +143,11 @@ class PostTicketData(View):
 			else:
 				logger.debug("ip = {0} && post data  == {1}".format(ip,alldata))
 				print 'insert validated data == ', alldata
-				alldata['date'] = datetime.datetime.strptime(
-					str(alldata.get('date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
+				#Javascript time that is passed - 2016-07-13T16:47:00-07:00
+				# alldata['date'] = datetime.datetime.strptime(
+				# 	str(alldata.get('date')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')
+				alldata['date'] = utils.get_utc_ts(alldata['date'])
+
 			try:
 				error_count_actuals = constants.VALID_ERROR_COUNT_NUMERALS[alldata.get('error_count')]
 			except:
@@ -237,12 +242,18 @@ def validate_insert_input(alldata):
 		or alldata.get('ticket_num') in [None,'',' '] \
 		or alldata.get('userid') in [None,'',' ']:
 		error = """Please pass the mandatory parameters - date, ticket_num, division, list of peer groups, ticket type and  user id. """
-
+	print 'alldata[date] == ', alldata['date']
 	try:
-		alldata['date'] = datetime.datetime.strptime(
-			str(alldata.get('date')), '%Y/%m/%d %H:%S:%M').strftime('%Y-%m-%d %H:%S:%M')
-	except:
-		error = 'Date should be in the following format:- "%Y/%m/%d %H:%M:%S" '
+		# alldata['date'] = datetime.datetime.strptime(
+		# 	str(alldata.get('date')), '%Y/%m/%d %H:%S:%M').strftime('%Y-%m-%d %H:%S:%M')
+
+		d = parse(alldata['date'])
+		print 'd == ', d
+		if d.tzinfo is None:
+			error = 'Date should be in the following format:- "22016-07-18T12:07:00-04:00", Timezone needs to be included '
+		alldata['date'] = utils.get_utc_ts(alldata['date'])
+	except Exception as e:
+		error = 'Date should be in the following format:- "2016-07-18T12:07:00-04:00", Timezone needs to be included '
 
 	if  alldata.get('division').encode('ascii').lower() not in constants.VALID_DIVISION_LC:
 		error = 'Division should be one of the following option :- ' + ','.join(constants.VALID_DIVISION)
@@ -292,10 +303,8 @@ def validate_insert_input(alldata):
 				error = 'Error count should be numeric(ex:- 2,000) or one of the following option :- ' + ','.join(constants.VALID_ERROR_COUNT)	
 	else:
 		alldata['error_count'] = ' '
-
-			
-	
-		#replace commas in numbers
+		
+	#replace commas in numbers
 	
 	if alldata.get('outage_caused') not in [None,'']:
 		if alldata.get('outage_caused') not in constants.VALID_OUTAGE_CAUSED:
@@ -310,7 +319,7 @@ def validate_insert_input(alldata):
 		alldata['system_caused'] = ' '
 
 	#strip seconds from API timestamp to match the GUI timestamp
-	alldata['date'] = alldata['date'][:-3]
+	# alldata['date'] = alldata['date'][:-3]
 
 	ticket_num, ticket_link = convert_link_to_ticket_num(alldata.get('ticket_num'))
 	alldata['ticket_num'] = ticket_num
@@ -690,11 +699,12 @@ def enum_results(user_id,results):
 						
 		if prev_ticket_num == curr_ticket_num:			
 			data['ticket_num'] = each[0]
-			data['created_dt'] = each[1]
+			data['created_dt'] = each[1].replace(tzinfo=pytz.utc)
+			print 'prem created_dt == ', data['created_dt']
 			if each[4].year == 9999:
 				data['row_end_ts'] = ""
 			else:
-				data['row_end_ts'] = each[4]
+				data['row_end_ts'] = each[4].replace(tzinfo=pytz.utc)
 			data['ticket_type'] = each[2]
 			data['division'] = each[5]
 			pg_cd.append(each[10])
@@ -721,12 +731,12 @@ def enum_results(user_id,results):
 			pg_cd = []
 
 			data['ticket_num'] = each[0]
-			data['created_dt'] = each[1]
+			data['created_dt'] = each[1].replace(tzinfo=pytz.utc)
 			#data['row_end_ts'] = each[4]
 			if each[4].year == 9999:
 				data['row_end_ts'] = ""
 			else:				
-				data['row_end_ts'] = each[4]
+				data['row_end_ts'] = each[4].replace(tzinfo=pytz.utc)
 			data['ticket_type'] = each[2]
 			data['division'] = each[5]
 			pg_cd.append(each[10])
@@ -1065,10 +1075,11 @@ class UpdateTicketData(View):
 			if alldata.get('update_end_dt') == 'Y':
 			   ticket_num, ticket_link = convert_link_to_ticket_num(alldata.get('ticket_num'))
 			   ticket = Tickets.objects.get(ticket_num=ticket_num)
-			   eastern = timezone('US/Eastern')
-			   ticket.row_end_ts = datetime.datetime.now(eastern)
+			   # eastern = timezone('US/Eastern')
+			   # ticket.row_end_ts = datetime.datetime.now(eastern)
+			   ticket.row_end_ts = datetime.datetime.now(tz=pytz.utc).isoformat()
 			   print 'row_end_ts == ', ticket.row_end_ts
-			   ticket.row_end_ts = datetime.datetime.strftime(ticket.row_end_ts,'%Y-%m-%d %H:%M:00')
+			   # ticket.row_end_ts = datetime.datetime.strftime(ticket.row_end_ts,'%Y-%m-%d %H:%M:00')
 			   ticket.save()
 			   return JsonResponse({'status': 'success'})
 			print 'prem alldata == ', alldata.get('error_count')
@@ -1091,13 +1102,18 @@ class UpdateTicketData(View):
 
 			if alldata['created_dt'] is not None:
 				if api_key is None:
-					alldata['created_dt'] = datetime.datetime.strptime(
-					str(alldata.get('created_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')			
+					# alldata['created_dt'] = datetime.datetime.strptime(
+					# str(alldata.get('created_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')			
+					alldata['created_dtdate'] = utils.get_utc_ts(alldata['created_dt'])
 
 			if alldata['end_dt'] not in [None,'']:	
 				if api_key is None and alldata['end_dt'] not in [None,'']:
-					alldata['end_dt'] = datetime.datetime.strptime(
-						str(alldata.get('end_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')				
+					# alldata['end_dt'] = datetime.datetime.strptime(
+					# 	str(alldata.get('end_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')				
+					print 'end timetstamp before == ', alldata['end_dt']
+					alldata['end_dt'] = utils.get_utc_ts(alldata['end_dt'])
+					print 'end timetstamp after == ', alldata['end_dt']
+
 
 			t = Ticket(created_dt=alldata.get('created_dt')
 				,end_dt=alldata.get('end_dt')
@@ -1189,20 +1205,24 @@ def validate_update_input(alldata):
 		if alldata[key] is not None and type(alldata[key]) is not list:
 			if alldata[key].strip() == '':
 				alldata[key] = '' 
-
+	
 	if alldata.get('created_dt') not in [None,'']:
 		try:
-			alldata['created_dt'] = datetime.datetime.strptime(
-				str(alldata.get('created_dt')), '%Y/%m/%d %H:%S:%M').strftime('%Y-%m-%d %H:%S:00')
+			d = parse(alldata['created_dt'])
+			if d.tzinfo is None:
+				error = 'Created Date should be in the following format:- "2016-07-18T12:07:00-04:00", Timezone needs to be included '
+			alldata['created_dt'] = utils.get_utc_ts(alldata['created_dt'])
 		except:
-			error = 'created_dt should be in the following format:- "%Y/%m/%d %H:%M:%S" '
+			error = 'Created Date should be in the following format:- "2016-07-18T12:07:00-04:00", Timezone needs to be included '
 
 	if alldata.get('end_dt') not in [None,'']:
 		try:
-			alldata['end_dt'] = datetime.datetime.strptime(
-				str(alldata.get('end_dt')), '%Y/%m/%d %H:%S:%M').strftime('%Y-%m-%d %H:%S:00')
+			d = parse(alldata['end_dt'])
+			if d.tzinfo is None:
+				error = 'End Date should be in the following format:- "2016-07-18T12:07:00-04:00", Timezone needs to be included '
+			alldata['end_dt'] = utils.get_utc_ts(alldata['end_dt'])
 		except:
-			error = 'end_dt should be in the following format:- "%Y/%m/%d %H:%M:%S" '
+			error = 'End Date should be in the following format:- "2016-07-18T12:07:00-04:00", Timezone needs to be included '
 
 	if alldata.get('ticket_num') in [None,''] \
 		or alldata.get('userid') in [None,'']:

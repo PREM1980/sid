@@ -3,15 +3,17 @@ import json
 headers =  {
        "AUTHORIZATION": "CPT74QBAWFIDFH4U27RT"
     } 
+
 payload = {
-	'date':'2016/07/05 23:22:00',#
+			#2016-07-18T12:07:00-04:00
+	'date':'2016-07-22T04:16:13-07:00',#
 	'division': 'westerN',
 	'duration':'15 - 30 minutes',
 	'pg[]':["10101", "10102",],
 	'error_count':'5,000 - 10,000',
 	'outage_caused':'',
 	'system_caused':'',
-	'ticket_num':'tkt-13',
+	'ticket_num':'test10',
 	'ticket_type':'JIRA',
 	'userid':'plaksh007c',
 	# 'addt_notes':'hello'

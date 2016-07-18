@@ -6,15 +6,15 @@ headers =  {
 
 #Update all other ticket details
 payload = {
-	# 'created_dt':'2016/06/14 23:20:00',
-	# 'end_dt':'2016/06/13 23:20:00',
+	'created_dt':'2016-07-18T12:07:00-04:00',
+	'end_dt':'2016-07-18T12:07:00-04:00',
 	#'division': 'National',
 	'duration':'30 - 60 minutes',
 	#'pg[]':["10201"],
 	'error_count':'5,000 - 10,000',
 	'outage_caused':'Scheduled Maintenance',
 	'system_caused':'Backoffice',
-	'ticket_num':'tkt-13',
+	'ticket_num':'test10',
 	'addt_notes':'This is test',
 	'userid':'api' 
 }

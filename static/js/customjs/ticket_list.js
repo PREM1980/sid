@@ -53,14 +53,18 @@
      disable_local_tz()
 
      $('#radio-local,#radio-est,#radio-utc').click(function(){        
-        set_tz(this)
+        console.log("prem-prem elem == ", this)
+        set_tz($(this).val())
+
      })
      var set_tz = function(elem){
-        if (elem.id == 'radio-local'){
+        
+        
+        if (elem == 'local'){
             $('.local-col').show()
             $('.est-col').hide()
             $('.utc-col').hide()
-        }else if (elem.id == 'radio-est'){
+        }else if (elem == 'est'){
             $('.est-col').show()
             $('.local-col').hide()
             $('.utc-col').hide()
@@ -423,6 +427,16 @@
              $('#hidden_form_outage_caused').val(data['outage_caused'])
              $('#hidden_form_system_caused').val(data['system_caused'])
              $('#hidden_form_addt_notes').val(data['addt_notes'])
+             $('#hidden_form_tz').val($('input[name=optradio]:checked', '#tzForm').val())
+             offset = new Date().getTimezoneOffset() 
+
+             if ( offset > 0 ){
+                offset = '-' + offset
+             }else{
+                offset = '+' + offset
+             }
+
+             $('#hidden_form_local_time_offset').val(offset)
 
              if (download_report == 'PDF') {
                  $('#downloadform').attr('action', '/pdf-download-data');

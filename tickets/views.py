@@ -794,6 +794,7 @@ class PDFDownload(View):
 				return JsonResponse({'status': 'Invalid Key..Contact support!!'})
 
 		logger.debug("user_id = {0} ".format(user_id))
+
 		if user_id is not None or api_key == settings.API_KEY:
 			output = get_ticket_data(alldata,api_key,ip,user_id)
 			logger.debug("ip = {0} &&  output == {1}".format(ip,output))
@@ -840,6 +841,12 @@ class PDFDownload(View):
 				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'Create Date:')
 				p.setFont('Helvetica',12)
+				
+				if alldata['tz'] == 'local':
+					each['created_dt'] = utils.convert_datetime_using_offset(each['created_dt'],alldata['local_time_offset'])
+				elif alldata['tz'] == 'est':
+					each['created_dt'] = utils.convert_datetime_using_offset(each['created_dt'],-4) #EST offset
+								
 				p.drawString(x1, y, '{:%a %b %Y %H:%M:%S}'.format(each['created_dt']))
 				y = y - incr
 				y = page_break_called(p,y,height)
@@ -849,6 +856,7 @@ class PDFDownload(View):
 				p.setFont('Helvetica',12)
 				if each['row_end_ts'] != "":
 					#sheet.write(row,2,'{:%a %b %Y %H:%M:%S}'.format(each['row_end_ts']))
+					each['row_end_dt'] = utils.convert_datetime_using_offset(each['row_end_ts'],alldata['local_time_offset'])
 					p.drawString(x1, y, '{:%a %b %Y %H:%M:%S}'.format(each['row_end_ts']))
 				y = y - incr
 				y = page_break_called(p,y,height)
@@ -1008,9 +1016,19 @@ class ExcelDownload(View):
 			data = get_ticket_data(alldata,api_key,ip,user_id)
 			for each in data:
 				sheet.write(row,0,each['crt_user_id'])
+				print 'alldata-tz == ', alldata['tz']
+				if alldata['tz'] == 'local':
+					each['created_dt'] = utils.convert_datetime_using_offset(each['created_dt'],alldata['local_time_offset'])
+				elif alldata['tz'] == 'est':
+					each['created_dt'] = utils.convert_datetime_using_offset(each['created_dt'],-240) #EST offset
 				sheet.write(row,1,'{:%d %b %Y %H:%M:%S}'.format(each['created_dt']))
 				if each['row_end_ts'] != "":
+					if alldata['tz'] == 'local':
+						each['created_dt'] = utils.convert_datetime_using_offset(each['created_dt'],alldata['local_time_offset'])
+					elif alldata['tz'] == 'est':
+						each['created_dt'] = utils.convert_datetime_using_offset(each['created_dt'],-240) #EST offset
 					sheet.write(row,2,'{:%d %b %Y %H:%M:%S}'.format(each['row_end_ts']))
+
 				sheet.write(row,3,each['ticket_num'])
 				sheet.write(row,4,each['division'])
 				sheet.write(row,5,','.join(each['pg']))
@@ -1358,6 +1376,7 @@ class ChartsData(View):
 		if userid is None:
 			return render(request,'tickets/loginpage.html',{'error':'N'})
 		cursor = connection.cursor()
+		
 		cursor.execute("""select x.duration, count(*) from 
 				(select tb2.duration
 				from sid.tickets tb1
@@ -1503,7 +1522,7 @@ class ChartsData(View):
 		# 	GROUP BY WEEK(dt)
 		# 	ORDER BY WEEK(dt)  
 		# """
-
+		# cursor.execute("SET @@session.time_zone = '+04:00';")
 		cursor.execute('set sql_mode = ""')
 		cursor.execute(
 			"""

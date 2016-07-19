@@ -5,7 +5,14 @@ from dateutil import parser
 from django.utils.timezone import localtime
 import iso8601
 import pytz
+from dateutil import tz
 
+# dt = iso8601.parse_date('2016-07-22 11:16:13+00:00')
+# >>> tzlocal = tz.tzoffset('local',-240)
+# >>> dt.astimezone(tzlocal)
+# datetime.datetime(2016, 7, 22, 11, 12, 13, tzinfo=tzoffset('local', -240))
+# >>> dt
+# datetime.datetime(2016, 7, 22, 11, 16, 13, tzinfo=<FixedOffset '+00:00' datetime.timedelta(0)>)
 
 def getip():
 	try:
@@ -21,7 +28,15 @@ def get_utc_ts(date):
 	return_date = dt_time.astimezone(pytz.utc)
 	print 'return_date == ', return_date
 	return return_date
-	
+
+def convert_datetime_using_offset(dt,offset):
+	print 'convert_datetime_using_offset old == ',type(dt)
+	print 'convert_datetime_using_offset old == ',dt
+	# dt = iso8601.parse_date(dt)
+	tzlocal = tz.tzoffset('local',int(offset) * 60 )
+	dt = dt.astimezone(tzlocal)
+	print 'convert_datetime_using_offset new == ',dt
+	return dt
 
 def check_user_auth(username,password):
 	ldap.OPT_REFERRALS = 0

@@ -21,7 +21,7 @@
                 Here are the valid values.
                 
                 <xmp>
-                Date - We store all the dates in EST format. Please make sure the dates are sent in EST.
+                Date - We store all the dates in UTC format. Please make sure the dates includes the timezone -- 2016-07-22T04:16:13-07:00.
 
                 Division - 'National', 'Western', 'Central', 'Northeast'(If the issue occurs everywhere the Division could be 'National')
                 
@@ -80,7 +80,7 @@
                        "AUTHORIZATION": "CPT74QBAWFIDFH4U27RT"
                     } 
                 payload = {
-                    'date':'2016/06/13 23:22:00',
+                    'date':'2016-07-22T04:16:13-07:00', #Please include timezone
                     'division': 'western',
                     'duration':'15 - 30 minutes',
                     'pg[]':["10101", "10102",],
@@ -110,8 +110,8 @@
             #Update all other ticket details
             #You can update the create_dt and end_dt as well
             payload = {
-                'created_dt':'2016/06/13 23:20:00',#(EST Time)
-                'end_dt':'2016/06/15 23:20:00',#(EST Time)
+                'created_dt':'2016-07-22T04:16:13-07:00',
+                'end_dt':'2016-07-22T04:16:13-07:00',#(EST Time)
                 'division': 'National',
                 'duration':'15 - 30 minutes',
                 'pg[]':["10201"],

@@ -107,7 +107,7 @@ $(document).ready(function() {
             type: 'column'
         },
         title: {
-            text: 'Average Tickets created by Users(Name)'
+            text: 'Number of tickets created by Users(Name)'
         },
         subtitle: {
             text: ''
@@ -150,7 +150,7 @@ $(document).ready(function() {
             type: 'column'
         },
         title: {
-            text: 'Average Tickets created by week'
+            text: 'Number of tickets created by week'
         },
         subtitle: {
             text: ''

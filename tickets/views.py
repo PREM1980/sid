@@ -1376,7 +1376,7 @@ class ChartsData(View):
 		if userid is None:
 			return render(request,'tickets/loginpage.html',{'error':'N'})
 		cursor = connection.cursor()
-		
+
 		cursor.execute("""select x.duration, count(*) from 
 				(select tb2.duration
 				from sid.tickets tb1
@@ -1523,10 +1523,11 @@ class ChartsData(View):
 		# 	ORDER BY WEEK(dt)  
 		# """
 		# cursor.execute("SET @@session.time_zone = '+04:00';")
+		#(select date(convert_tz(row_create_ts,"-00:00",'-00:00')) as dt from sid.tickets where valid_flag = 'Y') x
 		cursor.execute('set sql_mode = ""')
 		cursor.execute(
 			"""
-			select count(*) as count, concat(dt, ' - ', dt + INTERVAL 6 DAY) as week from
+			select count(*) as count, concat(dt, ' - ', dt + INTERVAL 6 DAY) as week from			
 			(select date(row_create_ts) as dt from sid.tickets where valid_flag = 'Y') x
 			group by week(dt)			
 			"""

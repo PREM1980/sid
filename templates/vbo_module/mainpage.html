@@ -5,18 +5,17 @@
     {% load staticfiles %}
     <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
-    
     <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
-
     <script src="{% static "highcharts/highcharts.js" %}"></script>
     <script src="{% static "highcharts/exporting.js" %}"></script>
-
 
     <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
     <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
     <script src="{% static "js/customjs/common.js" %}"></script>
     <script src="{% static "js/customjs/vbo/main.js" %}"></script>
-
+    <!-- <script src="{% static "js/customjs/vbo/daily.js" %}"></script>
+    <script src="{% static "js/customjs/vbo/weekly.js" %}"></script>
+ -->
 <script>
 $(document).ready(function()
 {
@@ -64,6 +63,7 @@ td.right-align{
             <div class="col-sm-2" >
                   <input type="submit" class="btn btn-primary" value="Submit" id="report-submit">
             </div>
+            <input type="text" name="report_id" id="report_id">
         <div id='animation-space'>
         <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
         </div>
@@ -73,218 +73,10 @@ td.right-align{
         </div><!-- /.bg -->
         
 
-        <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
         
-        <button class="btn-success" data-toggle="collapse" data-target="#html-reports" id="html-reports-btn" style="display:none">Summary</button>
+        
+        {% include "vbo_module/daily.html" %} 
+        {% include "vbo_module/weekly.html" %} 
 
-        <div id="html-reports" class="collapse">
-        <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
-            <table border="1" style="border-spacing: 1px;border-collapse: separate;">
-
-
-  <thead>
-    <tr class="tableizer-firstrow" style="background-color:black;color:white;text-align:left;font-weight:bolder">
-      <th nowrap style="padding:10px 100px 10px 0px;">May 31st, 2016</th>
-      <th nowrap>Total</th>
-      <th nowrap>Success %</th>
-      <th nowrap>Error %</th>
-      <th>Contribution of NBR Error %</th>
-      <th nowrap>Definitions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="font-weight:bold;background-color:lightblue">
-      <td>Successful Setups</td>
-      <td class="right-align" id='successful-setup-total'>15,297,155</td>
-      <td class="right-align" id='successful-setup-success'>&nbsp;</td>
-      <td class="right-align" id='successful-setup-error'>&nbsp;</td>
-      <td class="right-align" id='successful-setup-nbr'>&nbsp;</td>
-      <td style="font-weight:normal">Only successful setups (includes sessions that later resulted in a teardown failure)</td>
-    </tr>
-    <tr style="font-weight:bold">
-      <td>Business Rules</td>
-      <td class="right-align" id='business-rules-total'>29,906</td>
-      <td class="right-align" id='business-rules-success'>99.80%</td>
-      <td class="right-align" id='business-rules-error'>0.20%</td>
-      <td class="right-align" id='business-rules-nbr'>&nbsp;</td>
-      <td nowrap style="font-weight:normal" nowrap>Total of all BR denials listed on https://wiki.io.comcast.net/display/VIDSS/VBO+-+Troubleshooting+-+BNI+VOD+Errors</td>
-    </tr>
-    <tr style="font-weight:bold;background-color:lightblue">
-      <td>Non Business Rules</td>
-      <td class="right-align" id='non-business-rules-total'>156,924</td>
-      <td class="right-align" id='non-business-rules-success'>98.99%</td>
-      <td class="right-align" id='non-business-rules-error'>1.01%</td>
-      <td class="right-align" id='non-business-rules-nbr'>&nbsp;</td>
-      <td nowrap style="text-align:right" style="font-weight:normal">All error mappings for each bucket listed on https://wiki.io.comcast.net/display/VIDSS/VBO+-+Troubleshooting+-+BNI+VOD+Errors</td>
-    </tr>
-    <tr style="font-weight:bold;background-color:lightblue">
-      <td>UDB</td>
-      <td class="right-align" id='udb-total'>2,048</td>
-      <td class="right-align" id='udb-success'>99.99%</td>
-      <td class="right-align" id='udb-error'>0.01%</td>
-      <td class="right-align" id='udb-nbr'>1.31%</td>
-      <td nowrap style="font-weight:normal">NBRFs categorized as related to UDB</td>
-    </tr>
-    <tr style="font-weight:bold;background-color:lightblue">
-      <td>CDN</td>
-      <td class="right-align" id='cdn-total'>36,208</td>
-      <td class="right-align" id='cdn-success'>&nbsp;</td>
-      <td class="right-align" id='cdn-error'>&nbsp;</td>
-      <td class="right-align" id='cdn-nbr'>23.07%</td>
-      <td nowrap style="font-weight:normal">NBRFs categorized as related to CDN</td>
-    </tr>
-    <tr>
-      <td style=""> CDN Setup</td>
-      <td class="right-align" id='cdn-setup-total'>36,208</td>
-      <td class="right-align" id='cdn-setup-success'>&nbsp;</td>
-      <td class="right-align" id='cdn-setup-error'>&nbsp;</td>
-      <td class="right-align" id='cdn-setup-nbr'>23.07%</td>
-      <td nowrap style="font-weight:normal">NBRFs categorized as related to Streamer setup issues</td>
-    </tr>
-    <tr>
-      <td> CM Connect (CDN)</td>
-      <td class="right-align" id='cdn-connect-total'>36,208</td>
-      <td class="right-align" id='cdn-connect-success'>&nbsp;</td>
-      <td class="right-align" id='cdn-connect-error'>&nbsp;</td>
-      <td class="right-align" id='cdn-connect-nbr'>23.07%</td>
-      <td nowrap style="font-weight:normal">NBRFs categorized as CM_CONNECT errors (0x8002/408)</td>
-    </tr>
-    <tr style="font-weight:bold;background-color:lightblue">
-      <td>Network (Network Teardowns)</td>
-      <td class="right-align" id='net-total'>36,208</td>
-      <td class="right-align" id='net-success'>&nbsp;</td>
-      <td class="right-align" id='net-error'>&nbsp;</td>
-      <td class="right-align" id='net-nbr'>23.07%</td>
-      <td nowrap style="font-weight:normal">NBRFs categorized as related to Network teardowns (specifically, 0x9998/408 and 0x9998/409)</td>
-    </tr>
-    <tr style="font-weight:bold;background-color:lightblue">
-      <td>Field</td>
-      <td class="right-align" id='field-total'>36,208</td>
-      <td class="right-align" id='field-success'>&nbsp;</td>
-      <td class="right-align" id='field-error'>&nbsp;</td>
-      <td class="right-align" id='field-nbr'>23.07%</td>
-      <td nowrap style="font-weight:normal">NBRFs categorized as related to Field</td>
-    </tr>
-    <tr>
-      <td> Field/Plant</td>
-      <td class="right-align" id='field-plant-total'>36,208</td>
-      <td class="right-align" id='field-plant-success'>&nbsp;</td>
-      <td class="right-align" id='field-plant-error'>&nbsp;</td>
-      <td class="right-align" id='field-plant-nbr'>23.07%</td>
-      <td nowrap style="font-weight:normal">NBRFs categorized as related to Plant-related issues associated with the edge devices or network-related setup issues</td>
-    </tr>
-    <tr>
-      <td> VideoLost QAM OK</td>
-      <td class="right-align" id='video-total'>36,208</td>
-      <td class="right-align" id='video-success'>&nbsp;</td>
-      <td class="right-align" id='video-error'>&nbsp;</td>
-      <td class="right-align" id='video-nbr'>23.07%</td>
-      <td nowrap style="font-weight:normal">NBRFs categorized as VideoLost QAM OK Errors (0x8012/408)</td>
-    </tr>
-    <tr>
-      <td> Tune Errors</td>
-      <td class="right-align" id='tune-total'>36,208</td>
-      <td class="right-align" id='tune-success'>&nbsp;</td>
-      <td class="right-align" id='tune-error'>&nbsp;</td>
-      <td class="right-align" id='tune-nbr'>23.07%</td>
-      <td nowrap style="font-weight:normal">NBRFs categorized as tune errors (0x8001/400)</td>
-    </tr>
-    <tr style="font-weight:bold;background-color:lightblue">
-      <td>VCP</td>
-      <td class="right-align" id='vcp-total'>36,208</td>
-      <td class="right-align" id='vcp-success'>&nbsp;</td>
-      <td class="right-align" id='vcp-error'>&nbsp;</td>
-      <td class="right-align" id='vcp-nbr'>23.07%</td>
-      <td nowrap style="font-weight:normal">NBRFs categorized as related to internal to the VBO</td>
-    </tr>
-    <tr style="font-weight:bold;background-color:lightblue">
-      <td>Other Setup</td>
-      <td class="right-align" id='other-setup-total'>36,208</td>
-      <td class="right-align" id='other-setup-success'>&nbsp;</td>
-      <td class="right-align" id='other-setup-error'>&nbsp;</td>
-      <td class="right-align" id='other-setup-nbr'>23.07%</td>
-      <td nowrap style="font-weight:normal">NBRFs categorized as not belonging to any of the categories listed above</td>
-    </tr>
-  </tbody>
-</table>
-<span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
-
-
-<table class="tableizer-table" border="1" style="border-spacing: 1px;border-collapse: separate;">
-  <thead>
-    <tr class="tableizer-firstrow" style="background-color:black; color:white; text-align:left;">
-      <th style="padding:0px 200px 0px 0px">STB Type View</th>
-      <th style="padding:0px 25px">Daily</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="background-color:lightblue">
-      <td>X1 STB NBRF Rate</td>
-      <td id="x1-stb-nbr-rate" style="font-weight:bold; text-align:right">0.95%</td>
-    </tr>
-    <tr>
-      <td>Legacy STB NBRF Rate</td>
-      <td id="legacy-stb-nbr-rate" style="font-weight:bold; text-align:right">1.12%</td>
-    </tr>
-    <tr style="background-color:lightblue">
-      <td>National NBRF Rate</td>
-      <td id="national-stb-nbr-rate" style="font-weight:bold; text-align:right">1.01%</td>
-    </tr>
-  </tbody>
-</table>
-
-        <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
-
-        </div>
-
-        <div class="row">
-            <div class="col-md-8" id="vbo-stb-error-rates"></div>
-            <div class="col-md-4" id="vbo-stb-error-rates-comments" style="display:none">
-                <div class="form-group">
-                    <textarea class="form-control" rows="10" id="report-1-comments-txt" placeholder="Please provide your comments here..."></textarea>
-                </div>
-                <div class="col-sm-2" >
-                  <input type="submit" class="btn btn-success" value="Update Comments" id="report-1-submit">
-                </div>
-            </div>
-
-        </div>
-            <!-- <div class="col-md-6" id="container_users_by_count"></div> -->
-        </div>
-
-        <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
-
-        <div class="row">
-            <div class="col-md-8" id="vbo-nbrf-spikes"></div>
-            <div class="col-md-4" id="vbo-nbrf-spikes-comments" style="display:none">
-                <div class="form-group">
-                    <textarea class="form-control" rows="10" id="report-2-comments-txt" placeholder="Please provide your comments here..."></textarea>
-                </div>
-                <div class="col-sm-2" >
-                  <input type="submit" class="btn btn-success" value="Update Comments" id="report-2-submit">
-                </div>
-            </div>
-            
-        </div>
-
-                <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
-
-        <div class="row">
-            <div class="col-md-8" id="vbo-x1-vs-legacy"></div>
-            <div class="col-md-4" id="vbo-x1-vs-legacy-comments" style="display:none">
-                <div class="form-group">
-                    <textarea class="form-control" rows="10" id="report-3-comments-txt" placeholder="Please provide your comments here..."></textarea>
-                </div>
-                <div class="col-sm-2" >
-                  <input type="submit" class="btn btn-success" value="Update Comments" id="report-3-submit">
-                </div>
-            </div>
-            
-        </div>
-
-
-        </div>        
-    <div>
- 
 {% endblock content %}
    

@@ -40,9 +40,8 @@ $(document).ready(function() {
         })
     })
     var set_summary = function(x1) {
-    	alert('Daily Set')
-        report_create_time = moment.utc(x1.report_create_time).format('MMM DD, YYYY');        
-        $('#report-date').text(report_create_time)
+        report_create_time = moment(x1.report_create_time).format('MMM DD, YYYY');        
+        $('#daily-report-date').text(report_create_time)
         $('#successful-setup-total').text(x1.successful_setup_total.toLocaleString())
 
         $('#business-rules-total').text(x1.business_rules_total.toLocaleString())
@@ -59,7 +58,6 @@ $(document).ready(function() {
         $('#udb-error').text(x1.udb_success + '%')
         $('#udb-nbr').text(roundoff(x1.udb_total / x1.non_business_rules_total) + '%')
 
-        $('#cdn-total').text((x1.cdn_setup_total + x1.cdn_connect_total).toLocaleString())
 
         $('#cdn-setup-total').text(x1.cdn_setup_total.toLocaleString())
         $('#cdn-setup-success').text(100 - x1.cdn_setup_success + '%')
@@ -71,12 +69,14 @@ $(document).ready(function() {
         $('#cdn-connect-error').text(x1.cdn_connect_success + '%')
         $('#cdn-connect-nbr').text(roundoff(x1.cdn_connect_total / x1.non_business_rules_total) + '%')
 
+        $('#cdn-total').text((x1.cdn_setup_total + x1.cdn_connect_total).toLocaleString())
+        // $('#cdn-nbr').text(($('#cdn-connect-nbr').val() + $('#cdn-setup-nbr').val()).toLocaleString())
+        $('#cdn-nbr').text(roundoff(x1.cdn_setup_total / x1.non_business_rules_total) + roundoff(x1.cdn_connect_total / x1.non_business_rules_total) + '%')
+
         $('#net-total').text(x1.net_total.toLocaleString())
         $('#net-success').text(100 - x1.net_success + '%')
         $('#net-error').text(x1.net_success + '%')
         $('#net-nbr').text(roundoff(x1.net_total / x1.non_business_rules_total) + '%')
-
-        $('#field-total').text(x1.field_plant_total + x1.video_total + x1.tune_total)
 
         $('#field-plant-total').text(x1.field_plant_total.toLocaleString())
         $('#field-plant-success').text(100 - x1.field_plant_success + '%')
@@ -92,6 +92,9 @@ $(document).ready(function() {
         $('#tune-success').text(100 - x1.tune_success + '%')
         $('#tune-error').text(x1.tune_success + '%')
         $('#tune-nbr').text(roundoff(x1.tune_total / x1.non_business_rules_total) + '%')
+
+        $('#field-total').text((x1.field_plant_total + x1.video_total + x1.tune_total).toLocaleString())
+
 
         $('#vcp-total').text(x1.vcp_total.toLocaleString())
         $('#vcp-success').text(100 - x1.vcp_success + '%')
@@ -153,7 +156,7 @@ $(document).ready(function() {
                     spikes_tune_error_rate = []
 
                     spikes.forEach(function(obj) {
-                        spikes_categories.push(obj.report_create_time)
+                    	spikes_categories.push(moment(obj.report_create_time).format('MM/DD/YYYY HH:mm') )
                         spikes_br_denial_rate.push(obj.br_denial_rate)
                         spikes_vlqok_error_rate.push(obj.vlqok_error_rate)
                         spikes_udb_error_rate.push(obj.udb_error_rate)
@@ -211,6 +214,8 @@ $(document).ready(function() {
                     title: {
                         text: 'National QAM VOD Error Rate'
                     },
+                    min: 0,
+                    max: 5,
                     plotLines: [{
                         value: 0,
                         width: 1,
@@ -257,8 +262,6 @@ $(document).ready(function() {
                     turboThreshold: 2000 // to accept point object configuration
                 }],
                 xAxis: {
-                    // categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    // 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
                     categories: spikes_categories,
                     tickInterval: 60,
                 },
@@ -266,11 +269,16 @@ $(document).ready(function() {
                     title: {
                         text: 'National QAM VOD Error Rate'
                     },
+                    min: 0,
+                    max: 5,
                     plotLines: [{
                         value: 0,
                         width: 1,
                         color: '#808080'
-                    }]
+                    }],
+                    labels:{
+                        format : '{value} %'
+                    }
                 },
                 tooltip: {
                     valueSuffix: '°C'
@@ -386,30 +394,31 @@ $(document).ready(function() {
                     }
                 },
                 series: [{
-                    name: 'UDB Errors',
-                    data: udb_errors_rate
+                    name: 'VLQOK Errors',
+                    data: vlqok_errors_rate
                 }, {
-                    name: 'Plant Errors',
-                    data: plant_errors_rate
+                	name: 'CM_CONNECT Errors',
+                    data: cm_connect_errors_rate
+                    
                 }, {
-                    name: 'CDN Setup Errors',
-                    data: cdn_setup_errors_rate
-                }, {
-                    name: 'Network Teardown Errors',
-                    data: network_teardown_errors_rate
-
+                	name: 'Tune Errors',
+                    data: tune_errors_rate
                 }, {
                     name: 'VCP Errors',
                     data: vcp_errors_rate
                 }, {
-                    name: 'Tune Errors',
-                    data: tune_errors_rate
+                	name: 'Network Teardown Errors',
+                    data: network_teardown_errors_rate
                 }, {
-                    name: 'CM_CONNECT Errors',
-                    data: cm_connect_errors_rate
+                    name: 'CDN Setup Errors',
+                    data: cdn_setup_errors_rate
                 }, {
-                    name: 'VLQOK Errors',
-                    data: vlqok_errors_rate
+                	name: 'Plant Errors',
+                    data: plant_errors_rate
+
+                }, {
+                    name: 'UDB Errors',
+                    data: udb_errors_rate
 
                 }, ]
 
@@ -600,6 +609,14 @@ $(document).ready(function() {
   		else if (target == '#weekly-report-7') {
   			alert('Trending Graph later')
   		}
+  		else if (target == '#weekly-report-14') {
+  			alert('report-14')
+  			show_weekly_report_14()
+  		}
+  		else if (target == '#weekly-report-15') {
+  			alert('report-15')
+  			show_weekly_report_15()
+  		}
   		
 	});
 
@@ -611,30 +628,30 @@ $(document).ready(function() {
             success: function(result) {
             	console.log('monthly report-2 result == ', result)
                 if (result.status == 'success') {
-                    console.log('chart results == ', JSON.stringify(result.results.report_2))
-                    spikes = result.results.report_2
-                    spikes_weekly_categories = []
-                    spikes_weekly_br_denial_rate = []
-                    spikes_weekly_vlqok_error_rate = []
-                    spikes_weekly_udb_error_rate = []
-                    spikes_weekly_vcp_error_rate = []
-                    spikes_weekly_plant_error_rate = []
-                    spikes_weekly_networkresourcefailure_error_rate = []
-                    spikes_weekly_cdn_setup_error_rate = []
-                    spikes_weekly_cm_connect_error_rate = []
-                    spikes_weekly_tune_error_rate = []
+                    // console.log('chart results == ', JSON.stringify(result.results.report_2))
+                    report_2 = result.results.report_2
+                    report_2_weekly_categories = []
+                    report_2_weekly_br_denial_rate = []
+                    report_2_weekly_vlqok_error_rate = []
+                    report_2_weekly_udb_error_rate = []
+                    report_2_weekly_vcp_error_rate = []
+                    report_2_weekly_plant_error_rate = []
+                    report_2_weekly_networkresourcefailure_error_rate = []
+                    report_2_weekly_cdn_setup_error_rate = []
+                    report_2_weekly_cm_connect_error_rate = []
+                    report_2_weekly_tune_error_rate = []
 
-                    spikes.forEach(function(obj) {
-                        spikes_weekly_categories.push(obj.report_create_time)
-                        spikes_weekly_br_denial_rate.push(obj.br_denial_rate)
-                        spikes_weekly_vlqok_error_rate.push(obj.vlqok_error_rate)
-                        spikes_weekly_udb_error_rate.push(obj.udb_error_rate)
-                        spikes_weekly_vcp_error_rate.push(obj.vcp_error_rate)
-                        spikes_weekly_plant_error_rate.push(obj.plant_error_rate)
-                        spikes_weekly_networkresourcefailure_error_rate.push(obj.networkresourcefailure_rate)
-                        spikes_weekly_cdn_setup_error_rate.push(obj.cdn_setup_error_rate)
-                        spikes_weekly_cm_connect_error_rate.push(obj.cm_connect_error_rate)
-                        spikes_weekly_tune_error_rate.push(obj.tune_error_rate)
+                    report_2.forEach(function(obj) {
+                        report_2_weekly_categories.push(obj.report_create_time)
+                        report_2_weekly_br_denial_rate.push(obj.br_denial_rate)
+                        report_2_weekly_vlqok_error_rate.push(obj.vlqok_error_rate)
+                        report_2_weekly_udb_error_rate.push(obj.udb_error_rate)
+                        report_2_weekly_vcp_error_rate.push(obj.vcp_error_rate)
+                        report_2_weekly_plant_error_rate.push(obj.plant_error_rate)
+                        report_2_weekly_networkresourcefailure_error_rate.push(obj.networkresourcefailure_rate)
+                        report_2_weekly_cdn_setup_error_rate.push(obj.cdn_setup_error_rate)
+                        report_2_weekly_cm_connect_error_rate.push(obj.cm_connect_error_rate)
+                        report_2_weekly_tune_error_rate.push(obj.tune_error_rate)
                     })
                     drawchart_weekly_report_2()
         }
@@ -642,7 +659,9 @@ $(document).ready(function() {
 	})}
 
     var drawchart_weekly_report_2 = function() {
-            $('#weekly-report-3').highcharts({
+    		console.log("report_2_weekly_categories == ", JSON.stringify(report_2_weekly_categories))
+    		console.log("report_2_weekly_br_denial_rate == ", JSON.stringify(report_2_weekly_vlqok_error_rate))
+            $('#weekly-report-2').highcharts({
                 title: {
                     text: '',
                     x: -20 //center
@@ -655,23 +674,34 @@ $(document).ready(function() {
                     turboThreshold: 12000 // to accept point object configuration
                 }],
                 xAxis: {
-                    // categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    // 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-                    categories: spikes_weekly_categories,
+                    categories: report_2_weekly_categories,
                     tickInterval: 180,
                 },
                 yAxis: {
+                	max:.5,
                     title: {
                         text: 'National QAM VOD Error Rate'
                     },
                     plotLines: [{
+                    	min : .1,
+                    	max : .5,
                         value: 0,
-                        width: 1,
+                        width: 2,
                         color: '#808080'
-                    }]
+                    }],
+                    tickInterval: .1,
+
+                    labels:{
+                    	format : '{value} %'
+                    }
+              	//       labels: {
+			           //  formatter:function() {
+			           //      var pcnt = (this.value / dataSum) * 100;
+			           //      return Highcharts.numberFormat(pcnt,0,',') + '%';
+            		// }}
                 },
                 tooltip: {
-                    valueSuffix: '°C'
+                    valueSuffix: ''
                 },
                 legend: {
                     layout: 'vertical',
@@ -683,49 +713,51 @@ $(document).ready(function() {
                     // {turboThreshold: 2000 },
                     {
                         name: 'BR Denial Rate',
-                        data: spikes_weekly_br_denial_rate,
+                        data: report_2_weekly_br_denial_rate,
                         turboThreshold: 12000,
-                        lineWidth: 1
-                    }, {
+                        lineWidth: 2
+                    }, 
+                    {
                         name: 'VLQOK Error Rate',
-                        data: spikes_weekly_vlqok_error_rate,
+                        data: report_2_weekly_vlqok_error_rate,
                         turboThreshold: 12000,
-                        lineWidth: 1
-                    }, {
+                        lineWidth: 2
+                    }, 
+                    {
                         name: 'UDB Error Rate',
-                        data: spikes_weekly_udb_error_rate,
+                        data: report_2_weekly_udb_error_rate,
                         turboThreshold: 12000,
-                        lineWidth: 1
+                        lineWidth: 2
                     }, {
                         name: 'VCP Error Rate',
-                        data: spikes_weekly_udb_error_rate,
+                        data: report_2_weekly_vcp_error_rate,
                         turboThreshold: 12000,
-                        lineWidth: 1
+                        lineWidth: 2
                     }, {
                         name: 'Plant Error Rate',
-                        data: spikes_weekly_plant_error_rate,
+                        data: report_2_weekly_plant_error_rate,
                         turboThreshold: 12000,
-                        lineWidth: 1
+                        lineWidth: 2
                     }, {
                         name: 'NetworkResourceFailure Rate',
-                        data: spikes_weekly_networkresourcefailure_error_rate,
+                        data: report_2_weekly_networkresourcefailure_error_rate,
                         turboThreshold: 12000,
-                        lineWidth: 1
+                        lineWidth: 2
                     }, {
                         name: 'CDN Setup Error Rate',
-                        data: spikes_weekly_cdn_setup_error_rate,
+                        data: report_2_weekly_cdn_setup_error_rate,
                         turboThreshold: 12000,
-                        lineWidth: 1
+                        lineWidth: 2
                     }, {
                         name: 'CM Connect Error Rate',
-                        data: spikes_weekly_cm_connect_error_rate,
+                        data: report_2_weekly_cm_connect_error_rate,
                         turboThreshold: 12000,
-                        lineWidth: 1
+                        lineWidth: 2
                     }, {
                         name: 'Tune Error Rate',
-                        data: spikes_weekly_tune_error_rate,
+                        data: report_2_weekly_tune_error_rate,
                         turboThreshold: 12000,
-                        lineWidth: 1
+                        lineWidth: 2
                     }
                 ]
             });
@@ -1217,7 +1249,286 @@ $(document).ready(function() {
             });
         }
 
+        var show_weekly_report_14 = function(){
+    	alert('show_weekly_report_14()')
+    	
+    	$.ajax({
+            url: '/vbo/monthly/report-14/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
+            type: 'GET',
+            success: function(result) {
+            	console.log('monthly report-14 result == ', result)
+                if (result.status == 'success') {
+                    console.log('chart results == ', JSON.stringify(result.results.report_14))
+                    report_14 = result.results.report_14
+                    report_14_categories = []
+
+                    report_14_x1_udb_errors_rate = []
+                    report_14_x1_plant_errors_rate = []
+                    report_14_x1_cdn_setup_errors_rate = []
+                    report_14_x1_network_teardown_errors_rate = []
+                    report_14_x1_vcp_errors_rate = []
+                    report_14_x1_tune_errors_rate = []
+                    report_14_x1_cm_connect_errors_rate = []
+                    report_14_x1_vlqok_errors_rate = []
+
+                    report_14_legacy_categories = []
+                    report_14_legacy_udb_errors_rate = []
+                    report_14_legacy_plant_errors_rate = []
+                    report_14_legacy_cdn_setup_errors_rate = []
+                    report_14_legacy_network_teardown_errors_rate = []
+                    report_14_legacy_vcp_errors_rate = []
+                    report_14_legacy_tune_errors_rate = []
+                    report_14_legacy_cm_connect_errors_rate = []
+                    report_14_legacy_vlqok_errors_rate = []
+
+                    report_14.forEach(function(obj){
+                    	report_14_categories.push(obj.dayname)
+                    	report_14_x1_udb_errors_rate.push(obj.x1_udb_error_rate)     
+                    	report_14_x1_plant_errors_rate.push(obj.x1_plant_error_rate)
+                    	report_14_x1_cdn_setup_errors_rate.push(obj.x1_cdn_setup_error_rate)
+                    	report_14_x1_network_teardown_errors_rate.push(obj.x1_network_teardown_error_rate)
+                    	report_14_x1_vcp_errors_rate.push(obj.x1_vcp_error_rate)
+                    	report_14_x1_tune_errors_rate.push(obj.x1_tune_error_rate)
+                    	report_14_x1_cm_connect_errors_rate.push(obj.x1_cm_connect_error_rate)
+                    	report_14_x1_vlqok_errors_rate.push(obj.x1_vlqok_error_rate)
+
+                    	report_14_legacy_udb_errors_rate.push(obj.legacy_udb_error_rate)     
+                    	report_14_legacy_plant_errors_rate.push(obj.legacy_plant_error_rate)
+                    	report_14_legacy_cdn_setup_errors_rate.push(obj.legacy_cdn_setup_error_rate)
+                    	report_14_legacy_network_teardown_errors_rate.push(obj.legacy_network_teardown_error_rate)
+                    	report_14_legacy_vcp_errors_rate.push(obj.legacy_vcp_error_rate)
+                    	report_14_legacy_tune_errors_rate.push(obj.legacy_tune_error_rate)
+                    	report_14_legacy_cm_connect_errors_rate.push(obj.legacy_cm_connect_error_rate)
+                    	report_14_legacy_vlqok_errors_rate.push(obj.legacy_vlqok_error_rate)
+                    	
+                    	})
+					
+
+                    
+                    drawchart_weekly_report_14()
+        }
+	    }
+		})}
+
+        var drawchart_weekly_report_14 = function() {
+        	
+            $('#weekly-report-14').highcharts({
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Daily Error Rate by STB Type'
+                },
+                xAxis: {
+                    // categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
+                    //categories: ['X1', 'Legacy']
+                    categories: report_14_categories
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: ''
+                    },
+                    stackLabels: {
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold',
+                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                        }
+                    }
+                },
+                legend: {
+                    align: 'right',
+                    x: -30,
+                    verticalAlign: 'top',
+                    y: 25,
+                    floating: true,
+                    backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+                    borderColor: '#CCC',
+                    borderWidth: 1,
+                    shadow: false
+                },
+                tooltip: {
+                    headerFormat: '<b>{point.x}</b><br/>',
+                    pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+                },
+                plotOptions: {
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: true,
+                            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+                            style: {
+                                textShadow: '0 0 3px black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    name: 'UDB Errors',
+                    data: report_14_x1_udb_errors_rate,
+                    stack: 'x1'
+                }, {
+                    name: 'Plant Errors',
+                    data: report_14_x1_plant_errors_rate,
+                    stack: 'x1'
+                }, {
+                    name: 'CDN Setup Errors',
+                    data: report_14_x1_cdn_setup_errors_rate,
+                    stack: 'x1'
+                }, {
+                    name: 'Network Teardown Errors',
+                    data: report_14_x1_network_teardown_errors_rate,
+                    stack: 'x1'
+                }, {
+                    name: 'VCP Errors',
+                    data: report_14_x1_vcp_errors_rate,
+                    stack: 'x1'
+                }, {
+                    name: 'Tune Errors',
+                    data: report_14_x1_tune_errors_rate,
+                    stack: 'x1'
+                }, {
+                    name: 'CM_CONNECT Errors',
+                    data: report_14_x1_cm_connect_errors_rate,
+                    stack: 'x1'
+                }, {
+                    name: 'VLQOK Errors',
+                    data: report_14_x1_vlqok_errors_rate,
+                    stack: 'x1'
+                },
+                {
+                    name: 'UDB Errors',
+                    data: report_14_legacy_udb_errors_rate,
+                    stack: 'legacy'
+                }, {
+                    name: 'Plant Errors',
+                    data: report_14_legacy_plant_errors_rate,
+                    stack: 'legacy'
+                }, {
+                    name: 'CDN Setup Errors',
+                    data: report_14_legacy_cdn_setup_errors_rate,
+                    stack: 'legacy'
+                }, {
+                    name: 'Network Teardown Errors',
+                    data: report_14_legacy_network_teardown_errors_rate,
+                    stack: 'legacy'
+                }, {
+                    name: 'VCP Errors',
+                    data: report_14_legacy_vcp_errors_rate,
+                    stack: 'legacy'
+                }, {
+                    name: 'Tune Errors',
+                    data: report_14_legacy_tune_errors_rate,
+                    stack: 'legacy'
+                }, {
+                    name: 'CM_CONNECT Errors',
+                    data: report_14_legacy_cm_connect_errors_rate,
+                    stack: 'legacy'
+                }, {
+                    name: 'VLQOK Errors',
+                    data: report_14_legacy_vlqok_errors_rate,
+                    stack: 'legacy'
+                },  
+                ]
 
 
+            });
+        }
+
+        var show_weekly_report_15 = function(){
+    	alert('show_weekly_report_15()')
+    	
+    	$.ajax({
+            url: '/vbo/monthly/report-15/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
+            type: 'GET',
+            success: function(result) {
+            	console.log('monthly report-14 result == ', result)
+                if (result.status == 'success') {
+                    console.log('chart results == ', JSON.stringify(result.results.report_15))
+                    report_15 = result.results.report_15
+                    report_15_categories = []
+                    report_15_error_x1 = []
+                    report_15_error_legacy = []
+
+                    report_15.forEach(function(obj){
+                    	report_15_categories.push(obj.error_code)
+                    	report_15_error_x1.push(obj.x1)
+                    	report_15_error_legacy.push(obj.legacy)
+                    	})
+					
+
+                    
+                    drawchart_weekly_report_15()
+        }
+	    }
+		})}
+
+        var drawchart_weekly_report_15 = function() {
+        	
+            $('#weekly-report-15').highcharts({
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Daily Error Rate by STB Type'
+                },
+                xAxis: {
+                    // categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
+                    //categories: ['X1', 'Legacy']
+                    categories: report_15_categories
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: ''
+                    },
+                    stackLabels: {
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold',
+                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                        }
+                    }
+                },
+                legend: {
+                    align: 'right',
+                    x: -30,
+                    verticalAlign: 'top',
+                    y: 25,
+                    floating: true,
+                    backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+                    borderColor: '#CCC',
+                    borderWidth: 1,
+                    shadow: false
+                },
+                tooltip: {
+                    headerFormat: '<b>{point.x}</b><br/>',
+                    pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+                },
+                plotOptions: {
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: true,
+                            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+                            style: {
+                                textShadow: '0 0 3px black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    name: 'UDB Errors',
+                    data: report_15_error_x1,
+                }, {
+                    name: 'Plant Errors',
+                    data: report_15_error_legacy,
+                }, 
+                ]
+
+
+            });
+        }
 
 })

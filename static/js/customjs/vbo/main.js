@@ -617,6 +617,10 @@ $(document).ready(function() {
   			alert('report-15')
   			show_weekly_report_15()
   		}
+        else if (target == '#weekly-report-16') {
+            alert('report-16')
+            show_weekly_report_16()
+        }
   		
 	});
 
@@ -1319,9 +1323,7 @@ $(document).ready(function() {
                 title: {
                     text: 'Daily Error Rate by STB Type'
                 },
-                xAxis: {
-                    // categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
-                    //categories: ['X1', 'Legacy']
+                xAxis: {                    
                     categories: report_14_categories
                 },
                 yAxis: {
@@ -1529,6 +1531,161 @@ $(document).ready(function() {
 
 
             });
+        }
+
+        var show_weekly_report_16 = function(){
+        alert('show_weekly_report_16()')        
+        $.ajax({
+            url: '/vbo/monthly/report-16/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
+            type: 'GET',
+            success: function(result) {
+                console.log('monthly report-16 result == ', result)
+                if (result.status == 'success') {
+                    console.log('chart results report-16 == ', JSON.stringify(result.results.report_16))
+                    report_16 = result.results.report_16
+                    report_16_categories = []
+                    report_16_legacy_network_error = []
+                    report_16_x1_network_error = []
+
+                    report_16.forEach(function(obj){
+                        console.log("typeof_obj"+JSON.stringify(obj.report_name))
+                        
+                        // drawchart_weekly_report_16_1('#report-16-6-weekly')
+                        if (obj.report_name == 'report_1'){
+                            report_16_categories.push(obj.pg_name)
+                            report_16_legacy_network_error.push(obj.legacy_error_rate)
+                            report_16_x1_network_error.push(obj.x1_error_rate)                            
+                        }
+                        })
+
+                    drawchart_weekly_report_16_1('#report-16-1-weekly','Top 5 PeerGroups - NetworkTeardown Error Rate')
+
+                    report_16_categories = []
+                    report_16_legacy_network_error = []
+                    report_16_x1_network_error = []
+
+                    report_16.forEach(function(obj){
+                        if (obj.report_name == 'report_2'){
+                                report_16_categories.push(obj.pg_name)
+                                report_16_legacy_network_error.push(obj.legacy_error_rate)
+                                report_16_x1_network_error.push(obj.x1_error_rate)
+                            }
+                            
+                        })
+                    drawchart_weekly_report_16_1('#report-16-2-weekly','Top 5 PeerGroups - VideoLost QAM OK Error Rate')
+
+                    report_16_categories = []
+                    report_16_legacy_network_error = []
+                    report_16_x1_network_error = []
+
+                    report_16.forEach(function(obj){
+                        if (obj.report_name == 'report_3'){
+                                report_16_categories.push(obj.pg_name)
+                                report_16_legacy_network_error.push(obj.legacy_error_rate)
+                                report_16_x1_network_error.push(obj.x1_error_rate)
+                            }
+                            
+                        })
+                    drawchart_weekly_report_16_1('#report-16-3-weekly','Top 5 PeerGroups - Tune Error Rate')
+
+
+
+                    report_16_categories = []
+                    report_16_legacy_network_error = []
+                    report_16_x1_network_error = []
+
+                    report_16.forEach(function(obj){
+                        if (obj.report_name == 'report_4'){
+                                report_16_categories.push(obj.pg_name)
+                                report_16_legacy_network_error.push(obj.legacy_error_rate)
+                                report_16_x1_network_error.push(obj.x1_error_rate)
+                            }
+                            
+                        })
+                    drawchart_weekly_report_16_1('#report-16-4-weekly','Top 5 PeerGroups - CM Connect Error Rate')
+
+
+                    report_16_categories = []
+                    report_16_legacy_network_error = []
+                    report_16_x1_network_error = []
+
+                    report_16.forEach(function(obj){
+                        if (obj.report_name == 'report_5'){
+                                report_16_categories.push(obj.pg_name)
+                                report_16_legacy_network_error.push(obj.legacy_error_rate)
+                                report_16_x1_network_error.push(obj.x1_error_rate)
+                            }
+                            
+                        })
+                    drawchart_weekly_report_16_1('#report-16-5-weekly','Top 5 PeerGroups - QAM Capacity Error Rate')
+                    
+        }
+        }
+        })}
+
+        var drawchart_weekly_report_16_1 = function(id,title){
+            // alert('drawchart_weekly_report_16_1()')
+            console.log('im gonna draw now == ', id)
+          // $('#weekly-report-16').highcharts({
+            $(id).highcharts({
+        chart: {
+            type: 'bar'
+        },
+        title: {
+            text: title
+        },
+        subtitle: {
+            text: ''
+        },
+        xAxis: {
+            // categories: ['Africa', 'America', 'Asia', 'Europe', 'Oceania'],
+            categories: report_16_categories,
+            title: {
+                text: null
+            }
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: '',
+                align: 'high'
+            },
+            labels: {
+                overflow: 'justify'
+            }
+        },
+        tooltip: {
+            valueSuffix: ' millions'
+        },
+        plotOptions: {
+            bar: {
+                dataLabels: {
+                    enabled: true
+                }
+            }
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'top',
+            x: -40,
+            y: 80,
+            floating: true,
+            borderWidth: 1,
+            backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+            shadow: true
+        },
+        credits: {
+            enabled: false
+        },
+        series: [{
+            name: 'LegacyNetworkResourceError',
+            data: report_16_legacy_network_error
+        }, {
+            name: 'X1NetworkResourceError',
+            data: report_16_x1_network_error
+        }, ]
+    });
         }
 
 })

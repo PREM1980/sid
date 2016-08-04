@@ -4,12 +4,13 @@ from tickets.views import ChartsData,ChartsView,NinjaUsersData,PostTicketData, G
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
+from django.views.generic.base import RedirectView
 
 if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server'] or \
         (settings.LOCAL_TEST_NINJA == True and settings.NINJA == True):
     urlpatterns = [
         url(r'^admin/', include(admin.site.urls)),
-        url(r'^$', TemplateView.as_view(template_name="tickets/ninja_loginpage.html")),
+        url(r'^$', TemplateView.as_view(template_name="tickets/ninja_loginpage.html"),name='loginpage'),
         url(r'^ninja-login$', LoginView.as_view()),
         url(r'^ninja-sid/main$', SIDView.as_view()),
         url(r'^get-ticket-data$', GetTicketData.as_view(), name="get_ticket_data"),        
@@ -31,12 +32,14 @@ if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server'] or \
 
         #Urls for VBO Modules
 
-        url(r'^vbo/',include('vbo_module.urls'))   
+        url(r'^vbo/',include('vbo_module.urls')),
+        url(r'^.*$', RedirectView.as_view(pattern_name='loginpage', permanent=False))
+
     ]
 else:
     urlpatterns = [
             url(r'^admin/', include(admin.site.urls)),
-            url(r'^$', TemplateView.as_view(template_name="tickets/sid_loginpage.html")),
+            url(r'^$', TemplateView.as_view(template_name="tickets/sid_loginpage.html"),name='loginpage'),
             url(r'^sid-login$', LoginView.as_view()),
             url(r'^get-ticket-data$', GetTicketData.as_view(), name="get_ticket_data"),
             #Get all charts for SID
@@ -54,6 +57,8 @@ else:
             url(r'^get-ninja-users$', NinjaUsersData.as_view(), name="update_ticket_data"),    
             url(r'^post-ticket-data$', PostTicketData.as_view()),
             url(r'^update-ticket-data$', UpdateTicketData.as_view(), name="update_ticket_data"),
+            url(r'^.*$', RedirectView.as_view(pattern_name='loginpage', permanent=False))
+
 
           
         ]

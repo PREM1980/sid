@@ -713,7 +713,7 @@
                 created_dt = row.find("#id_created_dt_utc").html()                
                 end_dt = row.find("#id_row_end_ts_utc").html()              
              }
-             alert(end_dt)
+             // alert(end_dt)
              // end_dt = row.find("#id_row_end_ts").html()
              ticket_num = row.find("#id_ticket_num").html()
              division = row.find("#id_division").html()

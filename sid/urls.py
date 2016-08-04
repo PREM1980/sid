@@ -9,9 +9,9 @@ if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server'] or \
         (settings.LOCAL_TEST_NINJA == True and settings.NINJA == True):
     urlpatterns = [
         url(r'^admin/', include(admin.site.urls)),
-        url(r'^$', TemplateView.as_view(template_name="tickets/loginpage.html")),
-        url(r'^login$', LoginView.as_view()),
-        url(r'^sid/main$', SIDView.as_view()),
+        url(r'^$', TemplateView.as_view(template_name="tickets/ninja_loginpage.html")),
+        url(r'^ninja-login$', LoginView.as_view()),
+        url(r'^ninja-sid/main$', SIDView.as_view()),
         url(r'^get-ticket-data$', GetTicketData.as_view(), name="get_ticket_data"),        
         #Get all charts for SID
         url(r'^charts$', ChartsView.as_view()),    
@@ -36,8 +36,8 @@ if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server'] or \
 else:
     urlpatterns = [
             url(r'^admin/', include(admin.site.urls)),
-            url(r'^$', TemplateView.as_view(template_name="tickets/loginpage.html")),
-            url(r'^login$', LoginView.as_view()),
+            url(r'^$', TemplateView.as_view(template_name="tickets/sid_loginpage.html")),
+            url(r'^sid-login$', LoginView.as_view()),
             url(r'^get-ticket-data$', GetTicketData.as_view(), name="get_ticket_data"),
             #Get all charts for SID
             url(r'^charts$', ChartsView.as_view()),    

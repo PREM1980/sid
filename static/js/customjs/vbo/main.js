@@ -498,7 +498,11 @@ $(document).ready(function() {
     });
 
     var set_summary_weekly = function(x1) {
-        report_create_time = moment.utc(x1.report_create_time).format('MMM DD, YYYY');        
+        //report_create_time = moment.utc(x1.report_create_time).format('MMM DD, YYYY');        
+        // alert(x1.report_create_time)
+        report_create_time = moment(x1.report_create_time).format('MMM DD, YYYY');        
+        // dateFrom = moment().subtract(7,'d').format('YYYY-MM-DD');
+        // alert(dateFrom)
         $('#report-date').text(report_create_time)
         console.log('total == ', x1.successful_setup_total.toLocaleString())
         $('#monthly-successful-setup-total').text(x1.successful_setup_total.toLocaleString())
@@ -535,7 +539,7 @@ $(document).ready(function() {
         $('#monthly-net-error').text(x1.net_success + '%')
         $('#monthly-net-nbr').text(roundoff(x1.net_total / x1.non_business_rules_total) + '%')
 
-        $('#monthly-field-total').text(x1.field_plant_total + x1.video_total + x1.tune_total)
+        
 
         $('#monthly-field-plant-total').text(x1.field_plant_total.toLocaleString())
         $('#monthly-field-plant-success').text(100 - x1.field_plant_success + '%')
@@ -552,6 +556,13 @@ $(document).ready(function() {
         $('#monthly-tune-error').text(x1.tune_success + '%')
         $('#monthly-tune-nbr').text(roundoff(x1.tune_total / x1.non_business_rules_total) + '%')
 
+        $('#monthly-field-total').text((x1.field_plant_total + x1.video_total + x1.tune_total).toLocaleString())
+        $('#monthly-field-nbr').text(
+            (roundoff(x1.field_plant_total / x1.non_business_rules_total)
+            + roundoff(x1.video_total / x1.non_business_rules_total)
+            + roundoff(x1.tune_total / x1.non_business_rules_total) ) + '%'
+            )
+
         $('#monthly-vcp-total').text(x1.vcp_total.toLocaleString())
         $('#monthly-vcp-success').text(100 - x1.vcp_success + '%')
         $('#monthly-vcp-error').text(x1.vcp_success + '%')
@@ -565,6 +576,55 @@ $(document).ready(function() {
         $('#monthly-x1-stb-nbr-rate').text(x1.x1_stb_nbr_rates + '%')
         $('#monthly-legacy-stb-nbr-rate').text(x1.legacy_stb_nbr_rates + '%')
         $('#monthly-national-stb-nbr-rate').text(x1.national_stb_nbr_rates + '%')
+        
+        $('#setup-timing-50th-ve1').text(Math.round(x1['qry-1']['avg_50th_ve1_pc']))
+        $('#setup-timing-50th-ve2').text(Math.round(x1['qry-1']['avg_50th_ve2_pc']))
+        $('#setup-timing-50th-ve3').text(Math.round(x1['qry-1']['avg_50th_ve3_pc']))
+        $('#setup-timing-50th-ve4').text(Math.round(x1['qry-1']['avg_50th_ve4_pc']))
+        $('#setup-timing-50th-vw1').text(Math.round(x1['qry-1']['avg_50th_vw1_pc']))
+        $('#setup-timing-50th-vw2').text(Math.round(x1['qry-1']['avg_50th_vw2_pc']))
+        $('#setup-timing-50th-vw3').text(Math.round(x1['qry-1']['avg_50th_vw3_pc']))
+        $('#setup-timing-50th-vw4').text(Math.round(x1['qry-1']['avg_50th_vw4_pc']))
+
+        $('#setup-timing-50th-national').text(Math.round(
+            (Math.round(x1['qry-1']['avg_50th_ve1_pc'])
+            +Math.round(x1['qry-1']['avg_50th_ve2_pc'])
+            +Math.round(x1['qry-1']['avg_50th_ve3_pc'])
+            +Math.round(x1['qry-1']['avg_50th_ve4_pc'])
+            +Math.round(x1['qry-1']['avg_50th_vw1_pc'])
+            +Math.round(x1['qry-1']['avg_50th_vw2_pc'])
+            +Math.round(x1['qry-1']['avg_50th_vw3_pc'])
+            +Math.round(x1['qry-1']['avg_50th_vw4_pc'])) /8))
+
+        $('#setup-timing-99th-ve1').text(Math.round(x1['qry-1']['avg_99th_ve1_pc']))
+        $('#setup-timing-99th-ve2').text(Math.round(x1['qry-1']['avg_99th_ve2_pc']))
+        $('#setup-timing-99th-ve3').text(Math.round(x1['qry-1']['avg_99th_ve3_pc']))
+        $('#setup-timing-99th-ve4').text(Math.round(x1['qry-1']['avg_99th_ve4_pc']))
+        $('#setup-timing-99th-vw1').text(Math.round(x1['qry-1']['avg_99th_vw1_pc']))
+        $('#setup-timing-99th-vw2').text(Math.round(x1['qry-1']['avg_99th_vw2_pc']))
+        $('#setup-timing-99th-vw3').text(Math.round(x1['qry-1']['avg_99th_vw3_pc']))
+        $('#setup-timing-99th-vw4').text(Math.round(x1['qry-1']['avg_99th_vw4_pc']))
+
+        $('#setup-timing-99th-national').text(Math.round(
+            (Math.round(x1['qry-1']['avg_99th_ve1_pc'])
+            +Math.round(x1['qry-1']['avg_99th_ve2_pc'])
+            +Math.round(x1['qry-1']['avg_99th_ve3_pc'])
+            +Math.round(x1['qry-1']['avg_99th_ve4_pc'])
+            +Math.round(x1['qry-1']['avg_99th_vw1_pc'])
+            +Math.round(x1['qry-1']['avg_99th_vw2_pc'])
+            +Math.round(x1['qry-1']['avg_99th_vw3_pc'])
+            +Math.round(x1['qry-1']['avg_99th_vw4_pc'])) /8))
+
+        $('#setup-timing-max-ve1').text(Math.round(x1['qry-2']['max_ve1']).toString().toLocaleString())
+        $('#setup-timing-max-ve2').text(Math.round(x1['qry-2']['max_ve2']).toString().toLocaleString())
+        $('#setup-timing-max-ve3').text(Math.round(x1['qry-2']['max_ve3']).toString().toLocaleString())
+        $('#setup-timing-max-ve4').text(Math.round(x1['qry-2']['max_ve4']).toString().toLocaleString())
+        $('#setup-timing-max-vw1').text(Math.round(x1['qry-2']['max_vw1']).toString().toLocaleString())
+        $('#setup-timing-max-vw2').text(Math.round(x1['qry-2']['max_vw2']).toString().toLocaleString())
+        $('#setup-timing-max-vw3').text(Math.round(x1['qry-2']['max_vw3']).toString().toLocaleString())
+        $('#setup-timing-max-vw4').text(Math.round(x1['qry-2']['max_vw4']).toString().toLocaleString())
+        $('#setup-timing-max-national').text(Math.round(x1['qry-2']['max_all']).toString().toLocaleString())
+
 
         return;
     }

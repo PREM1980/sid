@@ -28,6 +28,13 @@
 
 </head>
 
+<style type="text/css" scoped>
+    .GeneratedText {
+    font-family:'Comic Sans MS';font-size:2em;font-style:italic;font-weight:bold;font-stretch:expanded;letter-spacing:0.2em;line-height:1.3em;color:#CC3300;background-color:#CCCC99;padding:1.5em;padding-left:11em;
+    }
+</style>
+
+
 <body>
     <div class="container">
 
@@ -35,9 +42,14 @@
             <div id="header"><img src="{% static "images/comcast_ninja.png" %}"></div>
         </div>
         <div class="row">
+            <br>
+            <div class="GeneratedText">Ninja Analytics and Dashboard</div>
+        </div>
 
-            <div class="col-sm-4 col-md-4 col-md-offset-4" style="padding-top: 250px;">
-                <form action="/login" method="post" id="loginForm">
+        <div class="row">
+
+            <div class="col-sm-4 col-md-4 col-md-offset-4" style="padding-top: 100px;">
+                <form action="/ninja-login" method="post" id="loginForm">
                     <!-- <form action="/vbo/login" method="post" id="loginForm"> -->
                         <div class="form-group input-group">
                             <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>

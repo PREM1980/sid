@@ -460,6 +460,11 @@
                          elem = $('input[name=optradio]:checked', '#tzForm').val()             
                          set_tz(elem)
 
+                         // If its Ninja we need to hide the edits button of SID.
+                         if(window.location.href.indexOf("ninja") > -1) {                         
+                            $('.editsbutton').hide()
+                            }
+
                      } else if (result.status == 'session timeout') {
                          alert("Session expired -- Please relogin")
                          document.location.href = "/";
@@ -511,6 +516,7 @@
 
      function create_tickets(jsondata) {
          transactiondata = jsondata
+         
          console.log('transactiondata length == ', transactiondata.results.length)
          $("<div class='CSSTableGenerator1'></div>").appendTo("#ticket_list");
          $('#pagination').pagination({
@@ -520,6 +526,7 @@
              onPageClick: redrawData,
              cssStyle: 'light-theme'
          });
+
      }
 
      function redrawData(pageNumber, event) {
@@ -542,7 +549,7 @@
          $("<table id='ticket-table' class='table  tablesorter' style='table-layout:fixed; width:100%'> </table>").appendTo('.CSSTableGenerator1')
          $('#ticket-table').append('<thead class="thead-inverse"><tr><th style="display:none">id</th><th>User Id</th><th class="local-col">Create Date<span style="text-align:center;color:blue"> (Local)</span></th><th class="est-col" style="display:none">Create Date <span style="text-align:center;color:blue"> (EST)</span></th>' 
             + '<th class="utc-col" style="display:none">Create Date<span style="text-align:center;color:blue"> (UTC)</span></th><th class="local-col">End Date</th><th class="est-col" style="display:none">End Date</th><th class="utc-col" style="display:none">End Date</th><th>Ticket#</th>'
-            + '<th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th></th></tr></thead>');
+            + '<th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th class="editsbutton"></th></tr></thead>');
 
          slicedata.forEach(function(obj, i, a) {
 
@@ -555,49 +562,35 @@
                  } else {
                      obj.crt_user_id = ""
                  }
-                 console.log('before obj.ticket_num == ', obj.ticket_num)
-                 console.log('before obj.created_dt == ', obj.created_dt)
-                 // obj.created_dt = moment(obj.created_dt).format('MMM DD, YYYY HH:mm:ss');
 
                  created_dt_local = moment(obj.created_dt).format('MMM DD, YYYY HH:mm:ss');
                  created_dt_est = moment(obj.created_dt).tz("America/New_York").format('MMM DD, YYYY HH:mm:ss');
                  created_dt_utc = moment.utc(obj.created_dt).format('MMM DD, YYYY HH:mm:ss');
 
-                 console.log('obj.created_dt_est == ', created_dt_est)
-                 console.log('obj.created_dt_utc == ', created_dt_utc)
-                 console.log('obj.created_dt == ', created_dt_local)
-                 
-                 console.log('obj.row_end_ts == ', obj.row_end_ts)
+                 // console.log('obj.created_dt_est == ', created_dt_est)
+                 // console.log('obj.created_dt_utc == ', created_dt_utc)
+                 // console.log('obj.created_dt == ', created_dt_local)                 
+                 // console.log('obj.row_end_ts == ', obj.row_end_ts)
+
                  if (obj.row_end_ts == '') {
                      row_end_ts = ""
                      row_end_ts_est = ""
                      row_end_ts_utc = ""
                  } else {
-                     //row_end_ts = dateFormat(obj.row_end_ts, "default", true)
-                     //row_end_ts = dateFormat(obj.row_end_ts, 'mmm dd, yyyy hh:mm:ss')
                      row_end_ts = moment(obj.row_end_ts).format('MMM DD, YYYY HH:mm:ss');
                      row_end_ts_est = moment(obj.row_end_ts).tz("America/New_York").format('MMM DD, YYYY HH:mm:ss');
                      row_end_ts_utc = moment.utc(obj.row_end_ts).format('MMM DD, YYYY HH:mm:ss');
-
-                    console.log('row_end_ts_local == ', row_end_ts)
-                    console.log('row_end_ts_est == ', row_end_ts_est)
-                    console.log('row_end_ts_utc == ', row_end_ts_utc)
                  }
-                 console.log('*************************************')
-                 
-                 
-                 // console.log('obj.row_end_ts == ', obj.created_dt)
-
                  if (obj.ticket_link.length == 0) {
                      $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt" class="local-col">' + created_dt_local + '</td> <td id="id_created_dt_est" class="est-col" style="display:none">' 
                         + created_dt_est + '</td> <td id="id_created_dt_utc" class="utc-col" style="display:none">' + created_dt_utc + '</td> <td id="id_row_end_ts" class="local-col">' + row_end_ts + '</td><td id="id_row_end_ts_est" class="est-col" style="display:none">' + row_end_ts_est + '</td> <td id="id_row_end_ts_utc" class="utc-col" style="display:none">' + row_end_ts_utc + '</td> <td style="word-wrap: break-word" id="id_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division 
                         + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused 
-                        + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+                        + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td class="editsbutton" ><button  id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
                  } else {
                      $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt" class="local-col">' + created_dt_local + '</td> <td id="id_created_dt_est" class="est-col" style="display:none">' 
                         + created_dt_est + '</td> <td id="id_created_dt_utc" class="utc-col" style="display:none">' + created_dt_utc + '</td> <td id="id_row_end_ts" class="local-col">' + row_end_ts + '</td><td id="id_row_end_ts_est" class="est-col" style="display:none">' + row_end_ts_est + '</td><td id="id_row_end_ts_utc" class="utc-col" style="display:none">' + row_end_ts_utc + '</td><td style="word-wrap: break-word" id="id_ticket_num"><a href="' + obj.ticket_link + '" target="_blank" >' 
                         + obj.ticket_num + '</a></td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' 
-                        + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td><button id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+                        + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td class="editsbutton"><button class="editbutton" id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
                  }
 
                  login_id = obj.login_id

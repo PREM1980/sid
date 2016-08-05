@@ -91,7 +91,7 @@ if HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
         host = 'test-sid-web-server'
         VBO_SERVER = 'http://test-api-box:9000/'
     else:
-        host = ''
+        host = 'prod-sid-web-server'
         VBO_SERVER = 'http://prod-api-box:9000/'
 elif HOSTNAME in ['test-sid-web-server','prod-sid-web-server']:
     host = 'localhost'
@@ -194,5 +194,5 @@ SESSION_COOKIE_AGE = 500* 60
 API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
 LOCAL_TEST_NINJA = True
-NINJA = False
+NINJA = True
 

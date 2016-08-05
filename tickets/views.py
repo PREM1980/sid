@@ -154,9 +154,13 @@ class PostTicketData(View):
 				if alldata['error_count'].strip() == '':
 					error_count_actuals = 0
 				else:
-					if int(alldata['error_count'].replace(',','').isdigit()):
-						error_count_actuals = alldata['error_count'].replace(',','')
+					print 'insert error_count == ', int(alldata['error_count'].replace(',','').isdigit())
+
+					if alldata['error_count'].replace(',','').isdigit():
+						print 'if '
+						error_count_actuals = int(alldata['error_count'].replace(',',''))
 					else:
+						print 'else'
 						error_count_actuals = int(alldata['error_count'])
 						
 			t = Ticket(created_dt=alldata['date']
@@ -297,8 +301,8 @@ def validate_insert_input(alldata):
 	
 	if alldata.get('error_count') not in [None,'']:
 		if alldata.get('error_count') not in constants.VALID_ERROR_COUNT:
-			if int(alldata['error_count'].replace(',','').isdigit()):
-				alldata['error_count'] = alldata['error_count'].replace(',','')
+			if alldata['error_count'].replace(',','').isdigit():
+				alldata['error_count'] = int(alldata['error_count'].replace(',',''))
 			else:
 				error = 'Error count should be numeric(ex:- 2,000) or one of the following option :- ' + ','.join(constants.VALID_ERROR_COUNT)	
 	else:
@@ -1107,9 +1111,10 @@ class UpdateTicketData(View):
 				if alldata['error_count'].strip() == '':
 					error_count_actuals = 0
 				else:
-					if int(alldata['error_count'].replace(',','').isdigit()):
-						error_count_actuals = alldata['error_count'].replace(',','')
+					if alldata['error_count'].replace(',','').isdigit():
+						error_count_actuals = int(alldata['error_count'].replace(',',''))
 					else:
+						print 'int conversion == ', int(alldata['error_count'].replace(',','').isdigit())
 						error_count_actuals = int(alldata['error_count'])
 
 			if api_key is not None:
@@ -1290,8 +1295,8 @@ def validate_update_input(alldata):
 
 	if alldata.get('error_count') not in [None,'']:
 		if alldata.get('error_count') not in constants.VALID_ERROR_COUNT:
-			if int(alldata['error_count'].replace(',','').isdigit()):
-				alldata['error_count'] = alldata['error_count'].replace(',','')
+			if alldata['error_count'].replace(',','').isdigit():
+				alldata['error_count'] = int(alldata['error_count'].replace(',',''))
 			else:
 				error = 'Error count should be numeric(ex:- 2,000) or one of the following option :- ' + ','.join(constants.VALID_ERROR_COUNT)	
 	else:

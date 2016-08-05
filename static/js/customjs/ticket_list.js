@@ -320,10 +320,16 @@
                          data = {}
                          pg = get_pgs('#row_peergroup')
                          create_dt = moment($('#dialog_created_dt').val(),'YYYY/MM/DD HH:mm');
-                         end_dt = moment($('#dialog_end_dt').val(),'YYYY/MM/DD HH:mm');
+                         if ($('#dialog_end_dt').val() == ''){
+                            end_dt = ''
+                         }else{
+                            end_dt = moment($('#dialog_end_dt').val(),'YYYY/MM/DD HH:mm');
+                            end_dt = end_dt.format()
+                        }
+
                          data = {
                              'created_dt': create_dt.format(),
-                             'end_dt': end_dt.format(),
+                             'end_dt': end_dt,
                              'division': $('#row_division').val(),
                              'pg': pg,
                              'duration': $('#row_duration').val(),

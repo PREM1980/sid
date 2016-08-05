@@ -631,7 +631,7 @@ def set_query_params(**kwargs):
 	# 		qry = qry + end_date_qry
 	# 		prev_qry_set = True
 
-	print 'prem qry = ', qry	
+	# print 'prem qry = ', qry	
 	if kwargs['ticket_num_qry_set']:
 		if prev_qry_set:
 			qry = qry + ' and ' + kwargs['ticket_num_qry']
@@ -686,7 +686,7 @@ def set_query_params(**kwargs):
 		else:
 			qry = qry + kwargs['system_qry']
 	#print 'set_quert_params system == ', qry
-	print 'set_quert_params final query== ', qry
+	# print 'set_quert_params final query== ', qry
 	return qry
 
 
@@ -704,7 +704,7 @@ def enum_results(user_id,results):
 		if prev_ticket_num == curr_ticket_num:			
 			data['ticket_num'] = each[0]
 			data['created_dt'] = each[1].replace(tzinfo=pytz.utc)
-			print 'prem created_dt == ', data['created_dt']
+			# print 'prem created_dt == ', data['created_dt']
 			if each[4].year == 9999:
 				data['row_end_ts'] = ""
 			else:
@@ -1125,18 +1125,13 @@ class UpdateTicketData(View):
 
 			if alldata['created_dt'] is not None:
 				if api_key is None:
-					# alldata['created_dt'] = datetime.datetime.strptime(
-					# str(alldata.get('created_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')			
 					alldata['created_dtdate'] = utils.get_utc_ts(alldata['created_dt'])
 
 			if alldata['end_dt'] not in [None,'']:	
 				if api_key is None and alldata['end_dt'] not in [None,'']:
-					# alldata['end_dt'] = datetime.datetime.strptime(
-					# 	str(alldata.get('end_dt')), '%Y/%m/%d %H:%S').strftime('%Y-%m-%d %H:%S:00')				
-					print 'end timetstamp before == ', alldata['end_dt']
 					alldata['end_dt'] = utils.get_utc_ts(alldata['end_dt'])
-					print 'end timetstamp after == ', alldata['end_dt']
 
+			print 'update alldata == ', alldata
 
 			t = Ticket(created_dt=alldata.get('created_dt')
 				,end_dt=alldata.get('end_dt')
@@ -1196,7 +1191,8 @@ class UpdateTicketData(View):
 						
 						try:
 							AddtNotes.objects.get(Id=ticket).delete()
-						except:
+							AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)
+						except Exception as e:
 							AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)
 					except Tickets.DoesNotExist:
 						ticket = None
@@ -1609,9 +1605,10 @@ class Ticket(object):
 		,outage_caused = {5}
 		,system_caused = {6}
 		,ticket_type = {7}
-		,duration = {8}""".format(
+		,duration = {8}
+		,add_notes = {9} """.format(
 			self.created_dt, self.division, str(self.pg), self.error_count,self.ticket_num,self.outage_caused,self.system_caused,
-			self.ticket_type,self.duration)
+			self.ticket_type,self.duration,self.addt_notes)
 
 
 

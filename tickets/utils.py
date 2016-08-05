@@ -21,12 +21,8 @@ def getip():
 		return ''
 
 def get_utc_ts(date):
-	print 'get_utc_ts == ', date
-	# return localtime(parser.parse(date))
-	# d
 	dt_time = iso8601.parse_date(date)
-	return_date = dt_time.astimezone(pytz.utc)
-	print 'return_date == ', return_date
+	return_date = dt_time.astimezone(pytz.utc)	
 	return return_date
 
 def convert_datetime_using_offset(dt,offset):

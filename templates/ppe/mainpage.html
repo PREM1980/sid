@@ -1,0 +1,89 @@
+{% extends "base_ninja.html" %}
+
+{% block jscontent %}
+    <title>NINJA Analytics and Reporting Portal - VBO  Module</title>
+    {% load staticfiles %}
+    <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+    <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
+    <script src="{% static "highcharts/highcharts.js" %}"></script>
+    <script src="{% static "highcharts/exporting.js" %}"></script>
+
+    <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
+    <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
+    <script src="{% static "js/customjs/common.js" %}"></script>
+    <script src="{% static "js/customjs/ppe/main.js" %}"></script>    
+<script>
+$(document).ready(function()
+{
+    if ("{{error}}" == 'N') {
+       $('#loginid').html("{{request.session.userid}}")
+    }
+}
+)
+</script>
+<style>
+.center {
+     float: none;
+     margin-left: auto;
+     margin-right: auto;
+}
+
+td {
+  padding: 5px;
+  border:1px solid;
+  
+} 
+td.right-align{
+  text-align: right;  
+}
+
+</style>
+    
+{% endblock jscontent %}
+
+{% block content %}
+    {% load staticfiles %}
+    <div class="container-fluid">
+
+    <div class="row">
+
+        <h1>Positive Platform Experience</h1>
+        <div id="container"></div>
+        <CENTER>
+            Start date: <input type="text" id="datestart"> End date: <input type="text" id="dateend">
+            <BR>
+        </CENTER>
+        <CENTER>
+            <TABLE border="0">
+                <TR>
+                    <TD><select id="rtype">
+  <option value="herrin" selected>Charlie Herrin</option>
+  <option value="wilen">Wilen</option>
+  <option value="wilen_nobr">Wilen w/o Bus. Rules</option>
+</select></TD>
+                    <TD><select id="metricVar">
+  <option value="actives">Active Accounts</option>
+  <option value="ef">Positive Platform Accounts</option>
+  <option value="er">Error Rate</option>
+  <option value="daily_ef" selected>Daily Positive Platform %</option>
+  <option value="daily_er">Daily Error Rate</option>
+</select></TD>
+                    <TD><select id="stb">
+  <option value="all">X1 and Legacy Combined</option>
+  <option value="x1">X1</option>
+  <option value="Legacy">Legacy</option>
+  </select></TD>
+                </TR>
+            </TABLE>
+
+            <button id="genChart">Generate Chart</button>
+        </CENTER>
+
+
+    </div>
+    <!-- /.bg -->
+</div>
+
+{% endblock content %}
+   

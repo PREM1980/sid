@@ -46,7 +46,9 @@ INSTALLED_APPS = (
 )
 
 CUSTOM_APPS = ('tickets',
-    'vbo_module')
+    'vbo_module',
+    'et',
+    'ppe')
 
 
 INSTALLED_APPS = INSTALLED_APPS + CUSTOM_APPS
@@ -98,6 +100,7 @@ elif HOSTNAME in ['test-sid-web-server','prod-sid-web-server']:
 else:
     host = 'localhost'
     VBO_SERVER = 'http://localhost:9000/'
+    PPE_SERVER = 'http://localhost:5000/'
 
 
 DATABASES = {

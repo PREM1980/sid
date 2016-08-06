@@ -30,6 +30,13 @@ if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server'] or \
         # url(r'^update-ticket-data$', UpdateTicketData.as_view(), name="update_ticket_data"),
         #Urls for VBO Modules
         url(r'^vbo/',include('vbo_module.urls')),
+        
+        #Urls for ET Module
+        url(r'^et/',include('et.urls')),
+
+        #Urls for PPE Module
+        url(r'^ppe/',include('ppe.urls')),
+
         url(r'^.*$', RedirectView.as_view(pattern_name='loginpage', permanent=False))
 
     ]
@@ -54,6 +61,7 @@ else:
             url(r'^get-ninja-users$', NinjaUsersData.as_view(), name="update_ticket_data"),    
             url(r'^post-ticket-data$', PostTicketData.as_view()),
             url(r'^update-ticket-data$', UpdateTicketData.as_view(), name="update_ticket_data"),
+            # url(r'^sid/get$', UpdateTicketData.as_view(), name="update_ticket_data"),
             url(r'^.*$', RedirectView.as_view(pattern_name='loginpage', permanent=False))
 
 

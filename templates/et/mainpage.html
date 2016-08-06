@@ -5,18 +5,17 @@
     {% load staticfiles %}
     <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
-    
     <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
-
     <script src="{% static "highcharts/highcharts.js" %}"></script>
     <script src="{% static "highcharts/exporting.js" %}"></script>
-
 
     <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
     <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
     <script src="{% static "js/customjs/common.js" %}"></script>
-    <!-- <script src="{% static "js/customjs/vbo/main.js" %}"></script> -->
-
+    <script src="{% static "js/customjs/et/main.js" %}"></script>
+    <!-- <script src="{% static "js/customjs/vbo/daily.js" %}"></script>
+    <script src="{% static "js/customjs/vbo/weekly.js" %}"></script>
+ -->
 <script>
 $(document).ready(function()
 {
@@ -32,27 +31,29 @@ $(document).ready(function()
      margin-left: auto;
      margin-right: auto;
 }
+
+td {
+  padding: 5px;
+  border:1px solid;
+  
+} 
+td.right-align{
+  text-align: right;  
+}
+
 </style>
     
 {% endblock jscontent %}
 
 {% block content %}
     {% load staticfiles %}
-    <!-- Codes by HTML.am -->
-
-<!-- CSS Code -->
-<!-- Codes by HTML.am -->
-
-<!-- CSS Code -->
-<style type="text/css" scoped>
-.GeneratedText {
-font-family:'Comic Sans MS';font-size:2em;font-weight:bold;font-stretch:expanded;letter-spacing:0.2em;line-height:1.3em;color:#CC3300;background-color:#add8e6;padding:1.5em;padding-left:15em;
-}
-</style>
-
-<!-- HTML Code -->
-<div class="GeneratedText">Ninja Analytics and Dashboard1</div>
-
+    <div class="container-fluid" >
+        
+        <div class="row">            
+          Im Error Trending    
+        </div><!-- /.bg -->
+    </div>
+        
 
 {% endblock content %}
    

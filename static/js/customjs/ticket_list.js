@@ -41,6 +41,12 @@
      // //init feedback_me plugin
      // fm.init(fm_options);
 
+     $('#random-radio').change(function(){
+        alert('on click')
+        
+
+     })
+
      function disable_local_tz(){
         var d = new Date();
         var n = d.getTimezoneOffset();

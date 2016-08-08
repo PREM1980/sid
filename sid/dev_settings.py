@@ -101,6 +101,7 @@ else:
     host = 'localhost'
     VBO_SERVER = 'http://localhost:9000/'
     PPE_SERVER = 'http://localhost:5000/'
+    ET_SERVER = 'http://localhost:5000/'
 
 
 DATABASES = {

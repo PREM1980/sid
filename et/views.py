@@ -30,14 +30,12 @@ class LoginView(View):
 		return super(LoginView, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):
-		print 'im et get'
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
 			return render(request,'tickets/loginpage.html',{'error':'N'})
-		return render(request,'et/mainpage.html',{'error':'N'})
+		return render(request,'ppe/mainpage.html',{'error':'N'})
 
 	def post(self, request):
-		print 'im et post'
 		ip = utils.getip()
 		username = request.POST['username']
 		password = request.POST['password']
@@ -45,9 +43,59 @@ class LoginView(View):
 		result = utils.check_user_auth(request.POST['username'],request.POST['password'])
 		if result['status'] == 'success':
 			request.session['userid'] = request.POST['username']
-			return render(request,'et/mainpage.html',{'error':'N'})
+			return render(request,'ppe/mainpage.html',{'error':'N'})
 		else:
 			return render(request,'tickets/loginpage.html',{'error':'Y','msg':result['status']})
+
+class ETStats(View):
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(ETStats, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		print 'ETStats'
+		# return JsonResponse({'status': 'success'})
+		userid = utils.check_session_variable(request)
+		
+		if userid is None:
+			return render(request,'tickets/loginpage.html',{'error':'N'})
+		try:
+			print 'pull ET settings.ET_SERVER == ', settings.ET_SERVER
+			rtype = request.GET.get('rtype')
+			month = request.GET.get('month')			
+			no_requested = request.GET.get('no_requested')			
+
+			results = requests.get(settings.ET_SERVER + 'etstats/?' + 'rtype=' + rtype + '&month='+month + '&no_requested='+no_requested)			
+			return JsonResponse({'status':'success', 'results':results.json()})
+		except Exception as e:
+			print 'Exception == ', e
+			logger.debug("ReportData VBO-Module Exception == {0}".format(e))
+			return JsonResponse({'status': 'Contact Support Team'})
+
+class ETTrending(View):
+        @method_decorator(csrf_exempt)
+        def dispatch(self, request, *args, **kwargs):
+                return super(ETTrending, self).dispatch(request, *args, **kwargs)
+
+        def get(self, request):
+                print 'ETStats'
+                # return JsonResponse({'status': 'success'})
+                userid = utils.check_session_variable(request)
+
+                if userid is None:
+                        return render(request,'tickets/loginpage.html',{'error':'N'})
+                try:
+                        print 'pull ET settings.ET_SERVER == ', settings.ET_SERVER
+                        trending_rtype = request.GET.get('trending_rtype')
+                        trending_month = request.GET.get('trending_month')    
+                        months_requested = request.GET.get('months_requested')
+
+                        results = requests.get(settings.ET_SERVER + 'ettrending/?' + 'rtype=' + rtype + '&month='+month + '&no_requested='+no_requested)              
+                        return JsonResponse({'status':'success', 'results':results.json()})
+                except Exception as e:
+                        print 'Exception == ', e
+                        logger.debug("ReportData VBO-Module Exception == {0}".format(e))
+                        return JsonResponse({'status': 'Contact Support Team'})
 
 # class SplunkReportNames(View):
 

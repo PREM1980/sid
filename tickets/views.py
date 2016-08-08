@@ -24,6 +24,7 @@ import datetime
 import json
 import constants
 import pytz
+import copy
 
 logger = logging.getLogger('app_logger')
 
@@ -102,7 +103,7 @@ class GetUUIDView(View):
 		return super(GetUUIDView, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):		
-		return JsonResponse({'uuid': uuid.uuid4()})
+		return JsonResponse({'status': 'success','uuid':uuid.uuid4()})
 
 class NinjaUsersData(View):
 	@method_decorator(csrf_exempt)
@@ -167,14 +168,11 @@ class PostTicketData(View):
 			except:
 				if alldata['error_count'].strip() == '':
 					error_count_actuals = 0
-				else:
-					print 'insert error_count == ', int(alldata['error_count'].replace(',','').isdigit())
-
+				else:					
+					alldata['error_count'] = alldata['error_count'].strip()
 					if alldata['error_count'].replace(',','').isdigit():
-						print 'if '
 						error_count_actuals = int(alldata['error_count'].replace(',',''))
 					else:
-						print 'else'
 						error_count_actuals = int(alldata['error_count'])
 						
 			t = Ticket(created_dt=alldata['date']
@@ -1097,6 +1095,8 @@ class UpdateTicketData(View):
 		alldata['ticket_type'] = request.POST.get('ticket_type')
 		alldata['duration'] = request.POST.get('duration')
 		alldata['ticket_num']= request.POST.get('ticket_num')
+		alldata['ticket_link']= request.POST.get('ticket_link')
+		alldata['orig_ticket_num']= request.POST.get('orig_ticket_num')
 		# alldata['ticket_link']= request.POST.get('ticket_link')
 		alldata['userid'] = request.POST.get('userid')
 		alldata['update_end_dt'] = request.POST.get('update_end_dt')
@@ -1105,8 +1105,6 @@ class UpdateTicketData(View):
 		api_key = request.META.get('HTTP_AUTHORIZATION')
 
 		if user_id is not None or api_key == settings.API_KEY:
-			print 'update alldata == ', alldata
-			
 			# Don't move this IF stmt below
 			if alldata.get('update_end_dt') == 'Y':
 			   ticket_num, ticket_link = convert_link_to_ticket_num(alldata.get('ticket_num'))
@@ -1117,11 +1115,11 @@ class UpdateTicketData(View):
 			   print 'row_end_ts == ', ticket.row_end_ts
 			   # ticket.row_end_ts = datetime.datetime.strftime(ticket.row_end_ts,'%Y-%m-%d %H:%M:00')
 			   ticket.save()
-			   return JsonResponse({'status': 'success'})
-			print 'prem alldata == ', alldata.get('error_count')
+			   return JsonResponse({'status': 'success'})			
 			try:
 				error_count_actuals = constants.VALID_ERROR_COUNT_NUMERALS[alldata.get('error_count')]
 			except:
+				alldata['error_count'] = alldata['error_count'].strip()
 				if alldata['error_count'].strip() == '':
 					error_count_actuals = 0
 				else:
@@ -1129,6 +1127,7 @@ class UpdateTicketData(View):
 						error_count_actuals = int(alldata['error_count'].replace(',',''))
 					else:
 						print 'int conversion == ', int(alldata['error_count'].replace(',','').isdigit())
+						print 'int conversion == ', alldata['error_count']
 						error_count_actuals = int(alldata['error_count'])
 
 			if api_key is not None:
@@ -1153,15 +1152,47 @@ class UpdateTicketData(View):
 				,pg=alldata.get('pg')
 				,error_count=alldata.get('error_count')
 				,ticket_num=alldata.get('ticket_num')
+				,orig_ticket_num=alldata.get('orig_ticket_num')
 				,outage_caused=alldata.get('outage_caused')
 				,system_caused=alldata.get('system_caused')
 				,addt_notes=alldata.get('addt_notes')
 				,ticket_type=alldata.get('ticket_type')
-				,duration=alldata.get('duration'))
+				,duration=alldata.get('duration')
+				,ticket_link=alldata.get('ticket_link'))
 			
 			print 'update doc  == ', t
 			logger.debug("ip == {0} && Update document == {1}".format(ip,t))
+			
+			if t.ticket_num != t.orig_ticket_num and api_key is None:						
+				# If new ticket number, get the old ticket number
+				try:
+					old_ticket = Tickets.objects.get(ticket_num=t.orig_ticket_num)		
+				except Exception as e:
+					print 'e ==',e
+				# Create the old ticket replica				
+				new_ticket = copy.deepcopy(old_ticket)
+				# End date the exiting ticket
+				old_ticket.valid_flag = 'N'
+				# Save the ticket
+				old_ticket.save()								
+				#set the new_ticket_num and valid flag
+				new_ticket.ticket_num = t.ticket_num				
+				new_ticket.ticket_link = t.ticket_link
+				new_ticket.valid_flag = 'Y'		
+				try:			
+					#check duplicate entry for the new ticket		
+					ticket = Tickets.objects.get(ticket_num=new_ticket.ticket_num)						
+				except Exception as e:
+					print 'exception == ', e
+					ticket = None
+				
+				if ticket is None:
+					#Create the ticket
+					new_ticket.save()
+				else:
+					return JsonResponse({'status': 'Ticket already present'})
 
+			print 'new ticket_num created == ', t.ticket_num
 			if t.division is None and len(t.pg) == 0:
 				tkt = Tickets.objects.get(ticket_num=t.ticket_num)
 				t.division = Division.objects.get(ID=tkt.division).division_name
@@ -1181,7 +1212,7 @@ class UpdateTicketData(View):
 					
 					try:
 						ticket = Tickets.objects.get(ticket_num=t.ticket_num)
-						print 'Update get ticket object == ', ticket
+												
 						if div.ID is not None:
 							ticket.division = div.ID
 						if dur.ID is not None:
@@ -1200,6 +1231,9 @@ class UpdateTicketData(View):
 						
 						if t.end_dt not in [None,'']:
 							ticket.row_end_ts = t.end_dt
+
+						if t.ticket_link not in [None,'']:
+							ticket.ticket_link = t.ticket_link
 						
 						ticket.save()
 						
@@ -1217,6 +1251,8 @@ class UpdateTicketData(View):
 					for each_pg in t.pg:
 						p,created = Pg.objects.get_or_create(pg_cd=each_pg)
 						ticket.pgs.add(p)					
+
+
 			except Exception as e:
 				print 'Exception == ', e 
 				logger.debug("MySQLException == {0}".format(e))
@@ -1226,6 +1262,8 @@ class UpdateTicketData(View):
 		else:
 			print 'get-ticket-data no valid session '
 			return JsonResponse({'status': 'session timeout'})
+
+
 
 def validate_update_input(alldata):	
 	print 'alldata == ', alldata
@@ -1594,13 +1632,14 @@ class RecordFeedBack(View):
 
 
 class Ticket(object):
-	def __init__(self, created_dt = None, end_dt = None, division = None, pg = None, error_count = None, ticket_num = None, outage_caused = None, system_caused = None, addt_notes = None, ticket_type = None, duration = None, timezone = None, ticket_link = None, ):
+	def __init__(self, created_dt = None, end_dt = None, division = None, pg = None, error_count = None, ticket_num = None, orig_ticket_num = None, outage_caused = None, system_caused = None, addt_notes = None, ticket_type = None, duration = None, timezone = None, ticket_link = None, ):
 		self.created_dt = created_dt
 		self.end_dt = end_dt
 		self.division = division 
 		self.pg = pg
 		self.error_count = error_count
 		self.ticket_num = ticket_num
+		self.orig_ticket_num = orig_ticket_num
 		self.outage_caused = outage_caused
 		self.system_caused = system_caused
 		self.addt_notes = addt_notes
@@ -1616,13 +1655,16 @@ class Ticket(object):
 		,pg = {2}
 		,error_count = {3}
 		,ticket_num = {4}
+		,orig_ticket_num = {10}
 		,outage_caused = {5}
 		,system_caused = {6}
 		,ticket_type = {7}
 		,duration = {8}
-		,add_notes = {9} """.format(
+		,add_notes = {9} 
+		,ticket_link = {11}
+		""".format(
 			self.created_dt, self.division, str(self.pg), self.error_count,self.ticket_num,self.outage_caused,self.system_caused,
-			self.ticket_type,self.duration,self.addt_notes)
+			self.ticket_type,self.duration,self.addt_notes,self.orig_ticket_num,self.ticket_link)
 
 
 

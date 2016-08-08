@@ -42,9 +42,26 @@
      // fm.init(fm_options);
 
      $('#random-radio').change(function(){
-        alert('on click')
-        
 
+        $.ajax({
+         url: '/sid-get-uuid',
+         type: 'GET',
+         //data: data,
+         success: function(result) {
+            console.log('getuuid == ' + JSON.stringify(result))
+             if (result.status == 'success') {
+                                                                                
+                 $('#ticket_no').val(result.uuid)
+
+             } else {
+                 alert("Unable to get UUID Error!! Contact Support");
+             }
+         },
+         error: function() {
+             alert("Unable to get UUID!! Contact Support");
+         }
+     })
+                
      })
 
      function disable_local_tz(){
@@ -331,8 +348,19 @@
                          }else{
                             end_dt = moment($('#dialog_end_dt').val(),'YYYY/MM/DD HH:mm');
                             end_dt = end_dt.format()
-                        }
+                        }           
 
+                        ticket_num_n_link = $('#dialog_ticket_num').val()
+
+                        if (ticket_num_n_link.substring(0, 4) == 'http') {
+                             ticket_num_only = reverse(reverse(ticket_num_n_link).split('/')[0])
+                             ticket_num = ticket_num_only
+                             ticket_link = ticket_num_n_link
+                        } else {
+                             ticket_num = ticket_num_n_link
+                             ticket_link = ''
+                        }
+             
                          data = {
                              'created_dt': create_dt.format(),
                              'end_dt': end_dt,
@@ -343,7 +371,9 @@
                              'outage_caused': $('#row_cause').val(),
                              'system_caused': $('#row_system_cause').val(),
                              'addt_notes': $('#dialog_addt_notes').text(),
-                             'ticket_num': $('#dialog_ticket_num').text(),
+                             'ticket_num': ticket_num,
+                             'ticket_link': ticket_link,
+                             'orig_ticket_num': $('#dialog_orig_ticket_num').val(),
                              'ticket_type': $('#dialog_ticket_type').html(),
                              'update_end_dt': 'N',
                          }
@@ -595,14 +625,18 @@
                  }
                  if (obj.ticket_link.length == 0) {
                      $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt" class="local-col">' + created_dt_local + '</td> <td id="id_created_dt_est" class="est-col" style="display:none">' 
-                        + created_dt_est + '</td> <td id="id_created_dt_utc" class="utc-col" style="display:none">' + created_dt_utc + '</td> <td id="id_row_end_ts" class="local-col">' + row_end_ts + '</td><td id="id_row_end_ts_est" class="est-col" style="display:none">' + row_end_ts_est + '</td> <td id="id_row_end_ts_utc" class="utc-col" style="display:none">' + row_end_ts_utc + '</td> <td style="word-wrap: break-word" id="id_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division 
+                        + created_dt_est + '</td> <td id="id_created_dt_utc" class="utc-col" style="display:none">' + created_dt_utc + '</td> <td id="id_row_end_ts" class="local-col">' + row_end_ts + '</td><td id="id_row_end_ts_est" class="est-col" style="display:none">' + row_end_ts_est + '</td> <td id="id_row_end_ts_utc" class="utc-col" style="display:none">' + row_end_ts_utc + '</td> <td style="word-wrap: break-word" id="id_ticket_num">' + obj.ticket_num + '</td> <td style="display:none" id="id_orig_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division 
                         + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused 
                         + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td class="editsbutton" ><button  id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
                  } else {
+                    
                      $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt" class="local-col">' + created_dt_local + '</td> <td id="id_created_dt_est" class="est-col" style="display:none">' 
-                        + created_dt_est + '</td> <td id="id_created_dt_utc" class="utc-col" style="display:none">' + created_dt_utc + '</td> <td id="id_row_end_ts" class="local-col">' + row_end_ts + '</td><td id="id_row_end_ts_est" class="est-col" style="display:none">' + row_end_ts_est + '</td><td id="id_row_end_ts_utc" class="utc-col" style="display:none">' + row_end_ts_utc + '</td><td style="word-wrap: break-word" id="id_ticket_num"><a href="' + obj.ticket_link + '" target="_blank" >' 
-                        + obj.ticket_num + '</a></td> <td id="id_division">' + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' 
-                        + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td class="editsbutton"><button class="editbutton" id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+                        + created_dt_est + '</td> <td id="id_created_dt_utc" class="utc-col" style="display:none">' + created_dt_utc + '</td> <td id="id_row_end_ts" class="local-col">' + row_end_ts + '</td><td id="id_row_end_ts_est" class="est-col" style="display:none">' + row_end_ts_est + '</td><td id="id_row_end_ts_utc" class="utc-col" style="display:none">' + row_end_ts_utc + '</td> ' 
+                        + '<td style="word-wrap: break-word" id="id_ticket_num"><a href="' + obj.ticket_link + '" target="_blank" >' + obj.ticket_num + '</a> </td>'  
+                        + '<td style="display:none" id="id_orig_ticket_num">' + obj.ticket_num + '</td> '
+                        + '<td id="id_division">'  + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' 
+                        + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td class="editsbutton"><button class="editbutton" id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td>'
+                        + '<td style="display:none" id="id_orig_ticket_link">' + obj.ticket_link + '</td> </tr>');
                  }
 
                  login_id = obj.login_id
@@ -727,7 +761,9 @@
              }
              // alert(end_dt)
              // end_dt = row.find("#id_row_end_ts").html()
-             ticket_num = row.find("#id_ticket_num").html()
+             ticket_num = row.find("#id_ticket_num").text()
+             
+             orig_ticket_num = row.find("#id_orig_ticket_num").html()
              division = row.find("#id_division").html()
                  //pg = row.find("td:nth-child(6), select")
              pg = row.find("#id_pg, select")
@@ -756,7 +792,17 @@
                      step: 10
                  });
              }
-             $("#dialog_ticket_num").html(ticket_num)
+
+             // if (ticket_num.substring(0,4) == 'http'){
+
+             //    ticket_num = '<a href="' + obj.ticket_link + '" target="_blank" >' + obj.ticket_num + '</a>
+             // }
+             
+             $("#dialog_ticket_num").val(ticket_num)             
+             if (typeof row.find("#id_orig_ticket_link").html() != 'undefined'){
+                $("#dialog_ticket_num").val(row.find("#id_orig_ticket_link").html())
+             }
+             $("#dialog_orig_ticket_num").val(orig_ticket_num)
              $("#dialog_ticket_type").html(ticket_type)
              $("#dialog_division select").val(division)
              division = $("#row_division")[0]

@@ -75,7 +75,12 @@ class LoginView(View):
 				return render(request,'tickets/sid_mainpage.html',{'hide':utils.hide_sid_create_section()})
 		else:
 
-			return render(request,'tickets/loginpage.html',{'error':'Y','msg':result['status']})
+			 #return render(request,'tickets/loginpage.html',{'error':'Y','msg':result['status']})
+			if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
+							return render(request,'tickets/ninja_loginpage.html',{'error':'N'})
+
+			return render(request,'tickets/sid_loginpage.html')
+
 
 
 class SIDView(View):
@@ -89,6 +94,15 @@ class SIDView(View):
 			return render(request,'tickets/loginpage.html',{'error':'N'})
 
 		return render(request,'tickets/ninja_mainpage.html',{'hide':utils.hide_sid_create_section()})								
+
+
+class GetUUIDView(View):
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(GetUUIDView, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):		
+		return JsonResponse({'uuid': uuid.uuid4()})
 
 class NinjaUsersData(View):
 	@method_decorator(csrf_exempt)

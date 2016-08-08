@@ -1,6 +1,6 @@
 from django.conf.urls import include, url
 from django.contrib import admin
-from tickets.views import ChartsData,ChartsView,NinjaUsersData,PostTicketData, GetTicketData,UpdateTicketData,RecordFeedBack, LoginView,ExcelDownload, PDFDownload, SIDView
+from tickets.views import ChartsData,ChartsView,NinjaUsersData,PostTicketData, GetTicketData,UpdateTicketData,RecordFeedBack, LoginView,ExcelDownload, PDFDownload, SIDView, GetUUIDView
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
@@ -48,8 +48,8 @@ else:
             url(r'^get-ticket-data$', GetTicketData.as_view(), name="get_ticket_data"),
             #Get all charts for SID
             url(r'^charts$', ChartsView.as_view()),    
-            url(r'^charts-data$', ChartsData.as_view()),    
-
+            url(r'^charts-data$', ChartsData.as_view()),        
+            url(r'^sid-get-uuid$', GetUUIDView.as_view()),
             url(r'^send_feedback_clean$', RecordFeedBack.as_view()),
             #Report Downloads
             url(r'^xls-download-data$', ExcelDownload.as_view()),

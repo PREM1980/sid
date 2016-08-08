@@ -43,7 +43,10 @@ class LoginView(View):
 	def get(self, request):
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
-			return render(request,'tickets/loginpage.html',{'error':'N'})
+			if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
+				return render(request,'tickets/ninja_loginpage.html',{'error':'N'})
+
+			return render(request,'tickets/sid_loginpage.html')
 
 		if settings.LOCAL_TEST_NINJA == True:
 			if settings.NINJA == True:
@@ -78,7 +81,7 @@ class LoginView(View):
 
 			 #return render(request,'tickets/loginpage.html',{'error':'Y','msg':result['status']})
 			if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
-							return render(request,'tickets/ninja_loginpage.html',{'error':'N'})
+				return render(request,'tickets/ninja_loginpage.html',{'error':'N'})
 
 			return render(request,'tickets/sid_loginpage.html')
 
@@ -1398,7 +1401,10 @@ class ChartsView(View):
 		userid = utils.check_session_variable(request)
 
 		if userid is None:
-			return render(request,'tickets/loginpage.html',{'error':'N'})
+			if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
+				return render(request,'tickets/ninja_loginpage.html',{'error':'N'})
+
+			return render(request,'tickets/sid_loginpage.html')
 
 		if settings.LOCAL_TEST_NINJA == True:
 			if settings.NINJA == True:
@@ -1427,7 +1433,10 @@ class ChartsData(View):
 		userid = utils.check_session_variable(request)
 		print 'charts datauserid ==', userid
 		if userid is None:
-			return render(request,'tickets/loginpage.html',{'error':'N'})
+			if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
+				return render(request,'tickets/ninja_loginpage.html',{'error':'N'})
+
+			return render(request,'tickets/sid_loginpage.html')
 		cursor = connection.cursor()
 
 		cursor.execute("""select x.duration, count(*) from 

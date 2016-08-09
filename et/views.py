@@ -33,7 +33,7 @@ class LoginView(View):
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
 			return render(request,'tickets/loginpage.html',{'error':'N'})
-		return render(request,'ppe/mainpage.html',{'error':'N'})
+		return render(request,'et/mainpage.html',{'error':'N'})
 
 	def post(self, request):
 		ip = utils.getip()
@@ -43,7 +43,7 @@ class LoginView(View):
 		result = utils.check_user_auth(request.POST['username'],request.POST['password'])
 		if result['status'] == 'success':
 			request.session['userid'] = request.POST['username']
-			return render(request,'ppe/mainpage.html',{'error':'N'})
+			return render(request,'et/mainpage.html',{'error':'N'})
 		else:
 			return render(request,'tickets/loginpage.html',{'error':'Y','msg':result['status']})
 

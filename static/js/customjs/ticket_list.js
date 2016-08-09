@@ -41,28 +41,34 @@
      // //init feedback_me plugin
      // fm.init(fm_options);
 
-     $('#random-radio').change(function(){
+     $('#random-radio').change(function() {
 
+
+    if ($("#random-radio").is(":checked")) {
         $.ajax({
-         url: '/sid-get-uuid',
-         type: 'GET',
-         //data: data,
-         success: function(result) {
-            console.log('getuuid == ' + JSON.stringify(result))
-             if (result.status == 'success') {
-                                                                                
-                 $('#ticket_no').val(result.uuid)
+            url: '/sid-get-uuid',
+            type: 'GET',
+            //data: data,
+            success: function(result) {
+                console.log('getuuid == ' + JSON.stringify(result))
+                if (result.status == 'success') {
 
-             } else {
-                 alert("Unable to get UUID Error!! Contact Support");
-             }
-         },
-         error: function() {
-             alert("Unable to get UUID!! Contact Support");
-         }
-     })
-                
-     })
+                    $('#ticket_no').val(result.uuid)
+
+                } else {
+                    alert("Unable to get UUID Error!! Contact Support");
+                }
+            },
+            error: function() {
+                alert("Unable to get UUID!! Contact Support");
+            }
+        })
+    } else {
+        $('#ticket_no').val("")
+
+    }
+
+})
 
      function disable_local_tz(){
         var d = new Date();

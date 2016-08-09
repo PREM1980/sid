@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    alert('hi')
+    
 
     $("#datestart").datepicker({
         dateFormat: 'yymmdd'
@@ -11,9 +11,9 @@ $(document).ready(function() {
 
     var genChart = function() {
         console.log('called')
-        alert('loading')
+        
         $(function() {
-        	        alert('loading-1')
+        	       
 
             verbiage = {
                 "actives": "Number of Active Accounts",
@@ -67,7 +67,11 @@ $(document).ready(function() {
             var textverb = verbiage[metricvar] + "/" + reporttypeverbiage[rtype] + stbtext + " (Source: " + datasource + ")";
 
             $.getJSON("/ppe/pullppe?startdate=" + startdate + "&enddate=" + enddate + "&metric=" + metricvar + "&rtype=" + rtype + "&stb=" + stb, function(json) {
-                var data = json;
+                console.log('response json == ', json.results.length)
+                console.log('response json == ', json.results[0])
+                var data = json.results;
+                console.log('typeof data == ',typeof data)
+                // data = {"day": "07/01/2016", "region": "Mountain West", "metric": "98.53"}, {"day": "07/01/2016", "region": "Florida", "metric": "98.33"}, {"day": "07/01/2016", "region": "Beltway", "metric": "98.63"}, {"day": "07/01/2016", "region": "Western NE", "metric": "98.82"}, {"day": "07/01/2016", "region": "Freedom", "metric": "98.45"}, {"day": "07/01/2016", "region": "California", "metric": "98.71"}, {"day": "07/01/2016", "region": "Boston", "metric": "98.78"}, {"day": "07/01/2016", "region": "Oregon/SW Washington", "metric": "98.64"}, {"day": "07/01/2016", "region": "Washington", "metric": "98.57"}, {"day": "07/01/2016", "region": "Chicago", "metric": "98.66"}, {"day": "07/01/2016", "region": "Houston", "metric": "98.95"}, {"day": "07/01/2016", "region": "Big South", "metric": "98.51"}, {"day": "07/01/2016", "region": "Keystone", "metric": "98.96"}, {"day": "07/01/2016", "region": "Twin Cities", "metric": "98.44"}, {"day": "07/01/2016", "region": "Heartland", "metric": "98.58"}, {"day": "07/02/2016", "region": "Boston", "metric": "98.72"}, {"day": "07/02/2016", "region": "Freedom", "metric": "98.65"}, {"day": "07/02/2016", "region": "Beltway", "metric": "98.75"}, {"day": "07/02/2016", "region": "Keystone", "metric": "99.03"}, {"day": "07/02/2016", "region": "Oregon/SW Washington", "metric": "98.89"}, {"day": "07/02/2016", "region": "Twin Cities", "metric": "98.52"}, {"day": "07/02/2016", "region": "Big South", "metric": "98.19"}, {"day": "07/02/2016", "region": "Chicago", "metric": "98.81"}, {"day": "07/02/2016", "region": "Florida", "metric": "98.33"}, {"day": "07/02/2016", "region": "Western NE", "metric": "98.85"}, {"day": "07/02/2016", "region": "Mountain West", "metric": "98.43"}, {"day": "07/02/2016", "region": "Houston", "metric": "98.92"}, {"day": "07/02/2016", "region": "Washington", "metric": "98.55"}, {"day": "07/02/2016", "region": "Heartland", "metric": "98.57"}, {"day": "07/02/2016", "region": "California", "metric": "98.63"}
 
                 var exist, index, options = {
                     chart: {
@@ -101,6 +105,8 @@ $(document).ready(function() {
                 }
 
                 Highcharts.each(data, function(p, i) {
+                    console.log('p ==',p)
+                    console.log('i ==',i)
                     exist = false;
                     if (options.xAxis.categories.indexOf(p.day) < 0) {
                         options.xAxis.categories.push(p.day)

@@ -66,9 +66,11 @@ class PullPPE(View):
 			metric = request.GET.get('metric')			
 			rtype = request.GET.get('rtype')			
 			stb = request.GET.get('stb')			
-
-			results = requests.get(settings.PPE_SERVER + 'pullppe/?' + 'startdate=' + startdate + '&enddate='+enddate + '&rtype='+rtype + '&stb='+stb)			
-			return JsonResponse({'status':'success', 'results':results.json()})
+			call_server =  'pullppe?' + 'startdate=' + startdate + '&enddate='+enddate + '&rtype='+rtype + '&stb='+stb +'&metric='+metric
+			print 'call_server ==', call_server
+			results = requests.get(settings.PPE_SERVER + call_server)			
+			print 'results ==', results.text
+			return JsonResponse({'status':'success', 'results':json.loads(results.text)})
 		except Exception as e:
 			print 'Exception == ', e
 			logger.debug("ReportData VBO-Module Exception == {0}".format(e))

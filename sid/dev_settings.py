@@ -100,8 +100,8 @@ elif HOSTNAME in ['test-sid-web-server','prod-sid-web-server']:
 else:
     host = 'localhost'
     VBO_SERVER = 'http://localhost:9000/'
-    PPE_SERVER = 'http://localhost:5000/'
-    ET_SERVER = 'http://localhost:5000/'
+    PPE_SERVER = 'http://test-api-box:5000/'
+    ET_SERVER = 'http://test-api-box:5000/'
 
 
 DATABASES = {
@@ -198,5 +198,5 @@ SESSION_COOKIE_AGE = 500* 60
 API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
 LOCAL_TEST_NINJA = True
-NINJA = False
+NINJA = True
 

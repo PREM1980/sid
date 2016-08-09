@@ -64,12 +64,13 @@ class ETStats(View):
 			rtype = request.GET.get('rtype')
 			month = request.GET.get('month')			
 			no_requested = request.GET.get('no_requested')			
-
+			print 'settings.ET_SERVER == ', settings.ET_SERVER
 			results = requests.get(settings.ET_SERVER + 'etstats/?' + 'rtype=' + rtype + '&month='+month + '&no_requested='+no_requested)			
+			print 'results == ', results
 			return JsonResponse({'status':'success', 'results':results.json()})
 		except Exception as e:
 			print 'Exception == ', e
-			logger.debug("ReportData VBO-Module Exception == {0}".format(e))
+			logger.debug("ETStats  Exception == {0}".format(e))
 			return JsonResponse({'status': 'Contact Support Team'})
 
 class ETTrending(View):
@@ -89,12 +90,13 @@ class ETTrending(View):
                         trending_rtype = request.GET.get('trending_rtype')
                         trending_month = request.GET.get('trending_month')    
                         months_requested = request.GET.get('months_requested')
-
+                        print 'settings.ET_SERVER-1 == ', settings.ET_SERVER
                         results = requests.get(settings.ET_SERVER + 'ettrending/?' + 'rtype=' + rtype + '&month='+month + '&no_requested='+no_requested)              
+                        print 'results-1 == ', results
                         return JsonResponse({'status':'success', 'results':results.json()})
                 except Exception as e:
                         print 'Exception == ', e
-                        logger.debug("ReportData VBO-Module Exception == {0}".format(e))
+                        logger.debug("ETTrending  Exception == {0}".format(e))
                         return JsonResponse({'status': 'Contact Support Team'})
 
 # class SplunkReportNames(View):

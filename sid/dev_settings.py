@@ -92,6 +92,8 @@ if HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
     if HOSTNAME == 'test-ninja-web-server':
         host = 'test-sid-web-server'
         VBO_SERVER = 'http://test-api-box:9000/'
+        PPE_SERVER = 'http://test-api-box:5000/'
+        ET_SERVER = 'http://test-api-box:5000/'
     else:
         host = 'prod-sid-web-server'
         VBO_SERVER = 'http://prod-api-box:9000/'

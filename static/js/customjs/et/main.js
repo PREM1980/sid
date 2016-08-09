@@ -24,8 +24,8 @@ $(function() {
     verbiage={"bestpgs_ec":"Best Peergroups by Error Count", "worstpgs_ec":"Worst Peergroups by Error Count", "bestpgs_eps":"Best Peergroups by Error Percent of Streams", "worstpgs_eps":"Worst Peergroups by Error Percent of Streams", "bestpgs_ms": "Best Market Share of Errors", "worstpgs_ms": "Worst Market Share of Errors"};
     var chart_label = verbiage[rtype]
     var tt_label = ttverbiage[rtype] 
-    $.getJSON("etstats?rtype="+rtype+"&month="+month+"&no_requested="+no_requested, function(json){
-       data = json 
+    $.getJSON("/et/etstats?rtype="+rtype+"&month="+month+"&no_requested="+no_requested, function(json){
+       data = json.results
 
     //The iteration below removes double quotes from the "y" value
     //Correct JSON is being returned but highcharts rejects values like "0.87" 
@@ -81,8 +81,8 @@ $(function() {
   var chart_yaxis = yaxis_verbiage[trending_rtype]
 
   $.getJSON("ettrending?trending_month="+trending_month+"&trending_rtype="+trending_rtype+"&months_requested="+months_requested, function(json){
-    var data = json;
-
+    var data = json.results;
+    console.log('Error Trending==', data)
     var exist, index, options = {
     chart: {
         renderTo: 'container',
@@ -139,7 +139,7 @@ $(function() {
 });
 }
 
-    $('#pieChart').on('click', function() {
+    $('#pieChart').on('click', function() {      
         pieChart()
     })
     $('#genChart').on('click', function() {

@@ -59,15 +59,14 @@ class ETStats(View):
 		
 		if userid is None:
 			return render(request,'tickets/loginpage.html',{'error':'N'})
-		try:
-			print 'pull ET settings.ET_SERVER == ', settings.ET_SERVER
+		try:			
 			rtype = request.GET.get('rtype')
 			month = request.GET.get('month')			
-			no_requested = request.GET.get('no_requested')			
-			print 'settings.ET_SERVER == ', settings.ET_SERVER
-			results = requests.get(settings.ET_SERVER + 'etstats/?' + 'rtype=' + rtype + '&month='+month + '&no_requested='+no_requested)			
-			print 'results == ', results
-			return JsonResponse({'status':'success', 'results':results.json()})
+			no_requested = request.GET.get('no_requested')						
+			call_server = 'etstats?' + 'rtype=' + rtype + '&month='+month + '&no_requested='+no_requested			
+			results = requests.get(settings.ET_SERVER + call_server)			
+			print 'results == ', results.text
+			return JsonResponse({'status':'success', 'results':json.loads(results.text)})
 		except Exception as e:
 			print 'Exception == ', e
 			logger.debug("ETStats  Exception == {0}".format(e))
@@ -91,129 +90,13 @@ class ETTrending(View):
                         trending_month = request.GET.get('trending_month')    
                         months_requested = request.GET.get('months_requested')
                         print 'settings.ET_SERVER-1 == ', settings.ET_SERVER
-                        results = requests.get(settings.ET_SERVER + 'ettrending/?' + 'rtype=' + rtype + '&month='+month + '&no_requested='+no_requested)              
-                        print 'results-1 == ', results
-                        return JsonResponse({'status':'success', 'results':results.json()})
+                        call_server = 'ettrending?' + 'trending_rtype=' + trending_rtype + '&trending_month='+trending_month + '&months_requested='+months_requested
+                        print 'call_server == ', call_server
+                        results = requests.get(settings.ET_SERVER + call_server)              
+                        print 'results-1 == ', results.text
+                        return JsonResponse({'status':'success', 'results':json.loads(results.text)})
                 except Exception as e:
                         print 'Exception == ', e
                         logger.debug("ETTrending  Exception == {0}".format(e))
                         return JsonResponse({'status': 'Contact Support Team'})
 
-# class SplunkReportNames(View):
-
-# 	@method_decorator(csrf_exempt)
-# 	def dispatch(self, request, *args, **kwargs):
-# 		return super(SplunkReportNames, self).dispatch(request, *args, **kwargs)
-
-# 	def get(self, request):
-# 		return JsonResponse({'status': 'success'})
-
-# 	def post(self, request):		
-# 		user_id = utils.check_session_variable(request)
-		
-# 		ip = utils.getip()
-# 		alldata = request.POST
-# 		api_key = request.META.get('HTTP_AUTHORIZATION')
-
-# 		if user_id is not None or api_key == settings.API_KEY:			
-# 			try:
-# 				# results = requests.get('http://localhost:9000/get-report-names')
-# 				results = requests.get(settings.VBO_SERVER + 'get-report-names')
-# 				return JsonResponse({'status':'success', 'results':[results.json()]})
-# 			except Exception as e:
-# 				logger.debug("ReportData VBO-Module Exception == {0}".format(e))
-# 				return JsonResponse({'status': 'Contact Support Team'})
-
-# 			return JsonResponse({'status': 'success'})
-# 		else:
-# 			return JsonResponse({'status': 'session timeout'})
-
-# class ReportView(View):
-
-# 	@method_decorator(csrf_exempt)
-# 	def dispatch(self, request, *args, **kwargs):
-# 		return super(ReportView, self).dispatch(request, *args, **kwargs)
-
-# 	def get(self, request):
-# 		user_id = utils.check_session_variable(request)
-# 		if user_id is None:
-# 			return render(request,'tickets/loginpage.html',{'error':'N'})
-# 		return render(request,'vbo_module/reportpage.html',{'error':'N'})
-
-
-# class ReportData(View):
-
-# 	@method_decorator(csrf_exempt)
-# 	def dispatch(self, request, *args, **kwargs):
-# 		return super(ReportData, self).dispatch(request, *args, **kwargs)
-
-# 	def get(self, request):
-
-# 		userid = utils.check_session_variable(request)
-		
-# 		if userid is None:
-# 			return render(request,'tickets/loginpage.html',{'error':'N'})
-# 		try:
-# 			report_name= request.GET.get('report_name')
-# 			report_run_date = request.GET.get('report_run_date')			
-# 			results = requests.get(settings.VBO_SERVER + 'get-nbrf-data/?' + 'report_name=' + report_name + '&report_run_date='+report_run_date )			
-# 			return JsonResponse({'status':'success', 'results':results.json()})
-# 		except Exception as e:
-# 			logger.debug("ReportData VBO-Module Exception == {0}".format(e))
-# 			return JsonResponse({'status': 'Contact Support Team'})
-		
-
-# 	def post(self, request):		
-# 		user_id = utils.check_session_variable(request)
-		
-# 		ip = utils.getip()
-# 		alldata = request.POST
-# 		api_key = request.META.get('HTTP_AUTHORIZATION')
-
-# 		if user_id is not None or api_key == settings.API_KEY:			
-# 			try:
-# 				# results = requests.get('http://localhost:9000/get-report-names')
-# 				results = requests.get(settings.VBO_SERVER + 'get-nbrf-data')
-# 				return JsonResponse({'status':'success', 'results':[results.json()]})
-# 			except Exception as e:
-# 				print 'Exception == ', e 
-# 				logger.debug("ReportData VBO-Module == {0}".format(e))
-# 				return JsonResponse({'status': 'Contact Support Team'})
-
-# 			return JsonResponse({'status': 'success'})
-# 		else:
-# 			return JsonResponse({'status': 'session timeout'})
-
-
-# class UpdateCallouts(View):
-
-# 	@method_decorator(csrf_exempt)
-# 	def dispatch(self, request, *args, **kwargs):
-# 		return super(UpdateCallouts, self).dispatch(request, *args, **kwargs)
-
-# 	def get(self, request):
-# 		user_id = utils.check_session_variable(request)
-		
-# 		ip = utils.getip()
-# 		alldata = request.POST
-# 		api_key = request.META.get('HTTP_AUTHORIZATION')
-
-# 		if user_id is not None or api_key == settings.API_KEY:			
-# 			try:
-# 				print 'settings.VBO_SERVER == ', settings.VBO_SERVER
-# 				results = requests.get(settings.VBO_SERVER + 'update-callouts/?' + '&report_num=' + request.GET.get('report_num') \
-# 					+ '&report_name=' + request.GET.get('report_name') + '&report_run_date='+ request.GET.get('report_run_date') \
-# 					 + '&report_callouts='+ request.GET.get('report_callouts')	)		
-# 				return JsonResponse({'status':'success', 'results':[results.json()]})
-# 			except Exception as e:
-# 				print 'update callouts == ', e
-# 				logger.debug("ReportData VBO-Module Exception == {0}".format(e))
-# 				return JsonResponse({'status': 'Contact Support Team'})
-
-# 			return JsonResponse({'status': 'success'})
-# 		else:
-# 			return JsonResponse({'status': 'session timeout'})
-
-	
-
-# 	

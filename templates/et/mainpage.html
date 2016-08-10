@@ -57,32 +57,33 @@ td.right-align{
       <TR><TD colspan=2><B>Specific Month Reports</B></TD></TR>
 
       <TR><TD>Reference Month: <input type="text" id="month"></TD>
-  <TD><select id="rtype">
-    <option value="bestpgs_ec" selected>Best Peergroups by Error Count</option>
-    <option value="worstpgs_ec">Worst Peergroups by Error Count</option>
-    <option value="bestpgs_eps">Best Peergroups by Error % of Streams</option>
-    <option value="worstpgs_eps">Worst Peergroups by Error % of Streams</option>
-    <option value="bestpgs_ms">Best Market Shares of Errors</option>
-    <option value="worstpgs_ms">Worst Market Shares of Errors</option>
-  <option value="top_errors_count">Top Errors by Count</option>
+        <TD><select id="rtype">
+        <option value="bestpgs_ec" selected>Best Peergroups by Error Count</option>
+        <option value="worstpgs_ec">Worst Peergroups by Error Count</option>
+        <option value="bestpgs_eps">Best Peergroups by Error % of Streams</option>
+        <option value="worstpgs_eps">Worst Peergroups by Error % of Streams</option>
+        <option value="bestpgs_ms">Best Market Shares of Errors</option>
+        <option value="worstpgs_ms">Worst Market Shares of Errors</option>
+        <option value="top_errors_count">Top Errors by Count</option>
         <option value="top_errors_percent">Top Errors by Percent</option>
-  </select></TD></TR>
-  <TR><TD>No. PGs requested:<input type="text" id="no_requested"></TD>
-  <TD><button id="pieChart" >Generate Monthly Chart</button></TD></TR>
+        </select></TD></TR>
+        <TR><TD>No. PGs requested:<input type="text"  value="ALL"  id="no_requested"></TD>
+        <TD>No. Errors requested:<input type="text" value="ALL"  id="no_errors_requested"><button id="genChart" onclick="pieChart()">Generate Monthly Chart</button></TD></TR>
 
       <TR><TD colspan=2><B>Trending Month Reports</B></TD></TR>
-  <TR><TD>Reference Month: <input type="text" id="trending_month"></TD>
+        <TR><TD>Reference Month: <input type="text" id="trending_month"></TD>
         <TD><select id="trending_rtype">
         <option value="ec" selected>Error Count</option>
         <option value="eps">Error % of Streams</option>
         <option value="ms">Market Shares of Errors</option>
-  <option value="de_counts">Specific Error Counts</option>
-  <option value="de_pcts">Specific Errors (Percents)</option>
+        <option value="de_counts">Specific Error Counts</option>
+        <option value="de_pcts">Specific Errors (Percents)</option>
         </select></TD></TR>
        <TR><TD>Months requested:<input type="text" id="months_requested"></TD>
-  <TD><button id="genChart" >Generate Trending Chart</button></TD></TR>
-  </TABLE>
-      </CENTER>   
+        <TD><button id="genChart" onclick="genChart()">Generate Trending Chart</button></TD></TR>
+        </TABLE>
+      </CENTER>
+
         </div><!-- /.bg -->
     </div>
         <br>

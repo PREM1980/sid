@@ -63,7 +63,8 @@ class ETStats(View):
 			rtype = request.GET.get('rtype')
 			month = request.GET.get('month')			
 			no_requested = request.GET.get('no_requested')						
-			call_server = 'etstats?' + 'rtype=' + rtype + '&month='+month + '&no_requested='+no_requested			
+			no_errors_requested=request.GET.get('no_errors_requested')
+			call_server = 'etstats?' + 'rtype=' + rtype + '&month='+month + '&no_requested='+no_requested + '&no_errors_requested='+no_errors_requested			
 			results = requests.get(settings.ET_SERVER + call_server)			
 			print 'results == ', results.text
 			return JsonResponse({'status':'success', 'results':json.loads(results.text)})

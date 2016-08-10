@@ -20,11 +20,18 @@ $(function() {
     month=$('#month').val()+"-01";
     rtype=$('#rtype').val();
     no_requested=$('#no_requested').val();
-    ttverbiage={"bestpgs_ec":"Error Count", "worstpgs_ec":"Error Count", "bestpgs_eps":"Error Percent of Streams", "worstpgs_eps":"Error Percent of Streams", "bestpgs_ms": "Market Share of Errors", "worstpgs_ms": "Market Share of Errors"};
-    verbiage={"bestpgs_ec":"Best Peergroups by Error Count", "worstpgs_ec":"Worst Peergroups by Error Count", "bestpgs_eps":"Best Peergroups by Error Percent of Streams", "worstpgs_eps":"Worst Peergroups by Error Percent of Streams", "bestpgs_ms": "Best Market Share of Errors", "worstpgs_ms": "Worst Market Share of Errors"};
-    var chart_label = verbiage[rtype]
-    var tt_label = ttverbiage[rtype] 
-    $.getJSON("/et/etstats?rtype="+rtype+"&month="+month+"&no_requested="+no_requested, function(json){
+    no_errors_requested=$('#no_errors_requested').val();
+
+    ttverbiage={"bestpgs_ec":"Error Count", "worstpgs_ec":"Error Count", "bestpgs_eps":"Error Percent of Streams", "worstpgs_eps":"Error Percent of Streams", "bestpgs_ms": "Market Share of Errors", "worstpgs_ms": "Market Share of Errors", "top_errors_count":"Errors by Count", "top_errors_percent":"Errors by Percent"};
+
+    verbiage={"bestpgs_ec":"Best Peergroups by Error Count", "worstpgs_ec":"Worst Peergroups by Error Count", "bestpgs_eps":"Best Peergroups by Error Percent of Streams", "worstpgs_eps":"Worst Peergroups by Error Percent of Streams", "bestpgs_ms": "Best Market Share of Errors", "worstpgs_ms": "Worst Market Share of Errors","top_errors_count":"Top Errors by Count", "top_errors_percent":"Top Errors by Percent"};
+
+    var clabel = verbiage[rtype]
+
+    var tt_label = ttverbiage[rtype]
+
+
+    $.getJSON("etstats?rtype="+rtype+"&month="+month+"&no_requested="+no_requested+"&no_errors_requested="+no_errors_requested, function(json){
        data = json.results
 
     //The iteration below removes double quotes from the "y" value
@@ -33,16 +40,27 @@ $(function() {
          point.y = eval(point.y);
     });
 
+    var pieformat=''
+    var pointformatting = ''
+
+    if (rtype == "bestpgs_ec" || rtype == "worstpgs_ec" || rtype == "top_errors_count") {
+        var pieformat = '<b>{point.name}</b>: {point.y}'
+        var pointformatting = '{series.name}:<b>{point.y}</b>'
+    }else{
+        var pieformat = '<b>{point.name}</b>: {point.percentage:.1f} %'
+        var pointformatting = '{series.name}:<b>{point.percentage:.1f}%</b>'
+    }
+
     var chart = new Highcharts.Chart({
     chart: {
         renderTo: 'container',
         type: 'pie'
     },
     title: {
-	text: chart_label
+	text: clabel
     },
     tooltip:{	
-	pointFormat: '{series.name}:<b>{point.percentage:.1f}%</b>'
+	pointFormat: pointformatting 
     },
     plotOptions: {
 	pie: {
@@ -50,7 +68,7 @@ $(function() {
                 cursor: 'pointer',
                 dataLabels: {
                     enabled: true,
-                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    format: pieformat,
                     style: {
                         color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
                     }

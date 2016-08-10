@@ -1,0 +1,149 @@
+<button class="btn-success" data-toggle="collapse" data-target="#addt-fields">Additional Fields</button>
+
+<div id="addt-fields" class="collapse">
+    <br>
+    <br>
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label>Antenna Root Cause</label>
+            </td>
+            <td>
+                <div>
+                    <select id="sid-antenna-root-cause" class="input-sm" " >                        
+                    <option></option selected>
+                    <option selected='selected'></option>
+                    <option>UDB</option>
+                    <option>Ramsden</option>
+                    <option>VSRM/X1</option>
+                    <option>NGVCP</option>
+                    <option>CDN</option>
+                    <option>Cisco Pump RTSP</option>
+                    <option>Content</option>
+                    <option>Other</option>
+                    <option>QAM Capacity Errors counted as Antennas</option>
+                    <option>QAM Capacity Errors not counted as Antennas</option>
+                    <option>Network Errors not counted as Antennas</option>
+                    <option>Network Errors counted as Antennas</option>
+                </select>
+                </div>
+            </td>            
+        </tr>
+        <tr>
+            <td>
+                <label>Mitigated against future outages due to same stimulus? </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </td>
+            <td>                            
+                <label><input type="checkbox" id="sid-mitigate-check" value="">&nbsp;&nbsp;&nbsp;Yes/No</label>
+            </td>
+            
+        </tr>
+        <tr>
+            <td>
+                <label>Hardened against future outages due to same architectural dependency? </label>&nbsp;&nbsp;
+            </td>            
+            <td>                            
+                <label><input type="checkbox" id="sid-hardened-check" value="">&nbsp;&nbsp;&nbsp;Yes/No</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label>Quantity of Antenna errors = Tune Error</label>&nbsp;&nbsp;
+            </td>            
+            <td>                            
+                <label><input type="input" id="sid-antenna-tune-error" value=""></label>
+            </td>
+            
+        </tr>
+        <tr>
+            <td>
+                <label>Quantity of Antenna errors = Video Lost QAM OK</label>&nbsp;&nbsp;
+            </td>            
+            <td>                            
+                <label><input type="input" id="sid-antenna-qam-error" value=""></label>
+            </td>
+            
+        </tr>
+        <tr>
+            <td>
+                <label>Quantity of Antenna errors = Network Resource Failure</label>&nbsp;&nbsp;
+            </td>            
+            <td>                            
+                <label><input type="input" id="sid-antenna-network-error" value=""></label>
+            </td>
+            
+        </tr>
+        <tr>
+            <td>
+                <label>Quantity of Antenna errors = Insufficient QAM Bandwidth </label>&nbsp;&nbsp;
+            </td>            
+            <td>                            
+                <label><input type="input" id="sid-antenna-insuff-qam-error" value=""></label>
+            </td>
+            
+        </tr>
+        <tr>
+            <td>
+                <label>Quantity of Antenna errors = CM Connect</label>&nbsp;&nbsp;
+            </td>            
+            <td>                            
+                <label><input type="input" id="sid-antenna-cm-error" value=""></label>
+            </td>
+            
+        </tr>
+        
+    </table>
+
+</div>
+
+
+<!-- We would like to add nine new fields to an individual SID entry:
+  - Antenna Root Cause
+  - Outage Category
+  - Mitigated against future outages due to same stimulus?
+  - Hardened against future outages due to same architectural dependency?
+  - Quantity of Antenna errors = Tune Error (clientReasonCode 0x8001 (decimal 32769) BO ResultCode = 400)
+  - Quantity of Antenna errors = Video Lost QAM OK (VLOK) (clientReasonCode 0x8012 (decimal 32786) BO ResultCode = 408)
+  - Quantity of Antenna errors = Network Resource Failure (clientReasonCode (decimal 999999) BO ResultCode = 409)
+  - Quantity of Antenna errors = Insufficient QAM Bandwidth (clientReasonCode  (decimal 999999) BO ResultCode = 701)
+  - Quantity of Antenna errors = CM Connect (clientReasonCode 0x8002 (decimal 32770) BO ResultCode = 408)
+
+Antenna Root Cause fields based on the following below.  This list may be expanded as we identify additional root causes we want to enumerate:
+§  UDB
+§  Ramsden
+§  VSRM/X1
+§  NGVCP
+§  CDN
+§  Cisco Pump RTSP
+§  Content
+§  Human Error
+§  Other
+§  QAM Capacity Errors counted as Antennas
+§  QAM Capacity Errors not counted as Antennas
+§  Network Errors not counted as Antennas
+§  Network Errors counted as Antennas
+
+Outage Category should be one of the currently defined categories within the VBO daily/weekly report on the NBRF Spikes graph.
+
+Mitigated against future outages due to same stimulus?
+Yes/No. I see this being used to quickly ascertain if we are exposed to a similar event for a particular SID entry or if we should no longer see events like it in the future.
+
+Hardened against future outages due to same architectural dependency?
+Yes/No. I see this being used to quickly ascertain if we are exposed to a similar event for a particular SID entry or if we should no longer see events like it in the future.
+
+Quantity of Antenna errors = Tune Error
+Allow user to enter an error count
+
+Quantity of Antenna errors = Video Lost QAM OK
+Allow user to enter an error count
+
+Quantity of Antenna errors = Network Resource Failure
+Allow user to enter an error count
+
+Quantity of Antenna errors = Insufficient QAM Bandwidth 
+Allow user to enter an error count
+
+Quantity of Antenna errors = CM Connect
+Allow user to enter an error count
+
+ -->

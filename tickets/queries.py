@@ -15,6 +15,13 @@ all_query = {'generic': """
 							,tb1.crt_user_id
 							,tb1.upd_user_id
 							,tb1.ticket_link
+							,tb1.hardened_check
+							,tb1.mitigate_check
+							,tb1.antenna_tune_error
+							,tb1.antenna_cm_error
+							,tb1.antenna_network_error
+							,tb1.antenna_qam_error
+							,tb1.antenna_insuff_qam_error							
 							from sid.tickets tb1
 							inner join
 							sid.division tb2
@@ -60,6 +67,13 @@ all_query = {'generic': """
 							,tb1.crt_user_id
 							,tb1.upd_user_id
 							,tb1.ticket_link
+							,tb1.hardened_check
+							,tb1.mitigate_check
+							,tb1.antenna_tune_error
+							,tb1.antenna_cm_error
+							,tb1.antenna_network_error
+							,tb1.antenna_qam_error
+							,tb1.antenna_insuff_qam_error							
 							from sid.tickets tb1
 							inner join
 							sid.division tb2
@@ -103,6 +117,13 @@ all_query = {'generic': """
 							,tb1.crt_user_id
 							,tb1.upd_user_id
 							,tb1.ticket_link
+							,tb1.hardened_check
+							,tb1.mitigate_check
+							,tb1.antenna_tune_error
+							,tb1.antenna_cm_error
+							,tb1.antenna_network_error
+							,tb1.antenna_qam_error
+							,tb1.antenna_insuff_qam_error							
 							from sid.tickets tb1
 							inner join
 							sid.division tb2

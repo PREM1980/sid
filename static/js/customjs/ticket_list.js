@@ -1,3 +1,5 @@
+ 
+ 
  $(document).ready(function() {
 
      // $('#loginid').click(function() {
@@ -41,10 +43,10 @@
      // //init feedback_me plugin
      // fm.init(fm_options);
 
-     $('#random-radio').change(function() {
+     $('#random-check').change(function() {
 
 
-    if ($("#random-radio").is(":checked")) {
+    if ($("#random-check").is(":checked")) {
         $.ajax({
             url: '/sid-get-uuid',
             type: 'GET',
@@ -245,6 +247,13 @@
              
              //alert(dt.format())
              // 2016/07/13 16:35
+            //  if ($('#sid-mitigate-check').prop('checked')) {
+            //     sid-mitigate-check = True
+            // } else {
+            //     sid-mitigate-check = False
+            // }
+            sid_mitigate_check = ($('#sid-mitigate-check').prop('checked') == true ? 'Y': 'N')
+            sid_hardened_check = ($('#sid-hardened-check').prop('checked') == true ? 'Y': 'N')
 
              data = {
                  //'date': new Date($('#datepicker').val()),
@@ -258,7 +267,15 @@
                  'ticket_num': ticket_num,
                  'ticket_link': ticket_link,
                  'addt_notes': $('#additional_notes').val(),
-                 'ticket_type': $('input[name=tkt-radio]:checked').val()
+                 'ticket_type': $('input[name=tkt-radio]:checked').val(),
+                 'sid_antenna_root_cause': $('#sid-antenna-root-cause').val(),
+                 'sid_mitigate_check': sid_mitigate_check, 
+                 'sid_hardened_check': sid_hardened_check, 
+                 'sid_antenna_tune_error': $('#sid-antenna-tune-error').val(), 
+                 'sid_antenna_qam_error': $('#sid-antenna-qam-error').val(), 
+                 'sid_antenna_network_error': $('#sid-antenna-network-error').val(), 
+                 'sid_antenna_insuff_qam_error': $('#sid-antenna-insuff-qam-error').val(), 
+                 'sid_antenna_cm_error': $('#sid-antenna-cm-error').val() 
              }
              console.log("Insert ticket data ", data)
              
@@ -273,7 +290,6 @@
                              //multiselect both needs to be together - uncheck and refresh
                          $("#peergroup option:selected").removeAttr("selected");
                          $("#peergroup").multiselect('refresh');
-
                          $('#division').prop('selectedIndex', 1);
                          $('#duration').prop('selectedIndex', 0);
                          $('#errorcount').prop('selectedIndex', 0);
@@ -281,6 +297,15 @@
                          $('#subcause').prop('selectedIndex', 0);
                          $('#ticket_no').val('');
                          $('#additional_notes').val('');
+                         $("#random-check").prop( "checked", false );
+                         $('#sid-antenna-root-cause').prop('selectedIndex', 0)
+                         $("#sid-mitigate-check").prop( "checked", false );
+                         $("#sid-hardened-check").prop( "checked", false );
+                         $('#sid-antenna-tune-error').val('');
+                         $('#sid-antenna-qam-error').val('');
+                         $('#sid-antenna-network-error').val('');
+                         $('#sid-antenna-insuff-qam-error').val('');
+                         $('#sid-antenna-cm-error').val('');
                          //reset values over
                          load_datatable('N')
                      } else if (result.status == 'session timeout') {
@@ -843,3 +868,5 @@
          })
      }
  })
+ 
+ 

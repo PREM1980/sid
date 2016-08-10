@@ -48,7 +48,8 @@ INSTALLED_APPS = (
 CUSTOM_APPS = ('tickets',
     'vbo_module',
     'et',
-    'ppe')
+    'ppe',
+    'django_extensions')
 
 
 INSTALLED_APPS = INSTALLED_APPS + CUSTOM_APPS

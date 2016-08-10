@@ -29,6 +29,7 @@ class NinjaUsers(models.Model):
 	userid = models.CharField(db_column='userid',max_length=200,default='')
 	region = models.CharField(db_column='region',max_length=20,choices=REGION_CHOICES,default='Central')
 	valid_flag = models.CharField(max_length=1,db_column='valid_flag',default="Y")
+	admin = models.CharField(max_length=1,default='N')
 	row_create_ts = models.DateTimeField(default=datetime.now())
 	class Meta:
 		db_table = 'ninjausers'
@@ -78,6 +79,12 @@ class SystemCaused(models.Model):
 	class Meta:
 		db_table = 'system_caused'
 
+class AntennaRootCaused(models.Model):
+	ID = models.AutoField(primary_key=True, db_column='antenna_root_cause_id')
+	antenna_root_caused = models.CharField(db_column='antenna_root_caused',max_length=200,null=True)
+	class Meta:
+		db_table = 'antenna_root_caused'
+
 
 class Tickets(models.Model):
 	#ID = models.UUIDField(primary_key=True, default=uuid.uuid4,
@@ -95,8 +102,15 @@ class Tickets(models.Model):
 	ticket_type = models.CharField(max_length=20, db_column='ticket_type',db_index=True)
 	row_create_ts = models.DateTimeField(default=datetime.now(tz=pytz.utc).isoformat())
 	row_update_ts = models.DateTimeField(default=datetime.now(tz=pytz.utc).isoformat())
-	# row_create_ts_utc = models.DateTimeField(default=datetime.now())
-	# row_update_ts_utc = models.DateTimeField(default=datetime.now())
+	antenna_root_cause 		 = models.IntegerField(db_column='antenna_root_cause',default=None,null=True)
+	mitigate_check 			 = models.CharField(max_length=1, db_column='mitigate_check',default=None,null=True)
+	hardened_check			 = models.CharField(max_length=1, db_column='hardened_check',default=None,null=True)
+	antenna_tune_error 		 = models.IntegerField(db_column='antenna_tune_error',default=None,null=True)	
+	antenna_qam_error 		 = models.IntegerField(db_column='antenna_qam_error',default=None,null=True)	
+	antenna_network_error 	 = models.IntegerField(db_column='antenna_network_error',default=None,null=True)	
+	antenna_insuff_qam_error = models.IntegerField(db_column='antenna_insuff_qam_error',default=None,null=True)	
+	antenna_cm_error 		 = models.IntegerField(db_column='antenna_cm_error',default=None,null=True)	
+	
 	row_end_ts = models.DateTimeField(
 		default='9999-12-31 00:00:00.00000-00', db_column='row_end_ts')
 	# row_end_ts_utc = models.DateTimeField(

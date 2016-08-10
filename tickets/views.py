@@ -7,7 +7,7 @@ from elasticsearch import Elasticsearch, ElasticsearchException
 from elasticsearch_dsl import Search
 from elasticsearch_dsl import Search, Q
 from django.core import serializers
-from models import Tickets, Division, Duration, Pg, ErrorCount, OutageCaused, SystemCaused,AddtNotes, NinjaUsers
+from models import Tickets, Division, Duration, Pg, ErrorCount, OutageCaused, SystemCaused,AddtNotes, NinjaUsers, AntennaRootCaused
 from django.db import transaction
 from uuid import UUID
 from django.db import connection
@@ -134,6 +134,7 @@ class PostTicketData(View):
 		user_id = utils.check_session_variable(request)
 		alldata = {}
 		ip = utils.getip()
+		print 'request.POST == ', request.POST
 
 		alldata['date'] = request.POST.get('date')
 		alldata['division'] = request.POST.get('division')
@@ -148,6 +149,15 @@ class PostTicketData(View):
 		alldata['ticket_num']= request.POST.get('ticket_num')
 		alldata['ticket_link']= request.POST.get('ticket_link')
 		alldata['userid'] = request.POST.get('userid')
+
+		alldata['antenna_root_cause'] = request.POST.get('sid_antenna_root_cause')
+		alldata['mitigate_check'] = request.POST.get('sid_mitigate_check')
+		alldata['hardened_check'] = request.POST.get('sid_hardened_check')
+		alldata['antenna_tune_error'] = request.POST.get('sid_antenna_tune_error')
+		alldata['antenna_qam_error'] = request.POST.get('sid_antenna_qam_error')
+		alldata['antenna_network_error'] = request.POST.get('sid_antenna_network_error')
+		alldata['antenna_insuff_qam_error'] = request.POST.get('sid_antenna_insuff_qam_error')
+		alldata['antenna_cm_error'] = request.POST.get('sid_antenna_cm_error')
 
 		api_key = request.META.get('HTTP_AUTHORIZATION')
 
@@ -177,30 +187,50 @@ class PostTicketData(View):
 						error_count_actuals = int(alldata['error_count'].replace(',',''))
 					else:
 						error_count_actuals = int(alldata['error_count'])
-						
-			t = Ticket(created_dt=alldata['date']
-				,division=alldata.get('division')
-				,pg=alldata.get('pg')
-				,error_count=alldata.get('error_count')
-				,ticket_num=alldata.get('ticket_num')
-				,outage_caused=alldata.get('outage_caused')
-				,system_caused=alldata.get('system_caused')
-				,addt_notes=alldata.get('addt_notes')
-				,ticket_type=alldata.get('ticket_type')
-				,duration=alldata.get('duration')
-				,timezone='tz'
-				,ticket_link=alldata.get('ticket_link')
-				)
-			
-			logger.debug("ip = {0} &&  insert document == {1}".format(ip,t))
+			print 'im here-0'
+			try:
+				t = Ticket(created_dt=alldata['date']
+					,division=alldata.get('division')
+					,pg=alldata.get('pg')
+					,error_count=alldata.get('error_count')
+					,ticket_num=alldata.get('ticket_num')
+					,outage_caused=alldata.get('outage_caused')
+					,system_caused=alldata.get('system_caused')
+					,addt_notes=alldata.get('addt_notes')
+					,ticket_type=alldata.get('ticket_type')
+					,duration=alldata.get('duration')
+					,timezone='tz'
+					,ticket_link=alldata.get('ticket_link')
+					,antenna_root_cause=alldata.get('antenna_root_cause')
+					,mitigate_check=alldata.get('mitigate_check')
+					,hardened_check=alldata.get('hardened_check')
+					,antenna_tune_error=alldata.get('antenna_tune_error')
+					,antenna_qam_error=alldata.get('antenna_qam_error')
+					,antenna_network_error=alldata.get('antenna_network_error')
+					,antenna_insuff_qam_error=alldata.get('antenna_insuff_qam_error')
+					,antenna_cm_error=alldata.get('antenna_cm_error')
+					)
+			except Exception as e:
+				print 'Ticket creation exception == ', e
+			print 'im here-1'
 			
 			try:
+				logger.debug("ip = {0} &&  insert document == {1}".format(ip,t))
+			except Exception as e:
+				print 'Logger exception == ', e
+
+			print 'im here-2'
+			try:
 				with transaction.atomic():
+					print 'im here-2'
 					div,created = Division.objects.get_or_create(division_name=t.division)
 					dur,created = Duration.objects.get_or_create(duration=t.duration)
 					err,created = ErrorCount.objects.get_or_create(error=t.error_count,error_count_actuals=error_count_actuals)
 					out,created = OutageCaused.objects.get_or_create(outage_caused=t.outage_caused)
 					sys,created = SystemCaused.objects.get_or_create(system_caused=t.system_caused)
+					antenna,created = AntennaRootCaused.objects.get_or_create(antenna_root_caused=t.antenna_root_cause)
+					print 'im here == ', antenna.ID
+					
 					ticket_info = {
 						'row_create_ts': alldata['date'],
 						'ticket_num': t.ticket_num,
@@ -213,7 +243,15 @@ class PostTicketData(View):
 						'create_user_id': user_id,
 						'update_user_id': user_id,
 						'timezone': alldata['date'],
-						'ticket_link': t.ticket_link
+						'ticket_link': t.ticket_link,
+						'antenna_root_cause': antenna.ID,
+						'mitigate_check': t.mitigate_check,
+						'hardened_check': t.hardened_check,
+						'antenna_tune_error': t.antenna_tune_error,
+						'antenna_qam_error': t.antenna_qam_error,
+						'antenna_network_error': t.antenna_network_error,
+						'antenna_insuff_qam_error': t.antenna_insuff_qam_error,
+						'antenna_cm_error': t.antenna_cm_error
 					}
 					print 'ticket_info == ', ticket_info
 
@@ -1641,7 +1679,8 @@ class RecordFeedBack(View):
 
 
 class Ticket(object):
-	def __init__(self, created_dt = None, end_dt = None, division = None, pg = None, error_count = None, ticket_num = None, orig_ticket_num = None, outage_caused = None, system_caused = None, addt_notes = None, ticket_type = None, duration = None, timezone = None, ticket_link = None, ):
+	def __init__(self, created_dt = None, end_dt = None, division = None, pg = None, error_count = None, ticket_num = None, orig_ticket_num = None, outage_caused = None, system_caused = None, addt_notes = None, ticket_type = None, duration = None, timezone = None, ticket_link = None, 
+				antenna_root_cause = None,mitigate_check=None,hardened_check=None,antenna_tune_error=None,antenna_qam_error=None,antenna_network_error=None,antenna_insuff_qam_error=None,antenna_cm_error=None):
 		self.created_dt = created_dt
 		self.end_dt = end_dt
 		self.division = division 
@@ -1656,8 +1695,15 @@ class Ticket(object):
 		self.duration = duration	
 		self.timezone = timezone	
 		self.ticket_link = ticket_link
+		self.antenna_root_cause = antenna_root_cause
+		self.mitigate_check = mitigate_check
+		self.hardened_check = hardened_check
+		self.antenna_tune_error = antenna_tune_error
+		self.antenna_qam_error = antenna_qam_error
+		self.antenna_network_error = antenna_network_error
+		self.antenna_insuff_qam_error = antenna_insuff_qam_error
+		self.antenna_cm_error = antenna_cm_error
 		
-
 	def __str__(self):
 		return """ created_dt == {0} 
 		,division = {1}
@@ -1671,9 +1717,19 @@ class Ticket(object):
 		,duration = {8}
 		,add_notes = {9} 
 		,ticket_link = {11}
+		,antenna_root_cause = {12}
+		,mitigate_check = {13}
+		,hardened_check = {14}
+		,antenna_tune_error = {15}
+		,antenna_qam_error = {16}
+		,antenna_network_error = {17}
+		,antenna_insuff_qam_error = {18}
+		,antenna_cm_error = {19}
 		""".format(
 			self.created_dt, self.division, str(self.pg), self.error_count,self.ticket_num,self.outage_caused,self.system_caused,
-			self.ticket_type,self.duration,self.addt_notes,self.orig_ticket_num,self.ticket_link)
+			self.ticket_type,self.duration,self.addt_notes,self.orig_ticket_num,self.ticket_link,
+			self.antenna_root_cause,self.mitigate_check,self.hardened_check,self.antenna_tune_error,
+			self.antenna_qam_error,self.antenna_network_error,self.antenna_insuff_qam_error,self.antenna_cm_error)
 
 
 

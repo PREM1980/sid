@@ -37,7 +37,7 @@ if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server'] or \
         #Urls for PPE Module
         url(r'^ppe/',include('ppe.urls')),
 
-        url(r'^.*$', RedirectView.as_view(pattern_name='loginpage', permanent=False))
+        # url(r'^.*$', RedirectView.as_view(pattern_name='loginpage', permanent=False))
 
     ]
 else:
@@ -62,7 +62,7 @@ else:
             url(r'^post-ticket-data$', PostTicketData.as_view()),
             url(r'^update-ticket-data$', UpdateTicketData.as_view(), name="update_ticket_data"),
             # url(r'^sid/get$', UpdateTicketData.as_view(), name="update_ticket_data"),
-            url(r'^.*$', RedirectView.as_view(pattern_name='loginpage', permanent=False))
+            # url(r'^.*$', RedirectView.as_view(pattern_name='loginpage', permanent=False))
 
 
           

@@ -104,9 +104,7 @@ $(document).ready(function() {
                     series: []
                 }
 
-                Highcharts.each(data, function(p, i) {
-                    console.log('p ==',p)
-                    console.log('i ==',i)
+                Highcharts.each(data, function(p, i) {                    
                     exist = false;
                     if (options.xAxis.categories.indexOf(p.day) < 0) {
                         options.xAxis.categories.push(p.day)
@@ -128,8 +126,7 @@ $(document).ready(function() {
                 })
                 $('#container').highcharts(options);
             });
-        });
-        alert('exit')
+        });        
     }
 
     $('#genChart').on('click', function() {

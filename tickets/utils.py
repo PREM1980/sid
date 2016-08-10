@@ -71,3 +71,6 @@ def hide_sid_create_section():
 		else:
 			hide = True
 	return hide
+
+def check_if_admin(user_id):
+	return True if NinjaUsers.objects.filter(userid=user_id).filter(admin='Y').exist() else False

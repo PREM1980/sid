@@ -162,8 +162,12 @@
     </form>
 
         {% if hide %}
-            {% include "tickets/sid_createsection.html" %}
+            {% include "tickets/sid_createsection.html" %}       
+            {% if  admin_user %}
+                {% include "tickets/sid_admin_createsection.html" %} 
+            {% endif %}
         {% endif %}
+
 
         <h4 style="text-align:center;color:red">Filter Panel</h4>
 

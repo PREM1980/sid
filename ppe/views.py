@@ -32,8 +32,8 @@ class LoginView(View):
 	def get(self, request):
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
-			return render(request,'tickets/loginpage.html',{'error':'N'})
-		return render(request,'ppe/mainpage.html',{'error':'N'})
+			return utils.page_redirects_login(request)
+		return utils.page_redirects(request,user_id)		
 
 	def post(self, request):
 		ip = utils.getip()

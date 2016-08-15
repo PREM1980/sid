@@ -75,9 +75,7 @@ def hide_sid_create_section():
 def check_if_admin(user_id):
 	return True if NinjaUsers.objects.filter(userid=user_id).filter(admin='Y').exists() else False
 
-
-def page_redirects(request,userid):	
-	print 'check_if_admin(userid) == ', check_if_admin(userid)
+def page_redirects(request,userid):		
 	if settings.LOCAL_TEST_NINJA == True:
 		if settings.NINJA == True:
 			return render(request,'dashboard/main.html',{'error':'N'})				

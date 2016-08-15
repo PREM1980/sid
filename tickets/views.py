@@ -50,7 +50,7 @@ class LoginView(View):
 		ip = utils.getip()
 		username = request.POST['username']
 		password = request.POST['password']
-
+		print 'loginview prem'
 		result = utils.check_user_auth(request.POST['username'],request.POST['password'])
 		if result['status'] == 'success':
 			request.session['userid'] = request.POST['username']			
@@ -64,10 +64,12 @@ class SIDView(View):
 		return super(SIDView, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):
+		print 'loginview prem-1'
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
 			return render(request,'tickets/loginpage.html',{'error':'N'})
-		return render(request,'tickets/ninja_mainpage.html',{'hide':utils.hide_sid_create_section()})								
+		return render(request,'tickets/ninja_mainpage.html',{'hide':utils.hide_sid_create_section(),
+										'admin_user':utils.check_if_admin(user_id)})								
 
 
 class GetUUIDView(View):

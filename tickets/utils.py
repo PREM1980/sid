@@ -77,8 +77,8 @@ def check_if_admin(user_id):
 
 def page_redirects(request,userid):		
 	if settings.LOCAL_TEST_NINJA == True:
-		if settings.NINJA == True:
-			return render(request,'dashboard/main.html',{'error':'N'})				
+		if settings.NINJA == True:			
+			return render(request,'dashboard/main.html',{'error':'N','admin_user':check_if_admin(userid)})				
 		else:
 			return render(request,'tickets/sid_mainpage.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid)})		
 	else:				

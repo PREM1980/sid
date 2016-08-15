@@ -83,7 +83,7 @@ def page_redirects(request,userid):
 			return render(request,'tickets/sid_mainpage.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid)})		
 	else:				
 		if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
-			return render(request,'dashboard/main.html',{'error':'N'})										
+			return render(request,'dashboard/main.html',{'error':'N','admin_user':check_if_admin(userid)})										
 		
 		return render(request,'tickets/sid_mainpage.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid)})
 

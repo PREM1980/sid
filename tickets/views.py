@@ -7,7 +7,7 @@ from elasticsearch import Elasticsearch, ElasticsearchException
 from elasticsearch_dsl import Search
 from elasticsearch_dsl import Search, Q
 from django.core import serializers
-from models import Tickets, Division, Duration, Pg, ErrorCount, OutageCaused, SystemCaused,AddtNotes, NinjaUsers, AntennaRootCaused
+from models import Tickets, Division, Duration, Pg, ErrorCount, OutageCaused, SystemCaused,AddtNotes, NinjaUsers, AntennaRootCaused,OutageCategories
 from django.db import transaction
 from uuid import UUID
 from django.db import connection
@@ -43,20 +43,8 @@ class LoginView(View):
 	def get(self, request):
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
-			if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
-				return render(request,'tickets/ninja_loginpage.html',{'error':'N'})
-
-			return render(request,'tickets/sid_loginpage.html')
-
-		if settings.LOCAL_TEST_NINJA == True:
-			if settings.NINJA == True:
-				return render(request,'dashboard/main.html',{'error':'N'})								
-			else:				
-				return render(request,'tickets/sid_mainpage.html',{'hide':utils.hide_sid_create_section()})		
-		else:
-			if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
-				return render(request,'dashboard/main.html',{'error':'N'})											
-			return render(request,'tickets/sid_mainpage.html',{'hide':utils.hide_sid_create_section()})
+			return utils.page_redirects_login(request)
+		return utils.page_redirects(request,user_id)		
 
 	def post(self, request):
 		ip = utils.getip()
@@ -65,27 +53,10 @@ class LoginView(View):
 
 		result = utils.check_user_auth(request.POST['username'],request.POST['password'])
 		if result['status'] == 'success':
-			request.session['userid'] = request.POST['username']
-
-			if settings.LOCAL_TEST_NINJA == True:
-				if settings.NINJA == True:
-					return render(request,'dashboard/main.html',{'error':'N'})				
-				else:
-					return render(request,'tickets/sid_mainpage.html',{'hide':utils.hide_sid_create_section()})		
-			else:				
-				if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
-					return render(request,'dashboard/main.html',{'error':'N'})										
-				
-				return render(request,'tickets/sid_mainpage.html',{'hide':utils.hide_sid_create_section()})
+			request.session['userid'] = request.POST['username']			
+			return utils.page_redirects(request,request.session['userid'])
 		else:
-
-			 #return render(request,'tickets/loginpage.html',{'error':'Y','msg':result['status']})
-			if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
-				return render(request,'tickets/ninja_loginpage.html',{'error':'N'})
-
-			return render(request,'tickets/sid_loginpage.html')
-
-
+			return utils.page_redirects_login(request)
 
 class SIDView(View):
 	@method_decorator(csrf_exempt)
@@ -96,7 +67,6 @@ class SIDView(View):
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
 			return render(request,'tickets/loginpage.html',{'error':'N'})
-
 		return render(request,'tickets/ninja_mainpage.html',{'hide':utils.hide_sid_create_section()})								
 
 
@@ -149,8 +119,8 @@ class PostTicketData(View):
 		alldata['ticket_num']= request.POST.get('ticket_num')
 		alldata['ticket_link']= request.POST.get('ticket_link')
 		alldata['userid'] = request.POST.get('userid')
-
 		alldata['antenna_root_cause'] = request.POST.get('sid_antenna_root_cause')
+		alldata['outage_categories'] = request.POST.get('sid_outage_categories')
 		alldata['mitigate_check'] = request.POST.get('sid_mitigate_check')
 		alldata['hardened_check'] = request.POST.get('sid_hardened_check')
 		alldata['antenna_tune_error'] = request.POST.get('sid_antenna_tune_error')
@@ -187,7 +157,6 @@ class PostTicketData(View):
 						error_count_actuals = int(alldata['error_count'].replace(',',''))
 					else:
 						error_count_actuals = int(alldata['error_count'])
-			print 'im here-0'
 			try:
 				t = Ticket(created_dt=alldata['date']
 					,division=alldata.get('division')
@@ -209,28 +178,24 @@ class PostTicketData(View):
 					,antenna_network_error=alldata.get('antenna_network_error')
 					,antenna_insuff_qam_error=alldata.get('antenna_insuff_qam_error')
 					,antenna_cm_error=alldata.get('antenna_cm_error')
+					,outage_categories=alldata.get('outage_categories')
 					)
 			except Exception as e:
-				print 'Ticket creation exception == ', e
-			print 'im here-1'
-			
+				print 'Ticket object creation exception == ', e
 			try:
 				logger.debug("ip = {0} &&  insert document == {1}".format(ip,t))
 			except Exception as e:
 				print 'Logger exception == ', e
 
-			print 'im here-2'
 			try:
 				with transaction.atomic():
-					print 'im here-2'
 					div,created = Division.objects.get_or_create(division_name=t.division)
 					dur,created = Duration.objects.get_or_create(duration=t.duration)
 					err,created = ErrorCount.objects.get_or_create(error=t.error_count,error_count_actuals=error_count_actuals)
 					out,created = OutageCaused.objects.get_or_create(outage_caused=t.outage_caused)
 					sys,created = SystemCaused.objects.get_or_create(system_caused=t.system_caused)
 					antenna,created = AntennaRootCaused.objects.get_or_create(antenna_root_caused=t.antenna_root_cause)
-					print 'im here == ', antenna.ID
-					
+					outage,created = OutageCategories.objects.get_or_create(outage_categories=t.outage_categories)					
 					ticket_info = {
 						'row_create_ts': alldata['date'],
 						'ticket_num': t.ticket_num,
@@ -245,6 +210,7 @@ class PostTicketData(View):
 						'timezone': alldata['date'],
 						'ticket_link': t.ticket_link,
 						'antenna_root_cause': antenna.ID,
+						'outage_categories': outage.ID,
 						'mitigate_check': t.mitigate_check,
 						'hardened_check': t.hardened_check,
 						'antenna_tune_error': t.antenna_tune_error,
@@ -252,9 +218,7 @@ class PostTicketData(View):
 						'antenna_network_error': t.antenna_network_error,
 						'antenna_insuff_qam_error': t.antenna_insuff_qam_error,
 						'antenna_cm_error': t.antenna_cm_error
-					}
-					print 'ticket_info == ', ticket_info
-
+					}					
 					try:
 						ticket = Tickets.objects.get(ticket_num=t.ticket_num)
 					except Tickets.DoesNotExist:
@@ -263,16 +227,13 @@ class PostTicketData(View):
 					if ticket is None:
 						ticket = Tickets.objects.create(**ticket_info)
 					else:
-						return JsonResponse({'status': 'Ticket already present'})
-					
+						return JsonResponse({'status': 'Ticket already present'})					
 					for each in t.pg:
 						p,created = Pg.objects.get_or_create(pg_cd=each)
-						ticket.pgs.add(p)
-					
-					AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)
-					
+						ticket.pgs.add(p)					
+					AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)					
 			except Exception as e:
-				print 'Exception == ', e 
+				print 'MYSQL Insert Exception == ', e 
 				logger.debug("MySQLException == {0}".format(e))
 				return JsonResponse({'status': 'Contact Support Team'})
 
@@ -341,11 +302,6 @@ def validate_insert_input(alldata):
 			if each not in constants.WEST:
 				error = 'Not a valid peergroup for the given West division. Valid peergroups are:- ' + ' '.join(constants.WEST)				
 
-	# for each in alldata.get('pg'):
-	# 	if each in ['All','all']:
-	# 		alldata.get['pg'] = ['ALL']
-	# 	break
-
 	if alldata.get('duration') not in [None,'']:
 		if  alldata.get('duration') not in constants.VALID_DURATION:
 			error = 'Duration should be one of the following option :- ' + ','.join(constants.VALID_DURATION)
@@ -395,11 +351,8 @@ class GetTicketData(View):
 	def get(self, request):
 		return JsonResponse({'status': 'success'})
 
-	def post(self, request):
-		
-		user_id = utils.check_session_variable(request)
-
-		print 'get_ticket_data userid == ', user_id
+	def post(self, request):		
+		user_id = utils.check_session_variable(request)		
 		ip = utils.getip()
 		alldata = request.POST
 		print 'GET alldata == ', alldata
@@ -414,31 +367,45 @@ class GetTicketData(View):
 		
 		if user_id is not None or api_key == settings.API_KEY:
 			output = get_ticket_data(alldata,api_key,ip,user_id)
-
-			#print 'output == ', output
-			logger.debug("ip = {0} &&  output == {1}".format(ip,output))
-			
+			logger.debug("ip = {0} &&  output == {1}".format(ip,output))			
 			return JsonResponse({'results': output,'status':'success'})
 		else:
 			print 'get-ticket-data no valid session '
 			return JsonResponse({'status': 'session timeout'})
 
-def get_ticket_data(alldata,api_key,ip,user_id):
-	
+def get_ticket_data(alldata,api_key,ip,user_id):	
 	initial = alldata.get('initial')
-	doc = {
-		'start_date_s': alldata.get('start_date_s'),
-		'start_date_e': alldata.get('start_date_e'),
-		'division': alldata.get('division'),
-		'duration': alldata.get('duration'),
-		'pg': alldata.getlist('pg[]'),
-		'error_count': alldata.get('error_count'),
-		'ticket_num': alldata.get('ticket_num'),
-		'outage_caused': alldata.get('outage_caused'),
-		'system_caused': alldata.get('system_caused'),
-		'ticket_type': alldata.get('ticket_type'),
-	}
-	
+	print 'prem get alldata ==', alldata
+	try:
+		doc = {
+			'start_date_s': alldata.get('start_date_s'),
+			'start_date_e': alldata.get('start_date_e'),
+			'division': alldata.get('division'),
+			'duration': alldata.get('duration'),
+			'pg': alldata.getlist('pg[]'),
+			'error_count': alldata.get('error_count'),
+			'ticket_num': alldata.get('ticket_num'),
+			'outage_caused': alldata.get('outage_caused'),
+			'system_caused': alldata.get('system_caused'),
+			'ticket_type': alldata.get('ticket_type'),
+			'antenna_root_cause': alldata.get('antenna_root_cause'),
+			'outage_categories': alldata.get('outage_categories'),
+			'mitigate_check': alldata.get('mitigate_check'),
+			'hardened_check': alldata.get('hardened_check'),
+			'antenna_tune_error_s': alldata.get('antenna_tune_error_s'), 
+			'antenna_tune_error_e': alldata.get('antenna_tune_error_e'), 
+			'antenna_qam_error_s': alldata.get('antenna_qam_error_s'), 
+			'antenna_qam_error_e': alldata.get('antenna_qam_error_e'), 
+			'antenna_network_error_s': alldata.get('antenna_network_error_s'), 
+			'antenna_network_error_e': alldata.get('antenna_network_error_e'), 
+			'antenna_insuff_qam_error_s': alldata.get('antenna_insuff_qam_error_s'), 
+			'antenna_insuff_qam_error_e': alldata.get('antenna_insuff_qam_error_e'), 
+			'antenna_cm_error_s': alldata.get('antenna_cm_error_s'), 
+			'antenna_cm_error_e': alldata.get('antenna_cm_error_e') 
+		}
+	except Exception as e:
+		print 'Exception == ', e 
+
 	if api_key is not None:
 		if doc['start_date_e'] is None and doc['start_date_s'] is not None:
 			return JsonResponse({'status': 'Start/End date should be specified-1'})
@@ -457,21 +424,21 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 		if doc['system_caused'] is None:
 			doc['system_caused'] = 'All'
 		if doc['ticket_num'] is None:
-			doc['ticket_num'] = ''
-		
-	
+			doc['ticket_num'] = ''			
 	logger.debug("ip = {0} &&  document == {1} ".format(ip,doc))
-
 	try:
-		if initial == 'Y':
+		if initial == 'Y':			
 			cursor = connection.cursor()
 			cursor.execute(queries.all_query['generic'])
 			results = cursor.fetchall()
-		else:
+		else:			
 			cursor = connection.cursor()
-
-			start_date_qry_set = end_date_qry_set = duration_qry_set = error_count_qry_set = ticket_num_qry_set = division_qry_set = pg_qry_set = outage_qry_set = system_qry_set = False
-			start_date_qry = end_date_qry = duration_qry = error_count_qry = ticket_num_qry = division_qry = pg_qry = outage_qry = system_qry = ''
+			start_date_qry_set = end_date_qry_set = duration_qry_set = error_count_qry_set = ticket_num_qry_set = division_qry_set = \
+			pg_qry_set = outage_qry_set = system_qry_set = antenna_root_cause_qry_set = outage_categories_qry_set = mitigate_check_qry_set = hardened_check_qry_set = \
+			antenna_tune_error_qry_set = antenna_qam_error_qry_set = antenna_network_error_qry_set = antenna_insuff_qam_error_qry_set = antenna_cm_error_qry_set = False
+			start_date_qry = end_date_qry = duration_qry = error_count_qry = ticket_num_qry = \
+			division_qry = pg_qry = outage_qry = system_qry = antenna_root_cause_qry = outage_categories_qry = mitigate_check_qry = hardened_check_qry = \
+			antenna_tune_error_qry = antenna_qam_error_qry = antenna_network_error_qry = antenna_insuff_qam_error_qry = antenna_cm_error_qry = ''
 			
 			if doc['start_date_s'] == '' and doc['start_date_e'] == '':
 				pass
@@ -493,15 +460,6 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				start_date_e = datetime.datetime.strptime(doc['start_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
 				start_date_qry = " tb1.row_create_ts between '{start_date_s}' and '{start_date_e}' ".format(start_date_s=start_date_s,start_date_e=start_date_e)
 
-
-			# if doc['end_date_s'] == '' and doc['end_date_e'] == '':
-			# 	pass
-			# else:
-			# 	end_date_qry_set = True
-			# 	end_date_s = datetime.datetime.strptime(doc['end_date_s'], '%m/%d/%Y').strftime('%Y-%m-%d 00:00:00')
-			# 	end_date_e = datetime.datetime.strptime(doc['end_date_e'], '%m/%d/%Y').strftime('%Y-%m-%d 23:59:59')
-			# 	end_date_qry = " tb1.row_end_ts between '{end_date_s}' and '{end_date_e}' ".format(end_date_s=end_date_s,end_date_e=end_date_e)
-
 			if doc['ticket_num'] == '':
 				ticket_num_qry = ""
 			else:
@@ -515,13 +473,11 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				# error_count_qry = " tb4.error = '{error}' ".format(error=doc['error_count'])
 				error_count_qry = "tb4.error_actuals  {error} ".format(error=constants.VALID_ERROR_COUNT_NUMERALS_QUERY[doc['error_count']])
 
-
 			if doc['duration'] in ['Duration (in mins)','All']:
 				duration_qry = ""
 			else:
 				duration_qry_set = True
 				duration_qry = " tb3.duration = '{duration}' ".format(duration=doc['duration'])
-
 
 			if doc['division'] in ['Division','All']:
 				division_qry = ""
@@ -543,7 +499,6 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 			else:
 				outage_qry_set = True
 				outage_qry = " tb5.outage_caused = '{outage_caused}' ".format(outage_caused=doc['outage_caused'])
-
 			
 			if doc['system_caused'] in ['System Caused','All']:
 				system_qry = ''
@@ -551,6 +506,60 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				system_qry_set = True
 				system_qry = " tb6.system_caused = '{system_caused}' ".format(system_caused=doc['system_caused'])
 
+			if doc['antenna_root_cause'] in ['Antenna Root Cause','All','',None]:
+				antenna_root_cause_qry = ''
+			else:
+				antenna_root_cause_qry_set = True
+				antenna_root_cause_qry = " tb10.antenna_root_caused = '{antenna_root_cause}' ".format(antenna_root_cause=doc['antenna_root_cause'])
+
+			if doc['outage_categories'] in ['Outage Categories','All','',None]:
+				outage_categories_qry = ''
+			else:
+				outage_categories_qry_set = True
+				outage_categories_qry = " tb11.outage_categories  = '{outage_categories}' ".format(outage_categories=doc['outage_categories'])			
+
+			if doc['mitigate_check'] in ['Mitigate Check','All','',None]:
+				mitigate_check_qry = ''
+			else:
+				mitigate_check_qry_set = True
+				mitigate_check_qry = " tb1.mitigate_check  = '{mitigate_check}' ".format(mitigate_check=doc['mitigate_check'])					
+
+			if doc['hardened_check'] in ['Hardened Check','All','',None]:
+				hardened_check_qry = ''
+			else:
+				hardened_check_qry_set = True
+				hardened_check_qry = " tb1.hardened_check  = '{hardened_check}' ".format(hardened_check=doc['hardened_check'])					
+
+			if doc['antenna_tune_error_s'] in ['','0',None] and doc['antenna_tune_error_e'] in ['','0',None]:
+				antenna_tune_error_qry = ''
+			else:
+				antenna_tune_error_qry_set = True
+				antenna_tune_error_qry = " tb1.antenna_tune_error between '{antenna_tune_error_s}' and '{antenna_tune_error_e}' ".format(antenna_tune_error_s=doc['antenna_tune_error_s'],antenna_tune_error_e=doc['antenna_tune_error_e'])
+
+			if doc['antenna_qam_error_s'] in ['','0',None] and doc['antenna_qam_error_e'] in ['','0',None]:
+				antenna_qam_error_qry = ''
+			else:
+				antenna_qam_error_qry_set = True
+				antenna_qam_error_qry = " tb1.antenna_qam_error between '{antenna_qam_error_s}' and '{antenna_qam_error_e}' ".format(antenna_qam_error_s=doc['antenna_qam_error_s'],antenna_qam_error_e=doc['antenna_qam_error_e'])
+
+			if doc['antenna_network_error_s'] in ['','0',None] and doc['antenna_network_error_e'] in ['','0',None]:
+				antenna_network_error_qry = ''
+			else:
+				antenna_network_error_qry_set = True
+				antenna_network_error_qry = " tb1.antenna_network_error between '{antenna_network_error_s}' and '{antenna_network_error_e}' ".format(antenna_network_error_s=doc['antenna_network_error_s'],antenna_network_error_e=doc['antenna_network_error_e'])
+
+			if doc['antenna_insuff_qam_error_s'] in ['','0',None] and doc['antenna_insuff_qam_error_e'] in ['','0',None]:
+				antenna_insuff_qam_error_qry = ''
+			else:
+				antenna_insuff_qam_error_qry_set = True
+				antenna_insuff_qam_error_qry = " tb1.antenna_insuff_qam_error between '{antenna_insuff_qam_error_s}' and '{antenna_insuff_qam_error_e}' ".format(antenna_insuff_qam_error_s=doc['antenna_insuff_qam_error_s'],antenna_insuff_qam_error_e=doc['antenna_insuff_qam_error_e'])
+
+			if doc['antenna_cm_error_s'] in ['','0',None] and doc['antenna_cm_error_e'] in ['','0',None]:
+				antenna_cm_error_qry = ''
+			else:
+				antenna_cm_error_qry_set = True
+				antenna_cm_error_qry = " tb1.antenna_cm_error between '{antenna_cm_error_s}' and '{antenna_cm_error_e}' ".format(antenna_cm_error_s=doc['antenna_cm_error_s'],antenna_cm_error_e=doc['antenna_cm_error_e'])
+						
 			order_qry = ' order by created_dt '
 
 			#Special condition when certain peer groups are selected.
@@ -566,12 +575,9 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				qry = qry + pg_qry1 
 				cursor.execute(qry)
 				results = cursor.fetchall()
-				elig_tkts = []
-				
+				elig_tkts = []				
 				for each in results:
 					elig_tkts.append(each[0])
-
-				print 'elig_tkts == ', elig_tkts
 
 				if len(elig_tkts) == 0:
 					ticket_num_qry = " tb1.ticket_num = '' "
@@ -594,6 +600,15 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				,'error_count_qry_set':error_count_qry_set
 				,'duration_qry_set':duration_qry_set
 				,'ticket_num_qry_set':ticket_num_qry_set
+				,'antenna_root_cause_qry_set':antenna_root_cause_qry_set
+				,'outage_categories_qry_set':outage_categories_qry_set
+				,'mitigate_check_qry_set':mitigate_check_set
+				,'hardened_check_qry_set':mitigate_check_qry_set
+				,'antenna_tune_error_qry_set':antenna_tune_error_qry_set
+				,'antenna_qam_error_qry_set':antenna_qam_error_qry_set
+				,'antenna_network_error_qry_set':antenna_network_error_qry_set
+				,'antenna_insuff_qam_error_qry_set':antenna_insuff_qam_error_qry_set
+				,'antenna_cm_error_qry_set':antenna_cm_error_qry_set
 				,'start_date_qry':start_date_qry
 				,'end_date_qry':end_date_qry
 				,'division_qry':division_qry
@@ -603,20 +618,22 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				,'error_count_qry':error_count_qry
 				,'duration_qry':duration_qry
 				,'ticket_num_qry':ticket_num_qry						
+				,'antenna_root_cause_qry':antenna_root_cause_qry
+				,'outage_categories_qry':outage_categories_qry
+				,'mitigate_check_qry':mitigate_check_qry
+				,'antenna_tune_error_qry':antenna_tune_error_qry
+				,'antenna_qam_error_qry':antenna_qam_error_qry
+				,'antenna_network_error_qry':antenna_network_error_qry
+				,'antenna_insuff_qam_error_qry':antenna_insuff_qam_error_qry
+				,'antenna_cm_error_qry':antenna_cm_error_qry
 				}
-
 				p_qry = set_query_params(**kwargs)
 				p_qry = p_qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc LIMIT 100'
-				print 'over**'
-				print '***pg_qry*** == ', p_qry
-
 				logger.debug("ip = {0} &&  multiple tkt_qry == {1}".format(ip,p_qry))
 				cursor.execute(p_qry)
 				results = cursor.fetchall()
-
 			else:
 				qry = queries.all_query['conditions']
-
 				kwargs = {'qry':qry
 				,'start_date_qry_set':start_date_qry_set
 				,'end_date_qry_set':end_date_qry_set
@@ -627,6 +644,15 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				,'error_count_qry_set':error_count_qry_set
 				,'duration_qry_set':duration_qry_set
 				,'ticket_num_qry_set':ticket_num_qry_set
+				,'antenna_root_cause_qry_set':antenna_root_cause_qry_set
+				,'outage_categories_qry_set':outage_categories_qry_set
+				,'mitigate_check_qry_set':mitigate_check_qry_set
+				,'hardened_check_qry_set':mitigate_check_qry_set
+				,'antenna_tune_error_qry_set':antenna_tune_error_qry_set
+				,'antenna_qam_error_qry_set':antenna_qam_error_qry_set
+				,'antenna_network_error_qry_set':antenna_network_error_qry_set
+				,'antenna_insuff_qam_error_qry_set':antenna_insuff_qam_error_qry_set
+				,'antenna_cm_error_qry_set':antenna_cm_error_qry_set
 				,'start_date_qry':start_date_qry
 				,'end_date_qry':end_date_qry
 				,'division_qry':division_qry
@@ -635,32 +661,34 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				,'system_qry':system_qry
 				,'error_count_qry':error_count_qry
 				,'duration_qry':duration_qry
-				,'ticket_num_qry':ticket_num_qry						
+				,'ticket_num_qry':ticket_num_qry		
+				,'antenna_root_cause_qry':antenna_root_cause_qry
+				,'outage_categories_qry':outage_categories_qry
+				,'mitigate_check_qry':mitigate_check_qry
+				,'hardened_check_qry':mitigate_check_qry
+				,'antenna_tune_error_qry':antenna_tune_error_qry
+				,'antenna_qam_error_qry':antenna_qam_error_qry
+				,'antenna_network_error_qry':antenna_network_error_qry
+				,'antenna_insuff_qam_error_qry':antenna_insuff_qam_error_qry
+				,'antenna_cm_error_qry':antenna_cm_error_qry				
 				}
-				qry = set_query_params(**kwargs)
-				
+				qry = set_query_params(**kwargs)				
 				qry = qry + ' ORDER BY tb1.row_create_ts desc, tb1.ticket_num desc'
-
 				logger.debug("ip = {0} &&  query == {1}".format(ip,qry))
 				cursor.execute(qry)
 				results = cursor.fetchall()
 		
 		logger.debug("ip = {0} &&  results-len == {1}".format(ip,len(results)))
-		output = enum_results(user_id,results)
-		
+		output = enum_results(user_id,results)		
 	except Exception as e:
 		print 'Select Exception == ', e
 		logger.debug("MySQLException == {0}".format(e))
 		return JsonResponse({'status': 'failure'})
-
 	return output
 
-
 def set_query_params(**kwargs):
-
 	prev_qry_set = False
 	qry = kwargs['qry']
-
 	if kwargs['start_date_qry_set'] \
 		or kwargs['end_date_qry_set'] \
 		or kwargs['division_qry_set'] \
@@ -669,7 +697,16 @@ def set_query_params(**kwargs):
 		or kwargs['system_qry_set']	\
 		or kwargs['ticket_num_qry_set'] \
 		or kwargs['duration_qry_set'] \
-		or kwargs['error_count_qry_set']:
+		or kwargs['error_count_qry_set'] \
+		or kwargs['antenna_root_cause_qry_set'] \
+		or kwargs['outage_categories_qry_set'] \
+		or kwargs['mitigate_check_qry_set'] \
+		or kwargs['hardened_check_qry_set'] \
+		or kwargs['antenna_tune_error_qry_set'] \
+		or kwargs['antenna_qam_error_qry_set'] \
+		or kwargs['antenna_network_error_qry_set'] \
+		or kwargs['antenna_insuff_qam_error_qry_set'] \
+		or kwargs['antenna_cm_error_qry_set']:
 		qry = kwargs['qry']  + ' and '
 
 	if kwargs['start_date_qry_set']:
@@ -736,10 +773,75 @@ def set_query_params(**kwargs):
 	if kwargs['system_qry_set']:
 		if prev_qry_set:
 			qry = qry + ' and ' + kwargs['system_qry'] 
+			prev_qry_set = True
 		else:
 			qry = qry + kwargs['system_qry']
-	#print 'set_quert_params system == ', qry
-	# print 'set_quert_params final query== ', qry
+			prev_qry_set = True
+
+	if kwargs['antenna_root_cause_qry_set']:
+		if prev_qry_set:
+			qry = qry + ' and ' + kwargs['antenna_root_cause_qry'] 
+			prev_qry_set = True
+		else:
+			qry = qry + kwargs['antenna_root_cause_qry']
+			prev_qry_set = True
+
+	if kwargs['outage_categories_qry_set']:
+		if prev_qry_set:
+			qry = qry + ' and ' + kwargs['outage_categories_qry'] 
+			prev_qry_set = True
+		else:
+			qry = qry + kwargs['outage_categories_qry']
+			prev_qry_set = True
+
+	if kwargs['mitigate_check_qry_set']:
+		if prev_qry_set:
+			qry = qry + ' and ' + kwargs['mitigate_check_qry'] 
+			prev_qry_set = True
+		else:
+			qry = qry + kwargs['mitigate_check_qry']
+			prev_qry_set = True
+
+	if kwargs['hardened_check_qry_set']:
+		if prev_qry_set:
+			qry = qry + ' and ' + kwargs['hardened_check_qry'] 
+			prev_qry_set = True
+		else:
+			qry = qry + kwargs['hardened_check_qry']
+			prev_qry_set = True
+
+	if kwargs['antenna_tune_error_qry_set']:
+		if prev_qry_set:
+			qry = qry + ' and ' + kwargs['antenna_tune_error_qry'] 
+			prev_qry_set = True
+		else:
+			qry = qry + kwargs['antenna_tune_error_qry']
+			prev_qry_set = True
+
+	if kwargs['antenna_qam_error_qry_set']:
+		if prev_qry_set:
+			qry = qry + ' and ' + kwargs['antenna_qam_error_qry'] 
+			prev_qry_set = True
+		else:
+			qry = qry + kwargs['antenna_qam_error_qry']
+			prev_qry_set = True
+
+	if kwargs['antenna_network_error_qry_set']:
+		if prev_qry_set:
+			qry = qry + ' and ' + kwargs['antenna_network_error_qry'] 
+			prev_qry_set = True
+		else:
+			qry = qry + kwargs['antenna_network_error_qry']
+			prev_qry_set = True
+
+	if kwargs['antenna_cm_error_qry_set']:
+		if prev_qry_set:
+			qry = qry + ' and ' + kwargs['antenna_cm_error_qry'] 
+			prev_qry_set = True
+		else:
+			qry = qry + kwargs['antenna_cm_error_qry']
+			prev_qry_set = True	
+	print 'set_quert_params final query== ', qry	
 	return qry
 
 
@@ -772,21 +874,28 @@ def enum_results(user_id,results):
 			data['crt_user_id'] = each[12]
 			data['upd_user_id'] = each[13]
 			data['login_id'] = user_id
+			data['admin_user'] = utils.check_if_admin(user_id)
 			data['ticket_link'] = each[14]
+			data['hardened_check'] = each[15]
+			data['mitigate_check'] = each[16]
+			data['antenna_tune_error'] = each[17]
+			data['antenna_cm_error'] = each[18]
+			data['antenna_network_error'] = each[19]
+			data['antenna_qam_error'] = each[20]
+			data['antenna_insuff_qam_error'] = each[21]
+			data['antenna_root_caused'] = each[22]
+			data['outage_categories'] = each[23]
 			if each[11] is None:
 				data['addt_notes'] = ""
 			else:
 				data['addt_notes'] = each[11]
-
 		else:
 			if 'ALL' in pg_cd:
 				pg_cd = ['ALL']
 			data['pg'] = pg_cd
-
 			output.append(data)
 			data = {}
 			pg_cd = []
-
 			data['ticket_num'] = each[0]
 			data['created_dt'] = each[1].replace(tzinfo=pytz.utc)
 			#data['row_end_ts'] = each[4]
@@ -804,29 +913,32 @@ def enum_results(user_id,results):
 			data['crt_user_id'] = each[12]
 			data['upd_user_id'] = each[13]
 			data['login_id'] = user_id
+			data['admin_user'] = utils.check_if_admin(user_id)
 			data['ticket_link'] = each[14]
-
+			data['hardened_check'] = each[15]
+			data['mitigate_check'] = each[16]
+			data['antenna_tune_error'] = each[17]
+			data['antenna_cm_error'] = each[18]
+			data['antenna_network_error'] = each[19]
+			data['antenna_qam_error'] = each[20]
+			data['antenna_insuff_qam_error'] = each[21]
+			data['antenna_root_caused'] = each[22]
+			data['outage_categories'] = each[23]
 			if each[11] is None:
 				data['addt_notes'] = ""
 			else:
 				data['addt_notes'] = each[11]
-
 			#Limit the number of rows displayed to 100.
 			if len(output) > 100:
 				break
-
 		prev_ticket_num = curr_ticket_num
 
 	if len(results) > 0:	
 		data['pg'] = pg_cd
 		output.append(data)
-
 		data = {}
 		pg_cd = []			
-
 	return output
-
-
 
 class PDFDownload(View):
 
@@ -842,14 +954,10 @@ class PDFDownload(View):
 		ip = utils.getip()
 		alldata = request.POST
 		api_key = None
-		api_key = request.META.get('HTTP_AUTHORIZATION')
-		print 'download request.POST alldata== ', alldata
-		print 'download ip== ', ip
-
+		api_key = request.META.get('HTTP_AUTHORIZATION')		
 		if api_key is not None:
 			if api_key != settings.API_KEY:
 				return JsonResponse({'status': 'Invalid Key..Contact support!!'})
-
 		logger.debug("user_id = {0} ".format(user_id))
 
 		if user_id is not None or api_key == settings.API_KEY:
@@ -859,33 +967,20 @@ class PDFDownload(View):
 			filename = 'Service_Impact_Database_Report_' + dt + '.pdf'
 			response = HttpResponse(content_type='application/pdf')
 			response['Content-Disposition'] = 'attachment; filename=' + filename
-
 			# Create the PDF object, using the response object as its "file."
 			p = canvas.Canvas(response,pagesize=letter)
-
 			# Draw things on the PDF. Here's where the PDF generation happens.
 			# See the ReportLab documentation for the full list of functionality.
-			
-			output = get_ticket_data(alldata,api_key,ip,user_id)
-			
-			#output = []
-
+			output = get_ticket_data(alldata,api_key,ip,user_id)			
 			width, height = letter
-
 			p.setLineWidth(.3)
 			p.setFont('Helvetica',12)
-			
-			print 'width == ', width
-			print 'height == ', height
 			dt = '{:%a/%b/%Y %H:%M:%S}'.format(datetime.datetime.now())
 			p.setFont('Helvetica-Bold',16)
 			p.drawString(200, 420, 'Event Coorelation records ')
 			p.drawString(160, 400, 'Report Generated at : ' + dt)
 			p.save()
-
-			(incr, x, y, x1) = initpages(height)
-				
-
+			(incr, x, y, x1) = initpages(height)				
 			for each in output:
 				# print 'value of height = {0} , value of x = {1} , value of y = {2}'.format(height,x,y)
 				p.setFont('Helvetica-Bold',12)
@@ -894,11 +989,9 @@ class PDFDownload(View):
 				p.drawString(x1, y, each['crt_user_id'])
 				y = y - incr
 				y = page_break_called(p,y,height)
-
 				p.setFont('Helvetica-Bold',12)
 				p.drawString(x, y, 'Create Date:')
-				p.setFont('Helvetica',12)
-				
+				p.setFont('Helvetica',12)				
 				if alldata['tz'] == 'local':
 					each['created_dt'] = utils.convert_datetime_using_offset(each['created_dt'],alldata['local_time_offset'])
 				elif alldata['tz'] == 'est':
@@ -987,13 +1080,10 @@ class PDFDownload(View):
 				p.drawString(x, y, 120 * '-')
 				y = y - incr
 				y = page_break_called(p,y,height)
-
-
-			p.save()
-			print 'PDF response done'
+			p.save()			
 			return response
 		else:
-			print 'get-ticket-data no valid session '
+			print 'get-ticket-data no valid session'
 			return JsonResponse({'status': 'session timeout'})
 
 def initpages(height):
@@ -1004,19 +1094,14 @@ def initpages(height):
 	return incr, x, y, x1
 
 def page_break_called(p,y,height):
-
 	if y < 40:
-		print 'page break called height == ', str(height) + ' **  ' + str(y)
 		p.showPage()
 		(incr, x, y, x1) = initpages(height)
 		width, height = letter
-		#p.append(PageBreak())	
-		#return height
 	return y
 
 
 class ExcelDownload(View):
-
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
 		return super(ExcelDownload, self).dispatch(request, *args, **kwargs)
@@ -1030,9 +1115,6 @@ class ExcelDownload(View):
 		alldata = request.POST
 		api_key = None
 		api_key = request.META.get('HTTP_AUTHORIZATION')
-		print 'download request.POST alldata== ', alldata
-		print 'download ip== ', ip
-
 		if api_key is not None:
 			if api_key != settings.API_KEY:
 				return JsonResponse({'status': 'Invalid Key..Contact support!!'})
@@ -1137,10 +1219,19 @@ class UpdateTicketData(View):
 		alldata['duration'] = request.POST.get('duration')
 		alldata['ticket_num']= request.POST.get('ticket_num')
 		alldata['ticket_link']= request.POST.get('ticket_link')
-		alldata['orig_ticket_num']= request.POST.get('orig_ticket_num')
-		# alldata['ticket_link']= request.POST.get('ticket_link')
+		alldata['orig_ticket_num']= request.POST.get('orig_ticket_num')		
 		alldata['userid'] = request.POST.get('userid')
 		alldata['update_end_dt'] = request.POST.get('update_end_dt')
+
+		alldata['antenna_root_cause'] = request.POST.get('antenna_root_cause')
+		alldata['outage_categories'] = request.POST.get('outage_categories')
+		alldata['mitigate_check'] = request.POST.get('mitigate_check')
+		alldata['hardened_check'] = request.POST.get('hardened_check')
+		alldata['antenna_tune_error'] = request.POST.get('antenna_tune_error')
+		alldata['antenna_qam_error'] = request.POST.get('antenna_qam_error')
+		alldata['antenna_network_error'] = request.POST.get('antenna_network_error')
+		alldata['antenna_insuff_qam_error'] = request.POST.get('antenna_insuff_qam_error')
+		alldata['antenna_cm_error'] = request.POST.get('antenna_cm_error')
 		
 		logger.debug("ip = {0} &&  alldata == {1}".format(ip,alldata))
 		api_key = request.META.get('HTTP_AUTHORIZATION')
@@ -1149,12 +1240,8 @@ class UpdateTicketData(View):
 			# Don't move this IF stmt below
 			if alldata.get('update_end_dt') == 'Y':
 			   ticket_num, ticket_link = convert_link_to_ticket_num(alldata.get('ticket_num'))
-			   ticket = Tickets.objects.get(ticket_num=ticket_num)
-			   # eastern = timezone('US/Eastern')
-			   # ticket.row_end_ts = datetime.datetime.now(eastern)
-			   ticket.row_end_ts = datetime.datetime.now(tz=pytz.utc).isoformat()
-			   print 'row_end_ts == ', ticket.row_end_ts
-			   # ticket.row_end_ts = datetime.datetime.strftime(ticket.row_end_ts,'%Y-%m-%d %H:%M:00')
+			   ticket = Tickets.objects.get(ticket_num=ticket_num)			   
+			   ticket.row_end_ts = datetime.datetime.now(tz=pytz.utc).isoformat()			   			   
 			   ticket.save()
 			   return JsonResponse({'status': 'success'})			
 			try:
@@ -1166,9 +1253,7 @@ class UpdateTicketData(View):
 				else:
 					if alldata['error_count'].replace(',','').isdigit():
 						error_count_actuals = int(alldata['error_count'].replace(',',''))
-					else:
-						print 'int conversion == ', int(alldata['error_count'].replace(',','').isdigit())
-						print 'int conversion == ', alldata['error_count']
+					else:						
 						error_count_actuals = int(alldata['error_count'])
 
 			if api_key is not None:
@@ -1199,7 +1284,17 @@ class UpdateTicketData(View):
 				,addt_notes=alldata.get('addt_notes')
 				,ticket_type=alldata.get('ticket_type')
 				,duration=alldata.get('duration')
-				,ticket_link=alldata.get('ticket_link'))
+				,ticket_link=alldata.get('ticket_link')
+				,antenna_root_cause=alldata.get('antenna_root_cause')
+				,mitigate_check=alldata.get('mitigate_check')
+				,hardened_check=alldata.get('hardened_check')
+				,antenna_tune_error=alldata.get('antenna_tune_error')
+				,antenna_qam_error=alldata.get('antenna_qam_error')
+				,antenna_network_error=alldata.get('antenna_network_error')
+				,antenna_insuff_qam_error=alldata.get('antenna_insuff_qam_error')
+				,antenna_cm_error=alldata.get('antenna_cm_error')
+				,outage_categories=alldata.get('outage_categories')
+				)
 			
 			print 'update doc  == ', t
 			logger.debug("ip == {0} && Update document == {1}".format(ip,t))
@@ -1250,10 +1345,11 @@ class UpdateTicketData(View):
 					err,created = ErrorCount.objects.get_or_create(error=t.error_count,error_count_actuals=error_count_actuals)
 					out,created = OutageCaused.objects.get_or_create(outage_caused=t.outage_caused)
 					sys,created = SystemCaused.objects.get_or_create(system_caused=t.system_caused)
+					antenna,created = AntennaRootCaused.objects.get_or_create(antenna_root_caused=t.antenna_root_cause)
+					outage,created = OutageCategories.objects.get_or_create(outage_categories=t.outage_categories)
 					
 					try:
 						ticket = Tickets.objects.get(ticket_num=t.ticket_num)
-												
 						if div.ID is not None:
 							ticket.division = div.ID
 						if dur.ID is not None:
@@ -1264,20 +1360,30 @@ class UpdateTicketData(View):
 							ticket.outage_caused = out.ID
 						if sys.ID is not None:
 							ticket.system_caused = sys.ID
-
 						ticket.update_user_id = user_id
-
 						if t.created_dt not in [None,'']:
-							ticket.row_create_ts = t.created_dt
-						
+							ticket.row_create_ts = t.created_dt						
 						if t.end_dt not in [None,'']:
 							ticket.row_end_ts = t.end_dt
-
 						if t.ticket_link not in [None,'']:
-							ticket.ticket_link = t.ticket_link
-						
-						ticket.save()
-						
+							ticket.ticket_link = t.ticket_link						
+
+						if t.antenna_root_cause not in [None,'']:
+							ticket.antenna_root_cause = antenna.ID
+						if t.outage_categories not in [None,'']:
+							ticket.outage_categories = outage.ID
+						if t.antenna_tune_error not in [None,'']:
+							ticket.antenna_tune_error = t.antenna_tune_error
+						if t.antenna_qam_error not in [None,'']:
+							ticket.antenna_qam_error = t.antenna_qam_error
+						if t.antenna_network_error not in [None,'']:
+							ticket.antenna_network_error = t.antenna_network_error
+						if t.antenna_insuff_qam_error not in [None,'']:
+							ticket.antenna_tune_error = t.antenna_insuff_qam_error
+						if t.antenna_cm_error not in [None,'']:
+							ticket.antenna_cm_error = t.antenna_cm_error
+
+						ticket.save()						
 						try:
 							AddtNotes.objects.get(Id=ticket).delete()
 							AddtNotes.objects.create(Id=ticket,notes=t.addt_notes)
@@ -1288,17 +1394,13 @@ class UpdateTicketData(View):
 
 					for each_pg in ticket.pgs.all():
 						ticket.pgs.remove(each_pg)
-
 					for each_pg in t.pg:
 						p,created = Pg.objects.get_or_create(pg_cd=each_pg)
 						ticket.pgs.add(p)					
-
-
 			except Exception as e:
 				print 'Exception == ', e 
 				logger.debug("MySQLException == {0}".format(e))
 				return JsonResponse({'status': 'failure'})
-
 			return JsonResponse({'status': 'success'})
 		else:
 			print 'get-ticket-data no valid session '
@@ -1679,8 +1781,10 @@ class RecordFeedBack(View):
 
 
 class Ticket(object):
-	def __init__(self, created_dt = None, end_dt = None, division = None, pg = None, error_count = None, ticket_num = None, orig_ticket_num = None, outage_caused = None, system_caused = None, addt_notes = None, ticket_type = None, duration = None, timezone = None, ticket_link = None, 
-				antenna_root_cause = None,mitigate_check=None,hardened_check=None,antenna_tune_error=None,antenna_qam_error=None,antenna_network_error=None,antenna_insuff_qam_error=None,antenna_cm_error=None):
+	def __init__(self, created_dt=None, end_dt=None, division=None, pg=None, error_count=None, ticket_num=None, orig_ticket_num=None, outage_caused=None, system_caused=None, addt_notes=None
+				,ticket_type=None, duration=None, timezone=None, ticket_link=None,antenna_root_cause=None
+				,mitigate_check=None,hardened_check=None,antenna_tune_error=None,antenna_qam_error=None,antenna_network_error=None,antenna_insuff_qam_error=None
+				,antenna_cm_error=None,outage_categories=None):
 		self.created_dt = created_dt
 		self.end_dt = end_dt
 		self.division = division 
@@ -1703,6 +1807,7 @@ class Ticket(object):
 		self.antenna_network_error = antenna_network_error
 		self.antenna_insuff_qam_error = antenna_insuff_qam_error
 		self.antenna_cm_error = antenna_cm_error
+		self.outage_categories = outage_categories
 		
 	def __str__(self):
 		return """ created_dt == {0} 
@@ -1725,11 +1830,12 @@ class Ticket(object):
 		,antenna_network_error = {17}
 		,antenna_insuff_qam_error = {18}
 		,antenna_cm_error = {19}
+		,outage_categories = {20}
 		""".format(
 			self.created_dt, self.division, str(self.pg), self.error_count,self.ticket_num,self.outage_caused,self.system_caused,
 			self.ticket_type,self.duration,self.addt_notes,self.orig_ticket_num,self.ticket_link,
 			self.antenna_root_cause,self.mitigate_check,self.hardened_check,self.antenna_tune_error,
-			self.antenna_qam_error,self.antenna_network_error,self.antenna_insuff_qam_error,self.antenna_cm_error)
+			self.antenna_qam_error,self.antenna_network_error,self.antenna_insuff_qam_error,self.antenna_cm_error,self.outage_categories)
 
 
 

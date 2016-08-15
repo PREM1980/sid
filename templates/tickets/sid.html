@@ -223,12 +223,7 @@
                 
                 </td>
                 </tr>
-
-                <tr>
-
-                
-                
-
+                <tr>                            
                 <td>
                     <div>
                         <select id="query_duration" class="form-control input-sm">
@@ -300,25 +295,23 @@
                             <option>Other</option>
                         </select>
                     </div>
-                </td>
-                <!-- <td>
-                    <div class="ui-widget">
-                        <input id="query_addt_notes" width="100%">
-                    </div>
-                </td> -->
-                
+                </td>                
                 <td>
                     <div>
-                        <input id="query_ticket_no" width="100%" placeholder="Ticket Number" class="form-control input-sm">
-                        
+                        <input id="query_ticket_no" width="100%" placeholder="Ticket Number" class="form-control input-sm"> 
                     </div>
                 </td>
+                
                 </tr>
+                
+        </table>
 
-            
-        </table> 
         </div>
+
         </div>
+        {% if  admin_user %}
+                    {% include "tickets/sid_admin_filtersection.html" %} 
+                {% endif %}             
     
     
     <br>
@@ -355,30 +348,14 @@
 
             **The table displays first 100 rows. Call <a href="api_docs" target="_blank">API</a> for more data.
 
-        {% endif%}
-        <!-- <div id="downloads">
-            <span id="sorter">Sort:
-                                <select id="columnDropdownWrapper">
-                                        <option value="Author">Author Name</option>
-                                        <option value="price">New Price</option>
-                                        <option value="old_price">Old Price</option>
-                                </select>
-                                </span>
-            <span id="orderer">Order:
-                                <select id="orderDropdownWrapper">
-                                        <option value="asc">Ascending</option>
-                                        <option value="desc">Descending</option>
-                                </select>
-                                </span>
-            -->
+        {% endif%}        
             
-            </div>
-        <!--</div> -->
-    </div>
-    <!-- <div>*Only 100 tickets are displayed</div> -->
+            </div>        
+    </div>    
     <br>
+
     
-    <div id="ticket_list"></div>
+    <div id="ticket_list" class=""></div>
 
     <div class="modal fade" id="apikey" role="dialog">
         <div class="modal-dialog modal-sm">
@@ -395,9 +372,9 @@
             </div>
           </div>
         </div>
-    </div>
+    </div>    
 
-
+    
     <div id="dialog" title="Ticket Details">
 
         <div style="text-align: left">
@@ -475,22 +452,7 @@
                             </ul>
                             </div>
                     </div>
-            </td>
-            <!-- <td class="leftcols">Error Count</td><td id="dialog_error_count">
-                        <select class="form-control input-sm" id="row_error_count">
-                            <option></option>
-                            <option>less than 1,000</option>
-                            <option>1,000 - 5,000</option>
-                            <option>5,000 - 10,000</option>
-                            <option>10,000 - 20,000</option>
-                            <option>20,000 - 50,000</option>
-                            <option>50,000 - 100,000</option>
-                            <option>100,000 - 150,000</option>
-                            <option>150,000 - 200,000</option>
-                            <option>200,000 - 250,000</option>
-                            <option>250,000 - 500,000</option>
-                            <option>Greater than 500,000</option>
-                        </select></td> -->
+            </td>            
             </tr>
             <tr>
             <td class="leftcols">Outage Caused</td><td id="dialog_outage_caused">
@@ -527,11 +489,19 @@
             <td>Ticket Type</td><td id="dialog_ticket_type">
                 <input id="row_ticket_type" type="text"></td>
             </tr>
+
+            {% if  admin_user %}
+                {% include "tickets/sid_admin_updatesection.html" %} 
+                
+            {% endif %}
+            
+
             </table>
         </div>
 
     </div>
-    
+
+
     <div id="dialog_pg_select" title="PeerGroup Filter">
         <div style="text-align:left">
             <select size="5">

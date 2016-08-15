@@ -1,62 +1,16 @@
  
  
- $(document).ready(function() {
-
-     // $('#loginid').click(function() {
-     //     $('#apikey').modal('show');
-     // })
-
-     // $('#logout').click(function() {
-     //     window.location.href = "/";
-     // })
-
-     //set up some minimal options for the feedback_me plugin
-     // fm_options = {
-     //     //jQueryUI:true,
-     //     bootstrip: true,
-     //     show_email: true,
-     //     email_required: true,
-     //     position: "right-top",
-     //     show_radio_button_list: true,
-     //     radio_button_list_required: true,
-     //     radio_button_list_title: "How do you rate this application?",
-     //     name_placeholder: "Name please",
-     //     email_placeholder: "Email goes here",
-     //     message_placeholder: "Go ahead, type your feedback here...",
-     //     name_required: true,
-     //     message_required: true,
-     //     show_asterisk_for_required: true,
-     //     feedback_url: "/send_feedback_clean",
-     //     custom_params: {
-     //         csrf: "my_secret_token",
-     //         user_id: "john_doe",
-     //         feedback_type: "clean_complex"
-     //     },
-     //     delayed_options: {
-     //         success_color: "#5cb85c",
-     //         fail_color: "#d2322d",
-     //         delay_success_milliseconds: 3500,
-     //         send_success: "Sent successfully :)"
-     //     }
-     // };
-
-     // //init feedback_me plugin
-     // fm.init(fm_options);
-
+ $(document).ready(function() {     
      $('#random-check').change(function() {
-
 
     if ($("#random-check").is(":checked")) {
         $.ajax({
             url: '/sid-get-uuid',
-            type: 'GET',
-            //data: data,
+            type: 'GET',            
             success: function(result) {
                 console.log('getuuid == ' + JSON.stringify(result))
                 if (result.status == 'success') {
-
                     $('#ticket_no').val(result.uuid)
-
                 } else {
                     alert("Unable to get UUID Error!! Contact Support");
                 }
@@ -66,13 +20,11 @@
             }
         })
     } else {
-        $('#ticket_no').val("")
+        $('#ticket_no').val("")}
+    })
 
-    }
 
-})
-
-     function disable_local_tz(){
+    function disable_local_tz(){
         var d = new Date();
         var n = d.getTimezoneOffset();
         var timezone = n / -60;
@@ -88,9 +40,7 @@
         set_tz($(this).val())
 
      })
-     var set_tz = function(elem){
-        
-        
+     var set_tz = function(elem){            
         if (elem == 'local'){
             $('.local-col').show()
             $('.est-col').hide()
@@ -110,7 +60,6 @@
      $('#errorcount, #row_error_count').change(function() { 
         n = $(this).val()
         n = n.replace(/,/g, '')
-
         var parts=n.toString().split(".");
         val =  parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "")
         $(this).val(val)
@@ -243,17 +192,7 @@
 
                  ticket_num = ticket_num_n_link
                  ticket_link = ''
-             }
-             
-             //alert(dt.format())
-             // 2016/07/13 16:35
-            //  if ($('#sid-mitigate-check').prop('checked')) {
-            //     sid-mitigate-check = True
-            // } else {
-            //     sid-mitigate-check = False
-            // }
-            sid_mitigate_check = ($('#sid-mitigate-check').prop('checked') == true ? 'Y': 'N')
-            sid_hardened_check = ($('#sid-hardened-check').prop('checked') == true ? 'Y': 'N')
+             }                    
 
              data = {
                  //'date': new Date($('#datepicker').val()),
@@ -269,13 +208,14 @@
                  'addt_notes': $('#additional_notes').val(),
                  'ticket_type': $('input[name=tkt-radio]:checked').val(),
                  'sid_antenna_root_cause': $('#sid-antenna-root-cause').val(),
-                 'sid_mitigate_check': sid_mitigate_check, 
-                 'sid_hardened_check': sid_hardened_check, 
-                 'sid_antenna_tune_error': $('#sid-antenna-tune-error').val(), 
-                 'sid_antenna_qam_error': $('#sid-antenna-qam-error').val(), 
-                 'sid_antenna_network_error': $('#sid-antenna-network-error').val(), 
-                 'sid_antenna_insuff_qam_error': $('#sid-antenna-insuff-qam-error').val(), 
-                 'sid_antenna_cm_error': $('#sid-antenna-cm-error').val() 
+                 'sid_outage_categories': $('#sid-outage-categories').val(),
+                 'sid_mitigate_check': ($('#sid-mitigate-check').val() == 'Yes' ? 'Y': 'N'), 
+                 'sid_hardened_check': ($('#sid-hardened-check').val() == 'Yes' ? 'Y': 'N'), 
+                 'sid_antenna_tune_error': ($('#sid-antenna-tune-error').val() == '' ? 0: $('#sid-antenna-tune-error').val()), 
+                 'sid_antenna_qam_error': ($('#sid-antenna-qam-error').val() == '' ? 0: $('#sid-antenna-qam-error').val()),
+                 'sid_antenna_network_error': ($('#sid-antenna-network-error').val() == '' ? 0: $('#sid-antenna-network-error').val()),
+                 'sid_antenna_insuff_qam_error': ($('#sid-antenna-insuff-qam-error').val() == '' ? 0: $('#sid-antenna-insuff-qam-error').val()),
+                 'sid_antenna_cm_error': ($('#sid-antenna-cm-error').val() == '' ? 0: $('#sid-antenna-cm-error').val())
              }
              console.log("Insert ticket data ", data)
              
@@ -286,8 +226,8 @@
                  success: function(result) {
                      if (result.status == 'success') {
                          alert("You're stored in our DB!! Playaround!!!!")
-                             //reset values
-                             //multiselect both needs to be together - uncheck and refresh
+                         //reset values
+                         //multiselect both needs to be together - uncheck and refresh
                          $("#peergroup option:selected").removeAttr("selected");
                          $("#peergroup").multiselect('refresh');
                          $('#division').prop('selectedIndex', 1);
@@ -299,8 +239,9 @@
                          $('#additional_notes').val('');
                          $("#random-check").prop( "checked", false );
                          $('#sid-antenna-root-cause').prop('selectedIndex', 0)
-                         $("#sid-mitigate-check").prop( "checked", false );
-                         $("#sid-hardened-check").prop( "checked", false );
+                         $('#sid-outage-categories').prop('selectedIndex', 0)
+                         $("#sid-mitigate-check").prop( "selectedIndex", 0);
+                         $("#sid-hardened-check").prop( "selectedIndex", 0);
                          $('#sid-antenna-tune-error').val('');
                          $('#sid-antenna-qam-error').val('');
                          $('#sid-antenna-network-error').val('');
@@ -318,7 +259,6 @@
              });
          }
      });
-
 
      $('#radio_division').click(function() {
          if ($('#radio_division').is(':checked')) {
@@ -343,10 +283,9 @@
              height: 800,
              modal: true,
              autoOpen: false,
-
          })
-
      });
+
      $(function() {
          $("#dialog").dialog({
              maxWidth: 800,
@@ -390,8 +329,7 @@
                         } else {
                              ticket_num = ticket_num_n_link
                              ticket_link = ''
-                        }
-             
+                        }             
                          data = {
                              'created_dt': create_dt.format(),
                              'end_dt': end_dt,
@@ -407,6 +345,15 @@
                              'orig_ticket_num': $('#dialog_orig_ticket_num').val(),
                              'ticket_type': $('#dialog_ticket_type').html(),
                              'update_end_dt': 'N',
+                             'antenna_root_cause': $('#dialog-sid-antenna-root-cause').val(),
+                             'outage_categories': $('#dialog-sid-outage-categories').val(),
+                             'mitigate_check': ($('#dialog-sid-mitigate-check').val() == 'Yes' ? 'Y': 'N'), 
+                             'hardened_check': ($('#dialog-sid-hardened-check').val() == 'Yes' ? 'Y': 'N'), 
+                             'antenna_tune_error': ($('#dialog-sid-antenna-tune-error').val() == '' ? 0: $('#dialog-sid-antenna-tune-error').val()),                              
+                             'antenna_qam_error': ($('#dialog-sid-antenna-qam-error').val() == '' ? 0: $('#dialog-sid-antenna-qam-error').val()),                             
+                             'antenna_network_error': ($('#dialog-sid-antenna-network-error').val() == '' ? 0: $('#dialog-sid-antenna-network-error').val()),                             
+                             'antenna_insuff_qam_error': ($('#dialog-sid-antenna-insuff-qam-error').val() == '' ? 0: $('#dialog-sid-antenna-insuff-qam-error').val()),                             
+                             'antenna_cm_error': ($('#dialog-sid-antenna-cm-error').val() == '' ? 0: $('#dialog-sid-antenna-cm-error').val()),                              
                          }
                          console.log('update data == ', data)
                          $.ajax({
@@ -438,30 +385,21 @@
          })
      })
 
-
      $("#division").change(function() {
          $("#dialog-pg").dialog("open");
      });
-
-
      $("#opener").click(function() {
          $("#dialog").dialog("open");
      });
-
-
-
      $('#query').click(function() {
          load_datatable('N')
      })
-
      $('#exportExcel').click(function() {
          load_datatable('N', 'EXCEL')
      })
-
      $('#exportPdf').click(function() {
          load_datatable('N', 'PDF')
      })
-
      var load_datatable = function(initial, download_report) {
          data = {}
          pg = []
@@ -469,6 +407,20 @@
              pg = get_pgs('#query_peergroup')
          }
          ticket_num = $('#query_ticket_no').val()
+         if ($('#query-sid-mitigate-check').val() == 'Yes'){
+             mitigate_check = 'Y'
+        }else if ($('#query-sid-mitigate-check').val() == 'All'){
+            mitigate_check = 'All'
+        }else{
+            mitigate_check = 'N'            
+        }
+        if ($('#query-sid-mitigate-check').val() == 'Yes'){
+             hardened_check = 'Y'
+        }else if ($('#query-sid-mitigate-check').val() == 'All'){
+            hardened_check = 'All'
+        }else{
+            hardened_check = 'N'            
+        }
 
          data = {
              'start_date_s': $('#query_datepicker_start').val(),
@@ -483,6 +435,20 @@
              'outage_caused': $('#query_cause').val(),
              'system_caused': $('#query_subcause').val(),
              'addt_notes': $('#query_addt_notes').html(),
+             'antenna_root_cause': $('#query-sid-antenna-root-cause').val(),
+             'outage_categories': $('#query-sid-outage-categories').val(),
+             'mitigate_check': mitigate_check, 
+             'hardened_check': hardened_check, 
+             'antenna_tune_error_s': ($('#query-sid-antenna-tune-error-s').val() == '' ? 0: $('#query-sid-antenna-tune-error-s').val()), 
+             'antenna_tune_error_e': ($('#query-sid-antenna-tune-error-e').val() == '' ? 0: $('#query-sid-antenna-tune-error-e').val()), 
+             'antenna_qam_error_s': ($('#query-sid-antenna-qam-error-s').val() == '' ? 0: $('#query-sid-antenna-qam-error-s').val()),
+             'antenna_qam_error_e': ($('#query-sid-antenna-qam-error-e').val() == '' ? 0: $('#query-sid-antenna-qam-error-e').val()),
+             'antenna_network_error_s': ($('#query-sid-antenna-network-error-s').val() == '' ? 0: $('#query-sid-antenna-network-error-s').val()),
+             'antenna_network_error_e': ($('#query-sid-antenna-network-error-e').val() == '' ? 0: $('#query-sid-antenna-network-error-e').val()),
+             'antenna_insuff_qam_error_s': ($('#query-sid-antenna-insuff-qam-error-s').val() == '' ? 0: $('#query-sid-antenna-insuff-qam-error-s').val()),
+             'antenna_insuff_qam_error_e': ($('#query-sid-antenna-insuff-qam-error-e').val() == '' ? 0: $('#query-sid-antenna-insuff-qam-error-e').val()),
+             'antenna_cm_error_s': ($('#query-sid-antenna-cm-error-s').val() == '' ? 0: $('#query-sid-antenna-cm-error-s').val()), 
+             'antenna_cm_error_e': ($('#query-sid-antenna-cm-error-e').val() == '' ? 0: $('#query-sid-antenna-cm-error-e').val()),            
              'initial': initial
          }
          console.log('data_table data == ', data)
@@ -502,22 +468,18 @@
              $('#hidden_form_addt_notes').val(data['addt_notes'])
              $('#hidden_form_tz').val($('input[name=optradio]:checked', '#tzForm').val())
              offset = new Date().getTimezoneOffset() 
-
              if ( offset > 0 ){
                 offset = '-' + offset
              }else{
                 offset = '+' + offset
              }
-
              $('#hidden_form_local_time_offset').val(offset)
-
              if (download_report == 'PDF') {
                  $('#downloadform').attr('action', '/pdf-download-data');
                  $('#downloadform').submit()
              } else {
                  $('#downloadform').attr('action', '/xls-download-data');
                  $('#downloadform').submit()
-
              }
          } else {
              $.ajax({
@@ -526,17 +488,22 @@
                  data: data,
                  success: function(result) {
                      if (result.status == 'success') {
+                        console.log(JSON.stringify(result))
                          create_tickets(result)
-                         // $('#loginid').html(login_id)
                          set_division(login_id)
                          disable_local_tz()
                          elem = $('input[name=optradio]:checked', '#tzForm').val()             
-                         set_tz(elem)
-
+                         set_tz(elem)                         
+                         if (!admin_user){
+                            $('.admin-button').hide()
+                            }
                          // If its Ninja we need to hide the edits button of SID.
                          if(window.location.href.indexOf("ninja") > -1) {                         
                             $('.editsbutton').hide()
                             }
+                        //Collapse the createsection panel
+                        $('#create-addt-fields').collapse('hide');
+                        $('#filter-addt-fields').collapse('hide');
 
                      } else if (result.status == 'session timeout') {
                          alert("Session expired -- Please relogin")
@@ -569,12 +536,8 @@
                         console.log('id matched == ' + obj.fields.region)
                         $("#division").val(obj.fields.region);
                         getval({'value':obj.fields.region},'inputting',[])
-                     }
-
-                     //ninja_users.push(obj.fields.userid)
-                 })
-                 console.log(ninja_users)
-
+                     }                   
+                 })                 
              } else {
                  alert("Unable to get all NinjaUsers/Division!! Contact Support");
              }
@@ -588,10 +551,8 @@
      load_datatable('Y')
 
      function create_tickets(jsondata) {
-         transactiondata = jsondata
-         
-         console.log('transactiondata length == ', transactiondata.results.length)
-         $("<div class='CSSTableGenerator1'></div>").appendTo("#ticket_list");
+         transactiondata = jsondata         
+         $("<div class='CSSTableGenerator1'  style=' width:100%; overflow:scroll' >").appendTo("#ticket_list");
          $('#pagination').pagination({
              items: transactiondata.results.length,
              itemsOnPage: 50,
@@ -599,7 +560,6 @@
              onPageClick: redrawData,
              cssStyle: 'light-theme'
          });
-
      }
 
      function redrawData(pageNumber, event) {
@@ -608,9 +568,7 @@
          if (pageNumber) {
              if (pageNumber == 1) {
                  slicedata = transactiondata_results.slice(0, 50)
-             } else {
-                 // slicedata = transactiondata_results.slice(pageNumber * 5,
-                 //     Math.min((pageNumber + 1) * 5, transactiondata_results.length));
+             } else {                 
                  slicedata = transactiondata_results.slice(((pageNumber - 1) * 50), 50 * pageNumber + 1)
              }
          } else {
@@ -618,28 +576,24 @@
          }
 
          $(".CSSTableGenerator1").empty()
-
-         $("<table id='ticket-table' class='table  tablesorter' style='table-layout:fixed; width:100%'> </table>").appendTo('.CSSTableGenerator1')
+         // class='table  tablesorter' style='table-layout:fixed; max-width:60px; width:100%'
+         $("<table id='ticket-table' class='table  tablesorter'  style=''> </table>").appendTo('.CSSTableGenerator1')
          $('#ticket-table').append('<thead class="thead-inverse"><tr><th style="display:none">id</th><th>User Id</th><th class="local-col">Create Date<span style="text-align:center;color:blue"> (Local)</span></th><th class="est-col" style="display:none">Create Date <span style="text-align:center;color:blue"> (EST)</span></th>' 
             + '<th class="utc-col" style="display:none">Create Date<span style="text-align:center;color:blue"> (UTC)</span></th><th class="local-col">End Date</th><th class="est-col" style="display:none">End Date</th><th class="utc-col" style="display:none">End Date</th><th>Ticket#</th>'
-            + '<th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th class="editsbutton"></th></tr></thead>');
+            + '<th> Division </th> <th>PeerGroup</th> <th>Duration</th><th>Error Count</th><th>Outage Cause</th><th>System Caused</th><th>Addt Notes</th><th class="editsbutton"></th>'
+            + '<th class="admin-button"> Antenna Root Cause </th> <th class="admin-button"> Outage Categories </th><th class="admin-button"> Mitigated </th><th class="admin-button">  Hardened </th>'
+            + '<th class="admin-button"> Antenna - Tune Error </th><th class="admin-button">  Antenna - VIDEO LOST QAM Error </th><th class="admin-button"> Antenna - Network Resource Error </th><th class="admin-button"> Antenna - Inff QAM </th><th class="admin-button"> Antenna - CM Connect </th></tr></thead>');
 
          slicedata.forEach(function(obj, i, a) {
-
-                 //obj.created_dt = new Date(obj.created_dt)
-                 //obj.created_dt = moment.tz(obj.created_dt, "America/New_York").format();
-                 //console.log("object == ", obj)
+                 console.log("object == ", obj)
                  user_id = obj.crt_user_id
                  if (typeof user_id === 'string') {
-
                  } else {
                      obj.crt_user_id = ""
                  }
-
                  created_dt_local = moment(obj.created_dt).format('MMM DD, YYYY HH:mm:ss');
                  created_dt_est = moment(obj.created_dt).tz("America/New_York").format('MMM DD, YYYY HH:mm:ss');
                  created_dt_utc = moment.utc(obj.created_dt).format('MMM DD, YYYY HH:mm:ss');
-
                  // console.log('obj.created_dt_est == ', created_dt_est)
                  // console.log('obj.created_dt_utc == ', created_dt_utc)
                  // console.log('obj.created_dt == ', created_dt_local)                 
@@ -654,32 +608,60 @@
                      row_end_ts_est = moment(obj.row_end_ts).tz("America/New_York").format('MMM DD, YYYY HH:mm:ss');
                      row_end_ts_utc = moment.utc(obj.row_end_ts).format('MMM DD, YYYY HH:mm:ss');
                  }
+
                  if (obj.ticket_link.length == 0) {
                      $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt" class="local-col">' + created_dt_local + '</td> <td id="id_created_dt_est" class="est-col" style="display:none">' 
-                        + created_dt_est + '</td> <td id="id_created_dt_utc" class="utc-col" style="display:none">' + created_dt_utc + '</td> <td id="id_row_end_ts" class="local-col">' + row_end_ts + '</td><td id="id_row_end_ts_est" class="est-col" style="display:none">' + row_end_ts_est + '</td> <td id="id_row_end_ts_utc" class="utc-col" style="display:none">' + row_end_ts_utc + '</td> <td style="word-wrap: break-word" id="id_ticket_num">' + obj.ticket_num + '</td> <td style="display:none" id="id_orig_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division 
+                        + created_dt_est + '</td> <td id="id_created_dt_utc" class="utc-col" style="display:none">' + created_dt_utc + '</td> <td id="id_row_end_ts" class="local-col">' + row_end_ts + '</td><td id="id_row_end_ts_est" class="est-col" style="display:none">' + row_end_ts_est 
+                        + '</td> <td id="id_row_end_ts_utc" class="utc-col" style="display:none">' + row_end_ts_utc + '</td> <td style="word-wrap: break-word" id="id_ticket_num">' + obj.ticket_num + '</td> <td style="display:none" id="id_orig_ticket_num">' + obj.ticket_num + '</td> <td id="id_division">' + obj.division 
                         + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused 
-                        + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td class="editsbutton" ><button  id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td></tr>');
+                        + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td class="editsbutton" ><button  id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td>'
+                        + '<td class="admin-button" id="id_antenna_root_cause">' + obj.antenna_root_caused + '</td> '
+                        + '<td class="admin-button" id="id_outage_categories">' + obj.outage_categories + '</td> '
+                        + '<td class="admin-button" id="id_mitigate_check">' + (obj.mitigate_check == 'Y' ? 'Yes': 'No') + '</td> '
+                        + '<td class="admin-button" id="id_hardened_check">' + (obj.hardened_check == 'Y' ? 'Yes': 'No') + '</td> '
+                        + '<td class="admin-button" id="id_antenna_tune_error">' + obj.antenna_tune_error + '</td> '
+                        + '<td class="admin-button" id="id_antenna_qam_error">' + obj.antenna_qam_error + '</td> '
+                        + '<td class="admin-button" id="id_antenna_network_error">' + obj.antenna_network_error + '</td> '
+                        + '<td class="admin-button" id="id_antenna_insuff_qam_error">' + obj.antenna_insuff_qam_error + '</td> '
+                        + '<td class="admin-button" id="id_antenna_cm_error">' + obj.antenna_cm_error + '</td> '
+                        + '</tr>');
+                    var row_index = $('#ticket-table tr:last').index()
+                    // alert(row_index)
+                    //$('#ticket-table tr:laafter( '<td>cell 1a</td>' );
+                     // $('#ticket-table > tr > td:first-child').after( '<td>cell 1a</td>' );
+
                  } else {
-                    
+                    // continue;
                      $('#ticket-table').append('<tr><td id="id_tkt_type" style="display:none">' + obj.ticket_type + '</td><td id="id_user_id">' + obj.crt_user_id + '</td><td id="id_created_dt" class="local-col">' + created_dt_local + '</td> <td id="id_created_dt_est" class="est-col" style="display:none">' 
-                        + created_dt_est + '</td> <td id="id_created_dt_utc" class="utc-col" style="display:none">' + created_dt_utc + '</td> <td id="id_row_end_ts" class="local-col">' + row_end_ts + '</td><td id="id_row_end_ts_est" class="est-col" style="display:none">' + row_end_ts_est + '</td><td id="id_row_end_ts_utc" class="utc-col" style="display:none">' + row_end_ts_utc + '</td> ' 
+                        + created_dt_est + '</td> <td id="id_created_dt_utc" class="utc-col" style="display:none">' + created_dt_utc + '</td> <td id="id_row_end_ts" class="local-col">' + row_end_ts + '</td><td id="id_row_end_ts_est" class="est-col" style="display:none">' + row_end_ts_est 
+                        + '</td><td id="id_row_end_ts_utc" class="utc-col" style="display:none">' + row_end_ts_utc + '</td> ' 
                         + '<td style="word-wrap: break-word" id="id_ticket_num"><a href="' + obj.ticket_link + '" target="_blank" >' + obj.ticket_num + '</a> </td>'  
                         + '<td style="display:none" id="id_orig_ticket_num">' + obj.ticket_num + '</td> '
-                        + '<td id="id_division">'  + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' + obj.error_count + '</td><td id="id_outage_caused">' 
-                        + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' + obj.addt_notes + '</div></td><td class="editsbutton"><button class="editbutton" id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td>'
-                        + '<td style="display:none" id="id_orig_ticket_link">' + obj.ticket_link + '</td> </tr>');
+                        + '<td id="id_division">'  + obj.division + '</td><td id="id_pg">  <select class="form-control input-sm" id="table_pg' + i + '""> </select>  </td> <td id="id_duration">' + obj.duration + '</td><td id="id_error_count">' 
+                        + obj.error_count + '</td><td id="id_outage_caused">' + obj.outage_caused + '</td><td id="id_system_caused">' + obj.system_caused + '</td><td id="id_addt_notes" ><div style="height:40px;overflow:scroll" title="' + obj.addt_notes + '">' 
+                        + obj.addt_notes + '</div></td><td class="editsbutton"><button class="editbutton" id="edit' + i + '"">edit</button><button id="end' + i + '"">end</button></td>'
+                        + '<td style="display:none" id="id_orig_ticket_link">' + obj.ticket_link + '</td>' +
+                        + '<td class="admin-button" id="id_antenna_root_cause">' + obj.antenna_root_caused + '</td> '
+                        + '<td class="admin-button" id="id_outage_categories">' + obj.outage_categories + '</td> '
+                        + '<td class="admin-button" id="id_mitigate_check">' + obj.mitigate_check + '</td> '
+                        + '<td class="admin-button" id="id_hardened_check">' + obj.hardened_check + '</td> '
+                        + '<td class="admin-button" id="id_antenna_tune_error">' + obj.antenna_tune_error + '</td> '
+                        + '<td class="admin-button" id="id_antenna_qam_error">' + obj.antenna_qam_error + '</td> '
+                        + '<td class="admin-button" id="id_antenna_network_error">' + obj.antenna_network_error + '</td> '
+                        + '<td class="admin-button" id="id_antenna_insuff_qam_error">' + obj.antenna_insuff_qam_error + '</td> '
+                        + '<td class="admin-button" id="id_antenna_cm_error">' + obj.antenna_cm_error + '</td> '
+                        + '</tr>');                        
                  }
 
                  login_id = obj.login_id
+                 admin_user = obj.admin_user
 
                  for (j = 0; j < obj.pg.length; j++) {
-
                      if (obj.pg[j] == 'ALL') {
                          pg_name = ''
                      } else {
                          pg_name = pg_names[obj.pg[j]]
                      }
-
                      $('#table_pg' + i).append($('<option>', {
                          value: obj.pg[j],
                          text: obj.pg[j] + ' ' + pg_name
@@ -739,7 +721,15 @@
              },
              theme: "bootstrap",
              headerTemplate: '{content} {icon}',
-             widgets: ['uitheme'],
+             widgets: ['uitheme','scroller'],
+             widgetOptions: {
+                scroller_fixedColumns: 1,
+                scroller_height: 300,
+                // scroll tbody to top after sorting
+                scroller_upAfterSort: true,
+                // pop table header into view while scrolling up the page
+                scroller_jumpToHeader: true
+            }
          });
 
 
@@ -779,7 +769,10 @@
              var id = $(this).attr('id');
              row = $(this).parent().parent()
              ticket_type = row.find("#id_ticket_type").html()
+             
              tz = $('input[name=optradio]:checked', '#tzForm').val()             
+
+             //All these values are hidden in the report 
              if (tz == 'local'){
                 created_dt = row.find("#id_created_dt").html()  
                 end_dt = row.find("#id_row_end_ts").html()              
@@ -793,6 +786,7 @@
              // alert(end_dt)
              // end_dt = row.find("#id_row_end_ts").html()
              ticket_num = row.find("#id_ticket_num").text()
+             alert(ticket_num)
              
              orig_ticket_num = row.find("#id_orig_ticket_num").html()
              division = row.find("#id_division").html()
@@ -803,6 +797,28 @@
              outage_caused = row.find('#id_outage_caused').html()
              system_caused = row.find("#id_system_caused").html()
              addt_notes = row.find("#id_addt_notes").html()
+
+             antenna_root_cause = row.find("#id_antenna_root_cause").html()
+             outage_categories = row.find("#id_outage_categories").html()
+             mitigate_check = row.find("#id_mitigate_check").html()
+             hardened_check = row.find("#id_hardened_check").html()
+             antenna_tune_error = row.find("#id_antenna_tune_error").html()
+             antenna_cm_error = row.find("#id_antenna_cm_error").html()
+             antenna_qam_error = row.find("#id_antenna_qam_error").html()
+             antenna_network_error = row.find("#id_antenna_network_error").html()
+             antenna_insuff_qam_error = row.find("#id_antenna_insuff_qam_error").html()             
+             mitigate_check = (mitigate_check == 'Y' ? 'Yes': 'No')
+             hardened_check = (mitigate_check == 'Y' ? 'Yes': 'No')
+             $('#dialog-sid-antenna-root-cause').val(antenna_root_cause)
+             $('#dialog-sid-outage-categories').val(outage_categories)
+             $("#dialog-sid-mitigate-check").val(mitigate_check)
+             $("#dialog-sid-hardened-check").val(hardened_check)
+             $('#dialog-sid-antenna-tune-error').val(antenna_tune_error);
+             $('#dialog-sid-antenna-qam-error').val(antenna_qam_error);
+             $('#dialog-sid-antenna-network-error').val(antenna_network_error);
+             $('#dialog-sid-antenna-insuff-qam-error').val(antenna_insuff_qam_error);
+             $('#dialog-sid-antenna-cm-error').val(antenna_cm_error);
+
              $('#dialog_created_dt').datetimepicker('reset');
              $('#dialog_created_dt').datetimepicker({
                  value: new Date(created_dt),
@@ -822,13 +838,7 @@
                      value: new Date(end_dt),
                      step: 10
                  });
-             }
-
-             // if (ticket_num.substring(0,4) == 'http'){
-
-             //    ticket_num = '<a href="' + obj.ticket_link + '" target="_blank" >' + obj.ticket_num + '</a>
-             // }
-             
+             }             
              $("#dialog_ticket_num").val(ticket_num)             
              if (typeof row.find("#id_orig_ticket_link").html() != 'undefined'){
                 $("#dialog_ticket_num").val(row.find("#id_orig_ticket_link").html())
@@ -843,7 +853,6 @@
              });
 
              getval(division, 'setting', pg_cds_array)
-
              $("#dialog_duration select").val(duration)
              //$("#dialog_error_count select").val(error_count)
              $("#row_error_count").val(error_count)

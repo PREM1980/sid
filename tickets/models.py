@@ -85,6 +85,12 @@ class AntennaRootCaused(models.Model):
 	class Meta:
 		db_table = 'antenna_root_caused'
 
+class OutageCategories(models.Model):
+	ID = models.AutoField(primary_key=True, db_column='outage_categories_id')
+	outage_categories = models.CharField(db_column='outage_categories',max_length=200,null=True)
+	class Meta:
+		db_table = 'outage_categories'
+
 
 class Tickets(models.Model):
 	#ID = models.UUIDField(primary_key=True, default=uuid.uuid4,
@@ -103,13 +109,14 @@ class Tickets(models.Model):
 	row_create_ts = models.DateTimeField(default=datetime.now(tz=pytz.utc).isoformat())
 	row_update_ts = models.DateTimeField(default=datetime.now(tz=pytz.utc).isoformat())
 	antenna_root_cause 		 = models.IntegerField(db_column='antenna_root_cause',default=None,null=True)
-	mitigate_check 			 = models.CharField(max_length=1, db_column='mitigate_check',default=None,null=True)
-	hardened_check			 = models.CharField(max_length=1, db_column='hardened_check',default=None,null=True)
-	antenna_tune_error 		 = models.IntegerField(db_column='antenna_tune_error',default=None,null=True)	
-	antenna_qam_error 		 = models.IntegerField(db_column='antenna_qam_error',default=None,null=True)	
-	antenna_network_error 	 = models.IntegerField(db_column='antenna_network_error',default=None,null=True)	
-	antenna_insuff_qam_error = models.IntegerField(db_column='antenna_insuff_qam_error',default=None,null=True)	
-	antenna_cm_error 		 = models.IntegerField(db_column='antenna_cm_error',default=None,null=True)	
+	outage_categories 		 = models.IntegerField(db_column='outage_categories',default=None,null=True)
+	mitigate_check 			 = models.CharField(max_length=1, db_column='mitigate_check',default='N',null=True)
+	hardened_check			 = models.CharField(max_length=1, db_column='hardened_check',default='N',null=True)
+	antenna_tune_error 		 = models.IntegerField(db_column='antenna_tune_error',default=0,null=True)	
+	antenna_qam_error 		 = models.IntegerField(db_column='antenna_qam_error',default=0,null=True)	
+	antenna_network_error 	 = models.IntegerField(db_column='antenna_network_error',default=0,null=True)	
+	antenna_insuff_qam_error = models.IntegerField(db_column='antenna_insuff_qam_error',default=0,null=True)	
+	antenna_cm_error 		 = models.IntegerField(db_column='antenna_cm_error',default=0,null=True)	
 	
 	row_end_ts = models.DateTimeField(
 		default='9999-12-31 00:00:00.00000-00', db_column='row_end_ts')

@@ -44,7 +44,7 @@ input[type=button] {
 
 /** CSS Table Generator*/
 
-.CSSTableGenerator {
+/*.CSSTableGenerator {
     margin: 0px;
     padding: 0px;
     width: 100%;
@@ -156,7 +156,7 @@ input[type=button] {
 
 .CSSTableGenerator tr:first-child td:last-child {
     border-width: 0px 0px 1px 1px;
-}
+}*/
 
 .datagrid table {
     border-collapse: collapse;

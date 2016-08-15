@@ -1,8 +1,10 @@
 import socket
 import ldap
 from django.conf import settings
+from models import NinjaUsers
 from dateutil import parser
 from django.utils.timezone import localtime
+from django.shortcuts import render, render_to_response, HttpResponse
 import iso8601
 import pytz
 from dateutil import tz
@@ -53,9 +55,7 @@ def check_user_auth(username,password):
 
 def check_session_variable(request):
 	if 'userid' in request.session:
-		print 'utils session id set ==', request.session['userid']
-		# print 'utils session get_expiry date ==', request.session.get_expiry_date()
-		# print 'utils session get_expiry age ==', request.session.get_expiry_age()
+		print 'utils session id set ==', request.session['userid']		
 		return request.session['userid']
 	else:
 		return None		
@@ -73,4 +73,25 @@ def hide_sid_create_section():
 	return hide
 
 def check_if_admin(user_id):
-	return True if NinjaUsers.objects.filter(userid=user_id).filter(admin='Y').exist() else False
+	return True if NinjaUsers.objects.filter(userid=user_id).filter(admin='Y').exists() else False
+
+
+def page_redirects(request,userid):	
+	print 'check_if_admin(userid) == ', check_if_admin(userid)
+	if settings.LOCAL_TEST_NINJA == True:
+		if settings.NINJA == True:
+			return render(request,'dashboard/main.html',{'error':'N'})				
+		else:
+			return render(request,'tickets/sid_mainpage.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid)})		
+	else:				
+		if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
+			return render(request,'dashboard/main.html',{'error':'N'})										
+		
+		return render(request,'tickets/sid_mainpage.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid)})
+
+def page_redirects_login(request):
+	if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
+		return render(request,'tickets/ninja_loginpage.html',{'error':'N'})
+
+	return render(request,'tickets/sid_loginpage.html')
+	

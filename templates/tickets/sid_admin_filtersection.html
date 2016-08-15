@@ -1,6 +1,6 @@
-<button class="btn-success" data-toggle="collapse" data-target="#create-addt-fields">Create - Additional Fields</button>
+<button class="btn-success" data-toggle="collapse" data-target="#filter-addt-fields">Filter Additional Fields</button>
 
-<div id="create-addt-fields" class="collapse">
+<div id="filter-addt-fields" class="collapse">
     <br>
     <br>
     <table class="table table-borderless">
@@ -10,7 +10,7 @@
             </td>
             <td>
                 <div>
-                    <select id="sid-antenna-root-cause" class="input-sm" " >                                            
+                    <select id="query-sid-antenna-root-cause" class="input-sm" " >                                            
                     <option selected='selected'></option>
                     <option>UDB</option>
                     <option>Ramsden</option>
@@ -34,7 +34,7 @@
             </td>
             <td>
                 <div>
-                    <select id="sid-outage-categories" class="input-sm" >                                            
+                    <select id="query-sid-outage-categories" class="input-sm" >                                            
                     <option selected='selected'></option>
                     <option>VLQOK Errors</option>
                     <option>CM_CONNECT Errors</option>
@@ -49,13 +49,13 @@
             </td>            
         </tr>
         <tr>
+
             <td>
                 <label>Mitigated against future outages due to same stimulus? </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </td>
             <td>                            
-                <!-- <label><input type="checkbox" id="sid-mitigate-check" value="">&nbsp;&nbsp;&nbsp;Yes/No</label> -->
-                <select id="sid-mitigate-check" class="input-sm" >                                            
-                    <option selected='selected'></option>
+                <select id="query-sid-mitigate-check" class="input-sm" >                                            
+                    <option selected='selected'>All</option>
                     <option>Yes</option>
                     <option>No</option>                    
                 </select>
@@ -66,10 +66,9 @@
             <td>
                 <label>Hardened against future outages due to same architectural dependency? </label>&nbsp;&nbsp;
             </td>            
-            <td>                            
-                <!-- <label><input type="checkbox" id="sid-hardened-check" value="">&nbsp;&nbsp;&nbsp;Yes/No</label> -->
-                <select id="sid-hardened-check" class="input-sm" >                                            
-                    <option selected='selected'></option>
+            <td>                                            
+                <select id="query-sid-hardened-check" class="input-sm" >                                            
+                    <option selected='selected'>All</option>
                     <option>Yes</option>
                     <option>No</option>                    
                 </select>
@@ -80,7 +79,9 @@
                 <label>Quantity of Antenna errors = Tune Error</label>&nbsp;&nbsp;
             </td>            
             <td>                            
-                <label><input type="input" id="sid-antenna-tune-error" value=""></label>
+                <label><input type="input" id="query-sid-antenna-tune-error-s" value=""></label>
+                and
+                <label><input type="input" id="query-sid-antenna-tune-error-e" value=""></label>
             </td>
             
         </tr>
@@ -89,7 +90,9 @@
                 <label>Quantity of Antenna errors = Video Lost QAM OK</label>&nbsp;&nbsp;
             </td>            
             <td>                            
-                <label><input type="input" id="sid-antenna-qam-error" value=""></label>
+                <label><input type="input" id="query-sid-antenna-qam-error-s" value=""></label>
+                and
+                <label><input type="input" id="query-sid-antenna-qam-error-e" value=""></label>
             </td>
             
         </tr>
@@ -98,7 +101,9 @@
                 <label>Quantity of Antenna errors = Network Resource Failure</label>&nbsp;&nbsp;
             </td>            
             <td>                            
-                <label><input type="input" id="sid-antenna-network-error" value=""></label>
+                <label><input type="input" id="query-sid-antenna-network-error-s" value=""></label>
+                and
+                <label><input type="input" id="query-sid-antenna-network-error-e" value=""></label>
             </td>
             
         </tr>
@@ -107,7 +112,9 @@
                 <label>Quantity of Antenna errors = Insufficient QAM Bandwidth </label>&nbsp;&nbsp;
             </td>            
             <td>                            
-                <label><input type="input" id="sid-antenna-insuff-qam-error" value=""></label>
+                <label><input type="input" id="query-sid-antenna-insuff-qam-error-s" value=""></label>
+                and
+                <label><input type="input" id="query-sid-antenna-insuff-qam-error-e" value=""></label>
             </td>
             
         </tr>
@@ -116,7 +123,9 @@
                 <label>Quantity of Antenna errors = CM Connect</label>&nbsp;&nbsp;
             </td>            
             <td>                            
-                <label><input type="input" id="sid-antenna-cm-error" value=""></label>
+                <label><input type="input" id="query-sid-antenna-cm-error-s" value=""></label>
+                and
+                <label><input type="input" id="query-sid-antenna-cm-error-e" value=""></label>
             </td>
             
         </tr>

@@ -21,7 +21,9 @@ all_query = {'generic': """
 							,tb1.antenna_cm_error
 							,tb1.antenna_network_error
 							,tb1.antenna_qam_error
-							,tb1.antenna_insuff_qam_error							
+							,tb1.antenna_insuff_qam_error	
+							,tb10.antenna_root_caused						
+							,tb11.outage_categories						
 							from sid.tickets tb1
 							inner join
 							sid.division tb2
@@ -38,6 +40,12 @@ all_query = {'generic': """
 							inner join
 							sid.system_caused tb6
 							on tb1.system_caused_id = tb6.system_caused_id
+							inner join
+							sid.antenna_root_caused tb10
+							on tb1.antenna_root_cause = tb10.antenna_root_cause_id
+							inner join
+							sid.outage_categories tb11
+							on tb1.outage_categories = tb11.outage_categories_id
 							inner join
 							sid.tickets_pgs tb7
 							on tb1.ticket_num = tb7.tickets_id
@@ -73,7 +81,9 @@ all_query = {'generic': """
 							,tb1.antenna_cm_error
 							,tb1.antenna_network_error
 							,tb1.antenna_qam_error
-							,tb1.antenna_insuff_qam_error							
+							,tb1.antenna_insuff_qam_error		
+							,tb10.antenna_root_caused						
+							,tb11.outage_categories											
 							from sid.tickets tb1
 							inner join
 							sid.division tb2
@@ -90,6 +100,12 @@ all_query = {'generic': """
 							inner join
 							sid.system_caused tb6
 							on tb1.system_caused_id = tb6.system_caused_id
+							inner join
+							sid.antenna_root_caused tb10
+							on tb1.antenna_root_cause = tb10.antenna_root_cause_id
+							inner join
+							sid.outage_categories tb11
+							on tb1.outage_categories = tb11.outage_categories_id
 							inner join
 							sid.tickets_pgs tb7
 							on tb1.ticket_num = tb7.tickets_id
@@ -123,7 +139,9 @@ all_query = {'generic': """
 							,tb1.antenna_cm_error
 							,tb1.antenna_network_error
 							,tb1.antenna_qam_error
-							,tb1.antenna_insuff_qam_error							
+							,tb1.antenna_insuff_qam_error
+							,tb10.antenna_root_caused						
+							,tb11.outage_categories																		
 							from sid.tickets tb1
 							inner join
 							sid.division tb2
@@ -140,6 +158,12 @@ all_query = {'generic': """
 							inner join
 							sid.system_caused tb6
 							on tb1.system_caused_id = tb6.system_caused_id
+							inner join
+							sid.antenna_root_caused tb10
+							on tb1.antenna_root_cause = tb10.antenna_root_cause_id
+							inner join
+							sid.outage_categories tb11
+							on tb1.outage_categories = tb11.outage_categories_id
 							inner join
 							sid.tickets_pgs tb7
 							on tb1.ticket_num = tb7.tickets_id

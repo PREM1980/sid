@@ -1,6 +1,6 @@
 from django.conf.urls import include, url
 from django.contrib import admin
-from tickets.views import ChartsData,ChartsView,NinjaUsersData,PostTicketData, GetTicketData,UpdateTicketData,RecordFeedBack, LoginView,ExcelDownload, PDFDownload, SIDView, GetUUIDView
+from tickets.views import ChartsData,ChartsView,NinjaUsersData,PostTicketData, GetTicketData,UpdateTicketData,RecordFeedBack, LoginView,ExcelDownload, PDFDownload, NinjaSIDView, GetUUIDView
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
@@ -12,7 +12,7 @@ if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server'] or \
         url(r'^admin', include(admin.site.urls)),
         url(r'^$', TemplateView.as_view(template_name="tickets/ninja_loginpage.html"),name='loginpage'),
         url(r'^ninja-login$', LoginView.as_view()),
-        url(r'^ninja-sid/main$', SIDView.as_view()),
+        url(r'^ninja-sid/main$', NinjaSIDView.as_view()),
         url(r'^get-ticket-data$', GetTicketData.as_view(), name="get_ticket_data"),        
         #Get all charts for SID
         url(r'^charts$', ChartsView.as_view()),    

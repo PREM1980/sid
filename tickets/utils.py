@@ -78,18 +78,23 @@ def check_if_admin(user_id):
 def page_redirects(request,userid):		
 	if settings.LOCAL_TEST_NINJA == True:
 		if settings.NINJA == True:			
-			return render(request,'dashboard/main.html',{'error':'N','admin_user':check_if_admin(userid)})				
+			return render(request,'dashboard/ninja_landing_page.html',{'error':'N','admin_user':check_if_admin(userid)})				
 		else:
-			return render(request,'tickets/sid_mainpage.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid)})		
+			return render(request,'tickets/sid_landing_page.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid)})		
 	else:				
 		if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
-			return render(request,'dashboard/main.html',{'error':'N','admin_user':check_if_admin(userid)})										
-		
-		return render(request,'tickets/sid_mainpage.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid)})
+			return render(request,'dashboard/ninja_landing_page.html',{'error':'N','admin_user':check_if_admin(userid)})												
+		return render(request,'tickets/sid_landing_page.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid)})
 
 def page_redirects_login(request):
+	if settings.LOCAL_TEST_NINJA == True:
+		if settings.NINJA == True:			
+			return render(request,'tickets/ninja_loginpage.html',{'error':'N'})
+		else:
+			return render(request,'tickets/sid_loginpage.html',{'error':'N'})
+	
 	if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
 		return render(request,'tickets/ninja_loginpage.html',{'error':'N'})
 
-	return render(request,'tickets/sid_loginpage.html')
+	
 	

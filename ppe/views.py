@@ -30,10 +30,11 @@ class LoginView(View):
 		return super(LoginView, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):
+		print 'im here ppe get'
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
 			return utils.page_redirects_login(request)
-		return utils.page_redirects(request,user_id)		
+		return render(request,'ppe/ppe_landing_page.html',{'error':'N'})
 
 	def post(self, request):
 		ip = utils.getip()
@@ -43,9 +44,9 @@ class LoginView(View):
 		result = utils.check_user_auth(request.POST['username'],request.POST['password'])
 		if result['status'] == 'success':
 			request.session['userid'] = request.POST['username']
-			return render(request,'ppe/mainpage.html',{'error':'N'})
+			return render(request,'ppe/ppe_landing_page.html',{'error':'N'})
 		else:
-			return render(request,'tickets/loginpage.html',{'error':'Y','msg':result['status']})
+			return utils.page_redirects_login(request,user_id)
 
 class PullPPE(View):
 	@method_decorator(csrf_exempt)

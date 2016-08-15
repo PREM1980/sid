@@ -36,8 +36,6 @@
     <script src="{% static "multiselect/jquery.multiselect.filter.js" %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static "multiselect/jquery.multiselect.filter.css" %}"/>
 
-    
-
     <!-- <link rel="stylesheet"  type="text/css" media="print, projection, screen" href="{% static "__jquery.tablesorter/themes/blue/style.css" %}"/>
     <link rel="stylesheet"  type="text/css" media="print, projection, screen" href="{% static "__jquery.tablesorter/themes/bootstrap/theme.bootstrap.css" %}"/> -->
 
@@ -75,15 +73,14 @@
   
     
     <ul class="nav navbar-nav">
-      <li class="active"><a href="/login">Home</a></li>
+      <li class="active"><a href="/ninja-login">Home</a></li>
       <li><a href="/vbo/main">VBO</a></li>
       <li><a href="/ninja-sid/main">SID</a></li>
       <li><a href="/et/main">Error Trending</a></li>
       <li><a href="/ppe/main">PPE</a></li>
     </ul>
   
-</nav>
-     
+</nav>     
      {% block content %}{% endblock content %}    
      </div>
 </body>

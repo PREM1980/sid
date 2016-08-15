@@ -41,11 +41,13 @@ class LoginView(View):
 		return super(LoginView, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):
+		print 'Loginview'
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
 			return utils.page_redirects_login(request)
-		return utils.page_redirects(request,user_id)		
-
+		else:
+			return utils.page_redirects(request,request.session['userid'])
+		
 	def post(self, request):
 		ip = utils.getip()
 		username = request.POST['username']
@@ -58,19 +60,17 @@ class LoginView(View):
 		else:
 			return utils.page_redirects_login(request)
 
-class SIDView(View):
+class NinjaSIDView(View):
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
-		return super(SIDView, self).dispatch(request, *args, **kwargs)
+		return super(NinjaSIDView, self).dispatch(request, *args, **kwargs)
 
-	def get(self, request):
-		print 'loginview prem-1'
+	def get(self, request):	
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
-			return render(request,'tickets/loginpage.html',{'error':'N'})
-		return render(request,'tickets/ninja_mainpage.html',{'hide':utils.hide_sid_create_section(),
+			return utils.page_redirects_login(request)
+		return render(request,'tickets/ninja_sid_page.html',{'hide':utils.hide_sid_create_section(),
 										'admin_user':utils.check_if_admin(user_id)})								
-
 
 class GetUUIDView(View):
 	@method_decorator(csrf_exempt)

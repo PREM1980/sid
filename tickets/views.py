@@ -854,6 +854,7 @@ def enum_results(user_id,results):
 	output = []
 
 	for counter, each in enumerate(results):
+		print 'prem cm-error == ', each[18]
 		curr_ticket_num = each[0]
 		if counter == 0:
 			prev_ticket_num = curr_ticket_num				
@@ -880,18 +881,51 @@ def enum_results(user_id,results):
 			data['ticket_link'] = each[14]
 			data['hardened_check'] = each[15]
 			data['mitigate_check'] = each[16]
-			data['antenna_tune_error'] = each[17]
-			data['antenna_cm_error'] = each[18]
-			data['antenna_network_error'] = each[19]
-			data['antenna_qam_error'] = each[20]
-			data['antenna_insuff_qam_error'] = each[21]
-			data['antenna_root_caused'] = each[22]
-			data['outage_categories'] = each[23]
+			if each[17] is None:
+				data['antenna_tune_error'] = ''
+			else:
+				data['antenna_tune_error'] = each[17]
+			
+			if each[18] is None:
+				data['antenna_cm_error'] = ''
+			else:
+				data['antenna_cm_error'] = each[18]
+			
+			if each[19] is None:
+				data['antenna_network_error'] = ''
+			else:
+				data['antenna_network_error'] = each[19]
+
+			if each[20] is None:
+				data['antenna_qam_error'] = ''
+			else:
+				data['antenna_qam_error'] = each[20]
+
+			if each[21] is None:
+				data['antenna_insuff_qam_error'] = ''
+			else:
+				data['antenna_insuff_qam_error'] = each[21]
+
+			if each[22] is None:
+				data['antenna_root_caused'] = ''
+			else:
+				data['antenna_root_caused'] = each[22]			
+
+			if each[23] is None:
+				data['outage_categories'] = ''
+			else:
+				data['outage_categories'] = each[23]			
+
+			# data['antenna_qam_error'] = each[20]
+			# data['antenna_insuff_qam_error'] = each[21]
+			# data['antenna_root_caused'] = each[22]
+			# data['outage_categories'] = each[23]
 			if each[11] is None:
 				data['addt_notes'] = ""
 			else:
 				data['addt_notes'] = each[11]
 		else:
+			print 'prem cm-error == ', each[18]
 			if 'ALL' in pg_cd:
 				pg_cd = ['ALL']
 			data['pg'] = pg_cd
@@ -919,13 +953,39 @@ def enum_results(user_id,results):
 			data['ticket_link'] = each[14]
 			data['hardened_check'] = each[15]
 			data['mitigate_check'] = each[16]
-			data['antenna_tune_error'] = each[17]
-			data['antenna_cm_error'] = each[18]
-			data['antenna_network_error'] = each[19]
-			data['antenna_qam_error'] = each[20]
-			data['antenna_insuff_qam_error'] = each[21]
-			data['antenna_root_caused'] = each[22]
-			data['outage_categories'] = each[23]
+			if each[17] is None:
+				data['antenna_tune_error'] = ''
+			else:
+				data['antenna_tune_error'] = each[17]
+			
+			if each[18] is None:
+				data['antenna_cm_error'] = ''
+			else:
+				data['antenna_cm_error'] = each[18]
+			
+			if each[19] is None:
+				data['antenna_network_error'] = ''
+			else:
+				data['antenna_network_error'] = each[19]
+
+			if each[20] is None:
+				data['antenna_qam_error'] = ''
+			else:
+				data['antenna_qam_error'] = each[20]
+
+			if each[21] is None:
+				data['antenna_insuff_qam_error'] = ''
+			else:
+				data['antenna_insuff_qam_error'] = each[21]
+			if each[22] is None:
+				data['antenna_root_caused'] = ''
+			else:
+				data['antenna_root_caused'] = each[22]			
+
+			if each[23] is None:
+				data['outage_categories'] = ''
+			else:
+				data['outage_categories'] = each[23]			
 			if each[11] is None:
 				data['addt_notes'] = ""
 			else:
@@ -940,6 +1000,8 @@ def enum_results(user_id,results):
 		output.append(data)
 		data = {}
 		pg_cd = []			
+	import pprint
+	print 'output == ' ,pprint.pprint(output)
 	return output
 
 class PDFDownload(View):

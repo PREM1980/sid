@@ -478,12 +478,14 @@ $(document).ready(function() {
     $('#report_names').on('change', function() {
         var selected = $(this).find("option:selected").val();
         var report_dates = []
+        console.log('report_names_and_dates == ', JSON.stringify(report_names_and_dates))
         report_names_and_dates.forEach(function(obj) {
             if (obj.report_name == selected) {
                 report_dates.push(obj.report_run_date + '&&&&' + obj.id)
             }
         })
-        $('#report_dates').val('');
+        console.log('report_dates == ', JSON.stringify(report_dates))
+        $('#report_dates').empty();
         report_dates.forEach(function(each) {
         	console.log('each == ' + each)
         	console.log('each-length == ' + each.length)
@@ -742,19 +744,11 @@ $(document).ready(function() {
                     tickInterval: 180,
                 },
                 yAxis: {
-                	max:.5,
+                	max: 5,
                     title: {
                         text: 'National QAM VOD Error Rate'
-                    },
-                    plotLines: [{
-                    	min : .1,
-                    	max : .5,
-                        value: 0,
-                        width: 2,
-                        color: '#808080'
-                    }],
-                    tickInterval: .1,
-
+                    },                    
+                    tickInterval: 1,
                     labels:{
                     	format : '{value} %'
                     }
@@ -847,9 +841,9 @@ $(document).ready(function() {
                     spikes_weekly_vw2 = []
                     spikes_weekly_vw3 = []
                     spikes_weekly_vw4 = []                    
-
+                    // spikes_categories.push(moment(obj.report_create_time).format('MM/DD/YYYY HH:mm') )
                     spikes.forEach(function(obj) {
-                        spikes_weekly_date_time.push(obj.report_create_time)
+                        spikes_weekly_date_time.push(moment(obj.report_create_time).format('MM/DD/YYYY HH:mm'))
                         spikes_weekly_ve1.push(obj.ve1)
                         spikes_weekly_ve2.push(obj.ve2)
                         spikes_weekly_ve3.push(obj.ve3)
@@ -869,7 +863,7 @@ $(document).ready(function() {
    		console.log('spikes_weekly_date_time == ', spikes_weekly_date_time)
             $('#weekly-report-3').highcharts({
                 title: {
-                    text: 'Spikes NBRF %',
+                    text: 'Simultaneous Session Graph',
                     x: -20 //center
                 },
                 subtitle: {
@@ -881,12 +875,13 @@ $(document).ready(function() {
                 }],
                 xAxis: {
                     categories: spikes_weekly_date_time,
-                    tickInterval: 60,
+                    tickInterval: 40,
                 },
                 yAxis: {
                     title: {
                         text: 'Number of Simultaneous Sessions'
                     },
+                    tickInterval: 20000,
                     plotLines: [{
                         value: 0,
                         width: 1,
@@ -894,7 +889,7 @@ $(document).ready(function() {
                     }]
                 },
                 tooltip: {
-                    valueSuffix: '°C'
+                    valueSuffix: ''
                 },
                 legend: {
                     layout: 'vertical',
@@ -905,42 +900,42 @@ $(document).ready(function() {
                 series: [
                     // {turboThreshold: 2000 },
                     {
-                        name: 'BR Denial Rate',
+                        name: 'VE1 Simultaneous Sessions',
                         data: spikes_weekly_ve1,
                         turboThreshold: 12000,
                         lineWidth: 1
                     }, {
-                        name: 'VLQOK Error Rate',
+                        name: 'VE2 Simultaneous Sessions',
                         data: spikes_weekly_ve2,
                         turboThreshold: 12000,
                         lineWidth: 1
                     }, {
-                        name: 'UDB Error Rate',
+                        name: 'VE3 Simultaneous Sessions',
                         data: spikes_weekly_ve3,
                         turboThreshold: 12000,
                         lineWidth: 1
                     }, {
-                        name: 'VCP Error Rate',
+                        name: 'VE4 Simultaneous Sessions',
                         data: spikes_weekly_ve4,
                         turboThreshold: 12000,
                         lineWidth: 1
                     }, {
-                        name: 'Plant Error Rate',
+                        name: 'VW1 Simultaneous Sessions',
                         data: spikes_weekly_vw1,
                         turboThreshold: 12000,
                         lineWidth: 1
                     }, {
-                        name: 'NetworkResourceFailure Rate',
+                        name: 'VW2 Simultaneous Sessions',
                         data: spikes_weekly_vw2,
                         turboThreshold: 12000,
                         lineWidth: 1
                     }, {
-                        name: 'CDN Setup Error Rate',
+                        name: 'VW3 Simultaneous Sessions',
                         data: spikes_weekly_vw3,
                         turboThreshold: 12000,
                         lineWidth: 1
                     }, {
-                        name: 'CM Connect Error Rate',
+                        name: 'VW4 Simultaneous Sessions',
                         data: spikes_weekly_vw4,
                         turboThreshold: 12000,
                         lineWidth: 1
@@ -958,32 +953,38 @@ $(document).ready(function() {
             success: function(result) {
             	console.log('monthly report-4 result == ', result)
                 if (result.status == 'success') {
-                    console.log('chart results == ', JSON.stringify(result.results.report_4))
+                    // console.log('chart results == ', JSON.stringify(result.results.report_4))
                     spikes = result.results.report_4
                     spikes_weekly_date_time = []
                     spikes_weekly_99th_rtime_sessiondhtclientimpl_persist  = []
-                    spikes_weekly_99th_rtime_setup_js = []
+                    // spikes_weekly_99th_rtime_setup_js = []
                     spikes_weekly_99th_rtime_expandplaylist = []
                     spikes_weekly_99th_rtime_setupermsession = []
                     spikes_weekly_99th_rtime_setupodrmsession = []
                     spikes_weekly_99th_rtime_sessionpersistenceservice_getsettopstatus = []
                     spikes_weekly_99th_rtime_udbservice_validateplayeligibility = []
                     spikes_weekly_99th_rtime_getsoplist = []                    
-                    spikes_weekly_99th_rtime_teardown_js = []                    
+                    // spikes_weekly_99th_rtime_teardown_js = []                    
 
                     spikes.forEach(function(obj) {
-                        spikes_weekly_date_time.push(obj.report_time)
+                        spikes_weekly_date_time.push(moment(obj.report_create_time).format('MM/DD/YYYY HH:mm'))
                         spikes_weekly_99th_rtime_sessiondhtclientimpl_persist.push(obj['99th_rtime_sessiondhtclientimpl_persist'])
-                        spikes_weekly_99th_rtime_setup_js.push(obj['99th_rtime_setup_js'])
+                        // spikes_weekly_99th_rtime_setup_js.push(obj['99th_rtime_setup_js'])
                         spikes_weekly_99th_rtime_expandplaylist.push(obj['99th_rtime_expandplaylist'])
                         spikes_weekly_99th_rtime_setupermsession.push(obj['99th_rtime_setupermsession'])
                         spikes_weekly_99th_rtime_setupodrmsession.push(obj['99th_rtime_setupodrmsession'])
                         spikes_weekly_99th_rtime_sessionpersistenceservice_getsettopstatus.push(obj['99th_rtime_sessionpersistenceservice_getsettopstatus'])
                         spikes_weekly_99th_rtime_udbservice_validateplayeligibility.push(obj['99th_rtime_udbservice_validateplayeligibility'])
                         spikes_weekly_99th_rtime_getsoplist.push(obj['99th_rtime_getsoplist'])
-                        spikes_weekly_99th_rtime_teardown_js.push(obj['99th_rtime_getsoplist'])
+                        // spikes_weekly_99th_rtime_teardown_js.push(obj['99th_rtime_getsoplist'])
                     })
-                    console.log('chart results == ', JSON.stringify(spikes_weekly_date_time))
+                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_sessiondhtclientimpl_persist))
+                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_expandplaylist))
+                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_setupermsession))
+                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_setupodrmsession))
+                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_sessionpersistenceservice_getsettopstatus))
+                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_udbservice_validateplayeligibility))
+                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_getsoplist))
                     drawchart_weekly_report_4()
         }
     }
@@ -1006,20 +1007,22 @@ $(document).ready(function() {
                 }],
                 xAxis: {
                     categories: spikes_weekly_date_time,
-                    tickInterval: 6,
+                    tickInterval: 4,
                 },
                 yAxis: {
                     title: {
                         text: 'Time in MilliSeconds'
                     },
-                    plotLines: [{
-                        value: 0,
-                        width: 1,
-                        color: '#808080'
-                    }]
+                    max:4000,
+                    tickInterval:500,
+                    // plotLines: [{
+                    //     value: 0,
+                    //     width: 1,
+                    //     color: '#808080'
+                    // }]
                 },
                 tooltip: {
-                    valueSuffix: '°C'
+                    valueSuffix: ''
                 },
                 legend: {
                     layout: 'vertical',
@@ -1034,12 +1037,8 @@ $(document).ready(function() {
                         data: spikes_weekly_99th_rtime_sessiondhtclientimpl_persist,
                         turboThreshold: 12000,
                         lineWidth: 1
-                    }, {
-                        name: '99th% Response Time: SessionDHTClientImpl.persist',
-                        data: spikes_weekly_99th_rtime_setup_js,
-                        turboThreshold: 12000,
-                        lineWidth: 1
-                    }, {
+                    }                     
+                    , {
                         name: '99th% Response Time: ExpandPlayList',
                         data: spikes_weekly_99th_rtime_expandplaylist,
                         turboThreshold: 12000,
@@ -1069,14 +1068,7 @@ $(document).ready(function() {
                         data: spikes_weekly_99th_rtime_getsoplist,
                         turboThreshold: 12000,
                         lineWidth: 1
-                    }, {
-                        name: '99th% Response Time: SessionDHTClientImpl.persist',
-                        data: spikes_weekly_99th_rtime_teardown_js,
-                        turboThreshold: 12000,
-                        lineWidth: 1
-                    }
-
-
+                    },                     
                 ]
             });
         }
@@ -1105,7 +1097,7 @@ $(document).ready(function() {
                     spikes_weekly_50th_rtime_teardown_js = []                    
 
                     spikes.forEach(function(obj) {
-                        spikes_weekly_date_time.push(obj.report_time)
+                        spikes_weekly_date_time.push(moment(obj.report_time).format('MM/DD/YYYY HH:mm'))
                         spikes_weekly_50th_rtime_sessiondhtclientimpl_persist.push(obj['50th_rtime_sessiondhtclientimpl_persist'])
                         spikes_weekly_50th_rtime_setup_js.push(obj['50th_rtime_setup_js'])
                         spikes_weekly_50th_rtime_expandplaylist.push(obj['50th_rtime_playlist_engine_pc'])
@@ -1144,15 +1136,10 @@ $(document).ready(function() {
                 yAxis: {
                     title: {
                         text: 'Time in MilliSeconds'
-                    },
-                    plotLines: [{
-                        value: 0,
-                        width: 1,
-                        color: '#808080'
-                    }]
+                    },                    
                 },
                 tooltip: {
-                    valueSuffix: '°C'
+                    valueSuffix: ''
                 },
                 legend: {
                     layout: 'vertical',
@@ -1213,7 +1200,7 @@ $(document).ready(function() {
                     spikes_weekly_vw4 = []                    
 
                     spikes.forEach(function(obj) {
-                        spikes_weekly_date_time.push(obj.report_date)
+                        spikes_weekly_date_time.push(moment(obj.report_date).format('MM/DD/YYYY HH:mm'))
                         spikes_weekly_ve1.push(obj['99th_ve1_pc'])
                         spikes_weekly_ve2.push(obj['99th_ve2_pc'])
                         spikes_weekly_ve3.push(obj['99th_ve3_pc'])
@@ -1245,21 +1232,27 @@ $(document).ready(function() {
                 }],
                 xAxis: {
                     categories: spikes_weekly_date_time,
-                    tickInterval: 60,
+                    tickInterval: 3,
                 },
                 yAxis: {
                     title: {
                         text: 'Time in MilliSeconds'
                     },
-                    plotLines: [{
-                        value: 0,
-                        width: 1,
-                        color: '#808080'
-                    }]
-                },
+                    min: 50,
+                    tickInterval: 500,
+                    max: 5000
+                    // ,
+                    // plotLines: [{
+                    //     value: 0,
+                    //     width: 1,
+                    //     color: '#808080'
+                    // }]
+                // }
+                ,
                 tooltip: {
-                    valueSuffix: '°C'
-                },
+                    valueSuffix: ''
+                }}
+                ,
                 legend: {
                     layout: 'vertical',
                     align: 'right',
@@ -1542,6 +1535,7 @@ $(document).ready(function() {
                 },
                 yAxis: {
                     min: 0,
+                    tickInterval: 50000,
                     title: {
                         text: ''
                     },
@@ -1632,7 +1626,9 @@ $(document).ready(function() {
                             }
                             
                         })
-                    drawchart_weekly_report_16_1('#report-16-2-weekly','Top 5 PeerGroups - VideoLost QAM OK Error Rate')
+                    
+                    
+                    drawchart_weekly_report_16_1('#report-16-2-weekly','Top 5 PeerGroups - QAM Capacity Error Rate')
 
                     report_16_categories = []
                     report_16_legacy_network_error = []
@@ -1677,7 +1673,7 @@ $(document).ready(function() {
                             }
                             
                         })
-                    drawchart_weekly_report_16_1('#report-16-5-weekly','Top 5 PeerGroups - QAM Capacity Error Rate')
+                    drawchart_weekly_report_16_1('#report-16-5-weekly','Top 5 PeerGroups - VideoLost QAM OK Error Rate')
                     
         }
         }

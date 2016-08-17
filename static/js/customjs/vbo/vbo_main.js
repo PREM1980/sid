@@ -653,7 +653,7 @@ $(document).ready(function() {
     }
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
   		var target = $(e.target).attr("href") // activated tab
-  		// alert(target);
+  		alert(target);
   		if (target == '#weekly-report-2'){
   			show_weekly_report_2()
   		}else if (target == '#weekly-report-3') {
@@ -669,8 +669,20 @@ $(document).ready(function() {
   			show_weekly_report_6()
   		}
   		else if (target == '#weekly-report-7') {
-  			alert('Trending Graph later')
+  			show_weekly_report_7()
   		}
+        else if (target == '#weekly-report-8') {
+            show_weekly_report_8()
+        }
+        else if (target == '#weekly-report-9') {
+            show_weekly_report_9()
+        }
+        else if (target == '#weekly-report-10') {
+            show_weekly_report_10()
+        }
+        else if (target == '#weekly-report-11') {
+            show_weekly_report_11()
+        }
   		else if (target == '#weekly-report-14') {
   			alert('report-14')
   			show_weekly_report_14()
@@ -682,6 +694,10 @@ $(document).ready(function() {
         else if (target == '#weekly-report-16') {
             alert('report-16')
             show_weekly_report_16()
+        }
+        else if (target == '#weekly-report-17') {
+            alert('report-17')
+            show_weekly_report_17()
         }
   		
 	});
@@ -1240,14 +1256,7 @@ $(document).ready(function() {
                     },
                     min: 50,
                     tickInterval: 500,
-                    max: 5000
-                    // ,
-                    // plotLines: [{
-                    //     value: 0,
-                    //     width: 1,
-                    //     color: '#808080'
-                    // }]
-                // }
+                    max: 5000                    
                 ,
                 tooltip: {
                     valueSuffix: ''
@@ -1260,7 +1269,6 @@ $(document).ready(function() {
                     borderWidth: 0
                 },
                 series: [
-                    // {turboThreshold: 2000 },
                     {
                         name: '99th%:ve1',
                         data: spikes_weekly_ve1,
@@ -1306,6 +1314,610 @@ $(document).ready(function() {
             });
         }
 
+        var show_weekly_report_7 = function(){
+        alert('show_weekly_report_7()')
+        
+        $.ajax({
+            url: '/vbo/monthly/report-7/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
+            type: 'GET',
+            success: function(result) {
+                console.log('monthly report-7 result == ', result)
+                if (result.status == 'success') {
+                    console.log('chart results == ', JSON.stringify(result.results.report_7))
+                    report_7 = result.results.report_7
+                    report_7_weekly_date_time = []
+                    report_7_weekly_ve1 = []
+                    report_7_weekly_ve2 = []
+                    report_7_weekly_ve3 = []
+                    report_7_weekly_ve4 = []
+                    report_7_weekly_vw1 = []
+                    report_7_weekly_vw2 = []
+                    report_7_weekly_vw3 = []
+                    report_7_weekly_vw4 = []                    
+
+                    report_7.forEach(function(obj) {
+                        report_7_weekly_date_time.push(moment(obj.report_date).format('MM/DD/YYYY'))
+                        report_7_weekly_ve1.push(obj['50th_ve1_pc'])
+                        report_7_weekly_ve2.push(obj['50th_ve2_pc'])
+                        report_7_weekly_ve3.push(obj['50th_ve3_pc'])
+                        report_7_weekly_ve4.push(obj['50th_ve4_pc'])
+                        report_7_weekly_vw1.push(obj['50th_vw1_pc'])
+                        report_7_weekly_vw2.push(obj['50th_vw2_pc'])
+                        report_7_weekly_vw3.push(obj['50th_vw3_pc'])
+                        report_7_weekly_vw4.push(obj['50th_vw4_pc'])
+                    })
+                    drawchart_weekly_report_7()
+        }
+    }
+    })}
+
+    var drawchart_weekly_report_7 = function() {
+        alert('drawchart_weekly_report_7')
+        console.log('spikes_weekly_date_time == ', report_7_weekly_date_time)
+            $('#weekly-report-7').highcharts({
+                title: {
+                    text: '',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: '',
+                    x: -20
+                },
+                series: [{
+                    turboThreshold: 12000 // to accept point object configuration
+                }],
+                xAxis: {
+                    categories: report_7_weekly_date_time,
+                    tickInterval: 3,
+                },
+                yAxis: {
+                    title: {
+                        text: 'Time in MilliSeconds'
+                    },
+                    min: 500,
+                    tickInterval: 50,
+                    max: 1000                    
+                ,
+                tooltip: {
+                    valueSuffix: ''
+                }}
+                ,
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: [
+                    {
+                        name: 'VE1 50th% Setup Time',
+                        data: report_7_weekly_ve1,
+                        turboThreshold: 12000,
+                        lineWidth: 1
+                    }, {
+                        name: 'VE2 50th% Setup Time',
+                        data: report_7_weekly_ve2,
+                        turboThreshold: 12000,
+                        lineWidth: 1
+                    }, {
+                        name: 'VE3 50th% Setup Time',
+                        data: report_7_weekly_ve3,
+                        turboThreshold: 12000,
+                        lineWidth: 1
+                    }, {
+                        name: 'VE4 50th% Setup Time',
+                        data: report_7_weekly_ve4,
+                        turboThreshold: 12000,
+                        lineWidth: 1
+                    }, {
+                        name: 'Vw1 50th% Setup Time',
+                        data: report_7_weekly_vw1,
+                        turboThreshold: 12000,
+                        lineWidth: 1
+                    }, {
+                        name: 'Vw2 50th% Setup Time',
+                        data: report_7_weekly_vw2,
+                        turboThreshold: 12000,
+                        lineWidth: 1
+                    }, {
+                        name: 'Vw3 50th% Setup Time',
+                        data: report_7_weekly_vw3,
+                        turboThreshold: 12000,
+                        lineWidth: 1
+                    }, {
+                        name: 'Vw4 50th% Setup Time',
+                        data: report_7_weekly_vw4,
+                        turboThreshold: 12000,
+                        lineWidth: 1
+                    } 
+                ]
+            });
+        }
+
+        var show_weekly_report_8 = function(){
+        alert('show_weekly_report_8()')
+        
+        $.ajax({
+            url: '/vbo/monthly/report-8/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
+            type: 'GET',
+            success: function(result) {
+                console.log('monthly report-8 result == ', result)
+                if (result.status == 'success') {
+                    console.log('chart results == ', JSON.stringify(result.results.report_8))
+                    report_8 = result.results.report_8
+                    report_8_weekly_categories = []
+                    report_8_weekly_nbr_error_rate = []
+                    report_8_weekly_br_denial_rate = []
+                    report_8_weekly_vlqok_error_rate = []
+                    report_8_weekly_udb_error_rate = []
+                    report_8_weekly_vcp_error_rate = []
+                    report_8_weekly_plant_error_rate = []
+                    report_8_weekly_networkresourcefailure_error_rate = []
+                    report_8_weekly_cdn_setup_error_rate = []
+                    report_8_weekly_cm_connect_error_rate = []
+                    report_8_weekly_tune_error_rate = []
+
+                    report_8.forEach(function(obj) {
+                        report_8_weekly_categories.push(moment(obj.report_create_time).format('DD MMM YYYY'))
+                        report_8_weekly_nbr_error_rate.push(obj.nbr_error_rate)
+                        report_8_weekly_br_denial_rate.push(obj.br_denial_rate)
+                        report_8_weekly_vlqok_error_rate.push(obj.vlqok_error_rate)
+                        report_8_weekly_udb_error_rate.push(obj.udb_error_rate)
+                        report_8_weekly_vcp_error_rate.push(obj.vcp_error_rate)
+                        report_8_weekly_plant_error_rate.push(obj.plant_error_rate)
+                        report_8_weekly_networkresourcefailure_error_rate.push(obj.networkresourcefailure_rate)
+                        report_8_weekly_cdn_setup_error_rate.push(obj.cdn_setup_error_rate)
+                        report_8_weekly_cm_connect_error_rate.push(obj.cm_connect_error_rate)
+                        report_8_weekly_tune_error_rate.push(obj.tune_error_rate)
+                    })
+                    drawchart_weekly_report_8()
+        }
+    }
+    })}
+
+    var drawchart_weekly_report_8 = function() {
+            console.log("report_2_weekly_categories == ", JSON.stringify(report_8_weekly_categories))
+            console.log("report_2_weekly_br_denial_rate == ", JSON.stringify(report_8_weekly_vlqok_error_rate))
+            $('#weekly-report-8').highcharts({
+                title: {
+                    text: '',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: '',
+                    x: -20
+                },
+                series: [{
+                    turboThreshold: 12000 // to accept point object configuration
+                }],
+                xAxis: {
+                    categories: report_8_weekly_categories,
+                    // tickInterval: 180,
+                },
+                yAxis: {
+                    max: 10,                    
+                    title: {
+                        text: 'National QAM VOD Error Rate'
+                    },                    
+                    tickInterval: 1,
+                    labels:{
+                        format : '{value} %'
+                    }
+                //       labels: {
+                       //  formatter:function() {
+                       //      var pcnt = (this.value / dataSum) * 100;
+                       //      return Highcharts.numberFormat(pcnt,0,',') + '%';
+                    // }}
+                },
+                tooltip: {
+                    valueSuffix: ''
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: [
+                    // {turboThreshold: 2000 },
+                    {
+                        name: 'BR Denial Rate',
+                        data: report_8_weekly_br_denial_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, 
+                    {
+                        name: 'NBR Error Rate',
+                        data: report_8_weekly_nbr_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, 
+                    {
+                        name: 'VLQOK Error Rate',
+                        data: report_8_weekly_vlqok_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, 
+                    {
+                        name: 'UDB Error Rate',
+                        data: report_8_weekly_udb_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, {
+                        name: 'VCP Error Rate',
+                        data: report_8_weekly_vcp_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, {
+                        name: 'Plant Error Rate',
+                        data: report_8_weekly_plant_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, {
+                        name: 'NetworkResourceFailure Rate',
+                        data: report_8_weekly_networkresourcefailure_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, {
+                        name: 'CDN Setup Error Rate',
+                        data: report_8_weekly_cdn_setup_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, {
+                        name: 'CM Connect Error Rate',
+                        data: report_8_weekly_cm_connect_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, {
+                        name: 'Tune Error Rate',
+                        data: report_8_weekly_tune_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }
+                ]
+            });
+        }
+
+        var show_weekly_report_9 = function(){
+        alert('show_weekly_report_9()')
+        
+        $.ajax({
+            url: '/vbo/monthly/report-9/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
+            type: 'GET',
+            success: function(result) {
+                console.log('monthly report-9 result == ', result)
+                if (result.status == 'success') {
+                    console.log('chart results == ', JSON.stringify(result.results.report_9))
+                    report_9 = result.results.report_9
+                    report_9_weekly_categories = []
+                    report_9_weekly_nbr_error_rate = []
+                    report_9_weekly_br_denial_rate = []
+                    report_9_weekly_vlqok_error_rate = []
+                    report_9_weekly_udb_error_rate = []
+                    report_9_weekly_vcp_error_rate = []
+                    report_9_weekly_plant_error_rate = []
+                    report_9_weekly_networkresourcefailure_error_rate = []
+                    report_9_weekly_cdn_setup_error_rate = []
+                    report_9_weekly_cm_connect_error_rate = []
+                    report_9_weekly_tune_error_rate = []
+
+                    report_9.forEach(function(obj) {
+                        report_9_weekly_categories.push(moment(obj.report_create_time).format('DD MMM YYYY'))
+                        report_9_weekly_nbr_error_rate.push(obj.nbr_error_rate)
+                        report_9_weekly_br_denial_rate.push(obj.br_denial_rate)
+                        report_9_weekly_vlqok_error_rate.push(obj.vlqok_error_rate)
+                        report_9_weekly_udb_error_rate.push(obj.udb_error_rate)
+                        report_9_weekly_vcp_error_rate.push(obj.vcp_error_rate)
+                        report_9_weekly_plant_error_rate.push(obj.plant_error_rate)
+                        report_9_weekly_networkresourcefailure_error_rate.push(obj.networkresourcefailure_rate)
+                        report_9_weekly_cdn_setup_error_rate.push(obj.cdn_setup_error_rate)
+                        report_9_weekly_cm_connect_error_rate.push(obj.cm_connect_error_rate)
+                        report_9_weekly_tune_error_rate.push(obj.tune_error_rate)
+                    })
+                    drawchart_weekly_report_9()
+        }
+    }
+    })}
+
+    var drawchart_weekly_report_9 = function() {
+            console.log("report_9_weekly_categories == ", JSON.stringify(report_9_weekly_categories))
+            console.log("report_9_weekly_br_denial_rate == ", JSON.stringify(report_9_weekly_vlqok_error_rate))
+            $('#weekly-report-9').highcharts({
+                title: {
+                    text: '',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: '',
+                    x: -20
+                },
+                series: [{
+                    turboThreshold: 12000 // to accept point object configuration
+                }],
+                xAxis: {
+                    categories: report_9_weekly_categories,
+                    // tickInterval: 180,
+                    // minTickInterval: 3600*24*30
+                },
+                yAxis: {
+                    max: 10,                    
+                    title: {
+                        text: 'National QAM VOD Error Rate'
+                    },                    
+                    tickInterval: 1,
+                    labels:{
+                        format : '{value} %'
+                    }
+                //       labels: {
+                       //  formatter:function() {
+                       //      var pcnt = (this.value / dataSum) * 100;
+                       //      return Highcharts.numberFormat(pcnt,0,',') + '%';
+                    // }}
+                },
+                tooltip: {
+                    valueSuffix: ''
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: [
+                    // {turboThreshold: 2000 },
+                    {
+                        name: 'BR Denial Rate',
+                        data: report_9_weekly_br_denial_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, 
+                    {
+                        name: 'NBR Error Rate',
+                        data: report_9_weekly_nbr_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, 
+                    {
+                        name: 'VLQOK Error Rate',
+                        data: report_9_weekly_vlqok_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, 
+                    {
+                        name: 'UDB Error Rate',
+                        data: report_9_weekly_udb_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, {
+                        name: 'VCP Error Rate',
+                        data: report_9_weekly_vcp_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, {
+                        name: 'Plant Error Rate',
+                        data: report_9_weekly_plant_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, {
+                        name: 'NetworkResourceFailure Rate',
+                        data: report_9_weekly_networkresourcefailure_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, {
+                        name: 'CDN Setup Error Rate',
+                        data: report_9_weekly_cdn_setup_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, {
+                        name: 'CM Connect Error Rate',
+                        data: report_9_weekly_cm_connect_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, {
+                        name: 'Tune Error Rate',
+                        data: report_9_weekly_tune_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }
+                ]
+            });
+        }
+
+        var show_weekly_report_10 = function(){
+        alert('show_weekly_report_10()')
+        
+        $.ajax({
+            url: '/vbo/monthly/report-10/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
+            type: 'GET',
+            success: function(result) {
+                console.log('monthly report-10 result == ', result)
+                if (result.status == 'success') {
+                    console.log('chart results == ', JSON.stringify(result.results.report_10))
+                    report_10= result.results.report_10
+                    report_10_weekly_categories = []
+                    report_10_weekly_x1_network_error_rate = []
+                    report_10_weekly_legacy_network_error_rate = []                    
+                    report_10_weekly_x1_tune_error_rate = []
+                    report_10_weekly_legacy_tune_error_rate = []                    
+                    report_10.forEach(function(obj) {
+                        report_10_weekly_categories.push(moment(obj.report_create_time).format('DD MMM YYYY'))
+                        report_10_weekly_x1_network_error_rate.push(obj.x1_networkresourcefailure_rate)
+                        report_10_weekly_legacy_network_error_rate.push(obj.legacy_networkresourcefailure_rate)
+                        
+                    })
+                    drawchart_weekly_report_10('#report-10-1-weekly','Network Resource Failure Rate',
+                        report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate)                    
+                    drawchart_weekly_report_10('#report-10-2-weekly','Tune Error Rate',
+                        report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate)                    
+        }
+    }
+    })}
+
+    var drawchart_weekly_report_10 = function(id,text,report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate) {            
+            $(id).highcharts({
+                title: {
+                    text: '',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: '',
+                    x: -20
+                },
+                series: [{
+                    turboThreshold: 12000 // to accept point object configuration
+                }],
+                xAxis: {
+                    categories: report_10_weekly_categories,
+                    // tickInterval: 180,
+                    // minTickInterval: 3600*24*30
+                },
+                yAxis: {
+                    max: .5,                    
+                    title: {
+                        text: text
+                    },                    
+                    tickInterval: .1,
+                    labels:{
+                        format : '{value} %'
+                    }
+                //       labels: {
+                       //  formatter:function() {
+                       //      var pcnt = (this.value / dataSum) * 100;
+                       //      return Highcharts.numberFormat(pcnt,0,',') + '%';
+                    // }}
+                },
+                tooltip: {
+                    valueSuffix: ''
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: [
+                    // {turboThreshold: 2000 },
+                    {
+                        name: 'X1 Tune Error Rate',
+                        data: report_10_weekly_x1_network_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, 
+                    {
+                        name: 'Legacy Tune Error Rate',
+                        data: report_10_weekly_legacy_network_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    },                     
+                ]
+            });
+        }
+
+
+    var show_weekly_report_11 = function(){
+        alert('show_weekly_report_11()')
+        
+        $.ajax({
+            url: '/vbo/monthly/report-11/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
+            type: 'GET',
+            success: function(result) {
+                console.log('monthly report-11 result == ', result)
+                if (result.status == 'success') {
+                    console.log('chart results == ', JSON.stringify(result.results.report_10))
+                    report_11= result.results.report_11
+                    report_11_weekly_categories = []
+                    report_11_weekly_cm_connect_error_rate = []
+                    report_11_weekly_networkresource_failure_error_rate = []                    
+                    report_11_weekly_tune_error_rate = []
+                    report_11_weekly_vlqok_error_rate = []                    
+                    report_11.forEach(function(obj) {
+                        report_11_weekly_categories.push(moment(obj.report_create_time).format('DD MMM YYYY'))
+                        report_11_weekly_cm_connect_error_rate.push(obj.cm_connect_error_rate)                                                
+                        report_11_weekly_networkresource_failure_error_rate.push(obj.networkresourcefailure_rate)                                                
+                        report_11_weekly_tune_error_rate.push(obj.tune_error_rate)                                                
+                        report_11_weekly_vlqok_error_rate.push(obj.vlqok_error_rate)                                                                        
+                    })
+                    console.log(report_11_weekly_cm_connect_error_rate)
+                    drawchart_weekly_report_11('#weekly-report-11','Daily Error Rate by Category',
+                        report_11_weekly_cm_connect_error_rate,report_11_weekly_networkresource_failure_error_rate
+                        ,report_11_weekly_tune_error_rate,report_11_weekly_vlqok_error_rate)                    
+                    // drawchart_weekly_report_10('#report-10-2-weekly','Tune Error Rate',
+                    //     report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate)                    
+        }
+    }
+    })}
+
+    var drawchart_weekly_report_11 = function(id,text,report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate) {            
+            $(id).highcharts({
+                title: {
+                    text: '',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: '',
+                    x: -20
+                },
+                series: [{
+                    turboThreshold: 12000 // to accept point object configuration
+                }],
+                xAxis: {
+                    categories: report_11_weekly_categories,
+                    // tickInterval: 180,
+                    // minTickInterval: 3600*24*30
+                },
+                yAxis: {
+                    max: .6,                    
+                    title: {
+                        text: text
+                    },                    
+                    tickInterval: .1,
+                    labels:{
+                        format : '{value} %'
+                    }
+                //       labels: {
+                       //  formatter:function() {
+                       //      var pcnt = (this.value / dataSum) * 100;
+                       //      return Highcharts.numberFormat(pcnt,0,',') + '%';
+                    // }}
+                },
+                tooltip: {
+                    valueSuffix: ''
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: [
+                    // {turboThreshold: 2000 },
+                    {
+                        name: 'NetworkResourceFailure Rate',
+                        data: report_11_weekly_networkresource_failure_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, 
+                    {
+                        name: 'Tune Error Rate',
+                        data: report_11_weekly_tune_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    },                     
+                    {
+                        name: 'CM Connect Error Rate',
+                        data: report_11_weekly_cm_connect_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    }, 
+                    {
+                        name: 'VLQOK Error Rate',
+                        data: report_11_weekly_vlqok_error_rate,
+                        turboThreshold: 12000,
+                        lineWidth: 2
+                    },                     
+                ]
+            });
+        }
         var show_weekly_report_14 = function(){
     	alert('show_weekly_report_14()')
     	
@@ -1627,7 +2239,7 @@ $(document).ready(function() {
                             
                         })
                     
-                    
+
                     drawchart_weekly_report_16_1('#report-16-2-weekly','Top 5 PeerGroups - QAM Capacity Error Rate')
 
                     report_16_categories = []
@@ -1743,5 +2355,55 @@ $(document).ready(function() {
         }, ]
     });
         }
+
+        var show_weekly_report_17 = function(){
+        alert('show_weekly_report_17()')        
+        $.ajax({
+            url: '/vbo/monthly/report-17/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
+            type: 'GET',
+            success: function(result) {
+                console.log('monthly report-16 result == ', result)
+                if (result.status == 'success') {
+                    console.log('chart results report-17 == ', JSON.stringify(result.results.report_17))
+                    // obj = result.results.report_17
+
+                                     
+                 $("<div class='weekly-report-17-table'  style=' width:100%; overflow:scroll' >").appendTo("#report-17-weekly");
+                    $(".weekly-report17-CSSTableGenerator1").empty() 
+                    $("<table id='weekly-report-17-table' class='table'  style=''> </table>").appendTo('.weekly-report-17-table')
+
+                $('#weekly-report-17-table').append('<thead class="thead-inverse" style="background-color:gray"><tr>'
+                     + '<<th>Event Type</th>'
+                     + '<<th>Result Code</th>'
+                     + '<<th>Result Text</th>'
+                     + '<<th>Client Reason Code</th>'
+                     + '<<th>Teardown Reason Code</th>'
+                     + '<<th>Ownership</th>'
+                     + '<<th>Description</th>'
+                     + '<<th>Total</th>'
+                     + '<<th>X1</th>'
+                     + '<<th>Legacy</th>'
+                     + '</tr></thead>');
+
+                result.results.report_17.forEach(function(obj, i, a) {
+                    console.log('hey')
+
+                    $('#weekly-report-17-table').append('<tr>'
+                        + '<td>' + obj.event_type + '</td>'
+                         + '<td>' + obj.result_code + '</td>'
+                         + '<td>' + obj.result_text + '</td>'
+                         + '<td>' + obj.client_reason_code + '</td>'
+                         + '<td>' + obj.tear_down_reason_code + '</td>'
+                         + '<td>' + obj.ownership + '</td>'
+                         + '<td>' + obj.description + '</td>'
+                         + '<td>' + obj.total + '</td>'
+                         + '<td>' + obj.x1 + '</td>'
+                         + '<td>' + obj.legacy + '</td>'                                                 
+                        + '</tr>');
+                })
+        }
+        }
+        })}
+
 
 })

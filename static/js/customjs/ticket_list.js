@@ -786,7 +786,7 @@
              // alert(end_dt)
              // end_dt = row.find("#id_row_end_ts").html()
              ticket_num = row.find("#id_ticket_num").text()
-             alert(ticket_num)
+             //alert(ticket_num)
              
              orig_ticket_num = row.find("#id_orig_ticket_num").html()
              division = row.find("#id_division").html()

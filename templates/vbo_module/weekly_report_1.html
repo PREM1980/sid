@@ -1,12 +1,12 @@
 {% block content %}
 <div id="monthly-html-reports" >
-DEIII
+
         <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
         <table border="1" style="border-spacing: 1px;border-collapse: separate;">
 
             <thead>
                 <tr class="tableizer-firstrow" style="background-color:black;color:white;text-align:left;font-weight:bolder">
-                    <th nowrap style="padding:10px 100px 10px 0px;">May 31st, 2016</th>
+                    <th nowrap style="padding:10px 100px 10px 0px;" id="weekly-report-date" >May 31st, 2016</th>
                     <th nowrap>Total</th>
                     <th nowrap>Success %</th>
                     <th nowrap>Error %</th>
@@ -249,7 +249,7 @@ DEIII
 
     </div>
 
-    <div class="row">
+    <!-- <div class="row">
         <div class="col-md-8" id="vbo-stb-error-rates"></div>
         <div class="col-md-4" id="vbo-stb-error-rates-comments" style="display:none">
             <div class="form-group">
@@ -260,39 +260,23 @@ DEIII
             </div>
         </div>
 
-    </div>
+    </div> -->
     <!-- <div class="col-md-6" id="container_users_by_count"></div> -->
 
 
-<span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
-
-<div class="row">
-    <div class="col-md-8" id="vbo-nbrf-spikes"></div>
-    <div class="col-md-4" id="vbo-nbrf-spikes-comments" style="display:none">
+<span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
+<span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
+    <row>
+    <div class="col-md-12" id="report-weekly-1-comments" style="">
         <div class="form-group">
-            <textarea class="form-control" rows="10" id="report-2-comments-txt" placeholder="Please provide your comments here..."></textarea>
+            <textarea class="form-control" rows="10" id="report-weekly-1-comments-txt" placeholder="Please provide your comments here..."></textarea>
         </div>
-        <div class="col-sm-2">
-            <input type="submit" class="btn btn-success" value="Update Comments" id="report-2-submit">
+        <div class="col-sm-1">
+            <input type="submit" class="btn btn-success" value="Update Comments" id="report-weekly-1-submit">
         </div>
     </div>
-
-</div>
-
-<span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
-
-<div class="row">
-    <div class="col-md-8" id="vbo-x1-vs-legacy"></div>
-    <div class="col-md-4" id="vbo-x1-vs-legacy-comments" style="display:none">
-        <div class="form-group">
-            <textarea class="form-control" rows="10" id="report-3-comments-txt" placeholder="Please provide your comments here..."></textarea>
-        </div>
-        <div class="col-sm-2">
-            <input type="submit" class="btn btn-success" value="Update Comments" id="report-3-submit">
-        </div>
-    </div>
-
-</div>
-
+    </row>
+<span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
+<span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>    
 
 {% endblock content %}

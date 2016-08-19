@@ -1,28 +1,53 @@
 $(document).ready(function() {
 
+    if (!String.prototype.format) {
+       String.prototype.format = function() {
+           var args = arguments;
+           return this.replace(/{(\d+)}/g, function(match, number) {
+               return typeof args[number] != 'undefined' ? args[number] : match;
+           });
+       };
+   }
+
+
     function roundoff(nbr) {        
         result = (Math.round(nbr * 100 * 100) / 100)
         return result
     }
-    $('#report-1-submit, #report-2-submit, #report-3-submit').click(function() {
-        report_num = this.id.split('-')[1]        
-        
-        if (report_num == '1'){
-            comments = $('#report-1-comments-txt').val()
-        }
-        else if (report_num == '2'){
-            comments = $('#report-2-comments-txt').val()
-        }
-        else
-        {
-            comments = $('#report-3-comments-txt').val()
-        }
+    $('#report-daily-1-submit, #report-daily-2-submit, #report-daily-3-submit,' + 
+        '#report-weekly-1-submit, #report-weekly-2-submit, #report-weekly-3-submit ' + 
+        ',#report-weekly-4-submit, #report-weekly-5-submit, #report-weekly-6-submit ' + 
+        ',#report-weekly-7-submit, #report-weekly-8-submit, #report-weekly-9-submit ' + 
+        ',#report-weekly-10A-submit, #report-weekly-10B-submit, #report-weekly-11-submit ' + 
+        ',#report-weekly-12-submit, #report-weekly-13-submit, #report-weekly-14-submit ' +
+        ',#report-weekly-15-submit, #report-weekly-16A-submit, #report-weekly-16B-submit ' +
+        ',#report-weekly-16C-submit, #report-weekly-16D-submit, #report-weekly-16E-submit '         
+        ).click(function() {
+        // report_num = this.id.split('-')[2]        
+        report_num = this.id.split('-')[1] + '-' + this.id.split('-')[2]        
+        // alert(report_num)
+        elem = "#report-{0}-comments-txt".format(report_num)
+        // alert(elem)
+        comments = $(elem).val()
+        // alert(comments)
+        // if (report_num == 'daily-1'){            
+        //     comments = $('#report-daily-1-comments-txt').val()
+        //     alert('im here-1 == '+ comments)
+        // }
+        // else if (report_num == 'daily-2'){
+        //     alert('im here-2')
+        //     comments = $('#report-daily-2-comments-txt').val()
+        // }
+        // else if (report_num == 'daily-3')            
+        // {   
+        //     alert('im here-3')
+        //     comments = $('#report-daily-3-comments-txt').val()
+        // }
+        // alert('final comments == ' + comments)
         
         $.ajax({
-            url: '/vbo/update-report-callouts/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() +  '&report_num=' + report_num + '&report_callouts=' + comments,
-            // url: '/vbo/update-report-callouts/?'+'report_num='+report_num,
-            type: 'GET',
-            //data: data,
+            url: '/vbo/update-report-callouts/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() +  '&report_num=' + report_num + '&report_callouts=' + comments,            
+            type: 'GET',            
             success: function(result) {
                 if (result.status == 'success') {
                     alert('comments updated')
@@ -179,9 +204,9 @@ $(document).ready(function() {
                     drawchart_x1_vs_legacy()
 
                     comments = result.results.report_comments
-                    $('#report-1-comments-txt').val(comments.report_1_comments)
-                    $('#report-2-comments-txt').val(comments.report_2_comments)
-                    $('#report-3-comments-txt').val(comments.report_3_comments)
+                    $('#report-daily-1-comments-txt').val(comments.report_1_comments)
+                    $('#report-daily-2-comments-txt').val(comments.report_2_comments)
+                    $('#report-daily-3-comments-txt').val(comments.report_3_comments)
                 } else if (result.status == 'session timeout') {
                     alert("Session expired -- Please relogin")
                     document.location.href = "/";
@@ -502,10 +527,13 @@ $(document).ready(function() {
     var set_summary_weekly = function(x1) {
         //report_create_time = moment.utc(x1.report_create_time).format('MMM DD, YYYY');        
         // alert(x1.report_create_time)
-        report_create_time = moment(x1.report_create_time).format('MMM DD, YYYY');        
-        // dateFrom = moment().subtract(7,'d').format('YYYY-MM-DD');
+        report_start_dt = moment(x1.report_create_time).subtract(7,'d').format('MMM DD');        
+        report_end_dt = moment(x1.report_create_time).subtract(1,'d').format('MMM DD');        
+        date_heading = report_start_dt + 'th - ' + report_end_dt +'th '+moment(x1.report_create_time).format('YYYY')
+        // report_create_time = moment().subtract(7,'d').format('YYYY-MM-DD');
+
         // alert(dateFrom)
-        $('#report-date').text(report_create_time)
+        $('#weekly-report-date').text(date_heading)
         console.log('total == ', x1.successful_setup_total.toLocaleString())
         $('#monthly-successful-setup-total').text(x1.successful_setup_total.toLocaleString())
 
@@ -646,6 +674,7 @@ $(document).ready(function() {
                     x1 = result.results.report_1
                     console.log('x1 ==',x1)
                     set_summary_weekly(x1)
+                    $('#report-weekly-1-comments-txt').val(x1.report_comments.report_1_comments)
          
         }
     }})
@@ -654,48 +683,48 @@ $(document).ready(function() {
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
   		var target = $(e.target).attr("href") // activated tab
   		alert(target);
-  		if (target == '#weekly-report-2'){
+  		if (target == '#weekly-report-2-h'){
   			show_weekly_report_2()
-  		}else if (target == '#weekly-report-3') {
+  		}else if (target == '#weekly-report-3-h') {
   			show_weekly_report_3()
   		}
-  		else if (target == '#weekly-report-4') {
+  		else if (target == '#weekly-report-4-h') {
   			show_weekly_report_4()
   		}
-  		else if (target == '#weekly-report-5') {
+  		else if (target == '#weekly-report-5-h') {
   			show_weekly_report_5()
   		}
-  		else if (target == '#weekly-report-6') {
+  		else if (target == '#weekly-report-6-h') {
   			show_weekly_report_6()
   		}
-  		else if (target == '#weekly-report-7') {
+  		else if (target == '#weekly-report-7-h') {
   			show_weekly_report_7()
   		}
-        else if (target == '#weekly-report-8') {
+        else if (target == '#weekly-report-8-h') {
             show_weekly_report_8()
         }
-        else if (target == '#weekly-report-9') {
+        else if (target == '#weekly-report-9-h') {
             show_weekly_report_9()
         }
-        else if (target == '#weekly-report-10') {
+        else if (target == '#weekly-report-10-h') {
             show_weekly_report_10()
         }
-        else if (target == '#weekly-report-11') {
+        else if (target == '#weekly-report-11-h') {
             show_weekly_report_11()
         }
-  		else if (target == '#weekly-report-14') {
+  		else if (target == '#weekly-report-14-h') {
   			alert('report-14')
   			show_weekly_report_14()
   		}
-  		else if (target == '#weekly-report-15') {
+  		else if (target == '#weekly-report-15-h') {
   			alert('report-15')
   			show_weekly_report_15()
   		}
-        else if (target == '#weekly-report-16') {
+        else if (target == '#weekly-report-16-h') {
             alert('report-16')
             show_weekly_report_16()
         }
-        else if (target == '#weekly-report-17') {
+        else if (target == '#weekly-report-17-h') {
             alert('report-17')
             show_weekly_report_17()
         }
@@ -710,6 +739,10 @@ $(document).ready(function() {
             success: function(result) {
             	console.log('monthly report-2 result == ', result)
                 if (result.status == 'success') {
+                    alert('show comments')
+                    $('#report-weekly-2-comments').show()
+                    $('#report-weekly-2-comments-txt').val(result.results.report_comments.report_2_comments)
+                    // $('#report-weekly-2-comments').show()
                     // console.log('chart results == ', JSON.stringify(result.results.report_2))
                     report_2 = result.results.report_2
                     report_2_weekly_categories = []
@@ -741,8 +774,7 @@ $(document).ready(function() {
 	})}
 
     var drawchart_weekly_report_2 = function() {
-    		console.log("report_2_weekly_categories == ", JSON.stringify(report_2_weekly_categories))
-    		console.log("report_2_weekly_br_denial_rate == ", JSON.stringify(report_2_weekly_vlqok_error_rate))
+    		
             $('#weekly-report-2').highcharts({
                 title: {
                     text: '',
@@ -847,6 +879,8 @@ $(document).ready(function() {
             	console.log('monthly report-3 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_3))
+                    $('#report-weekly-3-comments').show()
+                    $('#report-weekly-3-comments-txt').val(result.results.report_comments.report_3_comments)
                     spikes = result.results.report_3
                     spikes_weekly_date_time = []
                     spikes_weekly_ve1 = []
@@ -970,6 +1004,8 @@ $(document).ready(function() {
             	console.log('monthly report-4 result == ', result)
                 if (result.status == 'success') {
                     // console.log('chart results == ', JSON.stringify(result.results.report_4))
+                    $('#report-weekly-4-comments').show()
+                    $('#report-weekly-4-comments-txt').val(result.results.report_comments.report_4_comments)
                     spikes = result.results.report_4
                     spikes_weekly_date_time = []
                     spikes_weekly_99th_rtime_sessiondhtclientimpl_persist  = []
@@ -1100,6 +1136,8 @@ $(document).ready(function() {
             	console.log('monthly report-5 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_5))
+                    $('#report-weekly-5-comments').show()
+                    $('#report-weekly-5-comments-txt').val(result.results.report_comments.report_5_comments)
                     spikes = result.results.report_5
                     spikes_weekly_date_time = []
                     spikes_weekly_50th_rtime_sessiondhtclientimpl_persist  = []
@@ -1204,6 +1242,8 @@ $(document).ready(function() {
             	console.log('monthly report-6 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_6))
+                    $('#report-weekly-6-comments').show()
+                    $('#report-weekly-6-comments-txt').val(result.results.report_comments.report_6_comments)
                     spikes = result.results.report_6
                     spikes_weekly_date_time = []
                     spikes_weekly_ve1 = []
@@ -1324,6 +1364,8 @@ $(document).ready(function() {
                 console.log('monthly report-7 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_7))
+                    $('#report-weekly-7-comments').show()
+                    $('#report-weekly-7-comments-txt').val(result.results.report_comments.report_7_comments)
                     report_7 = result.results.report_7
                     report_7_weekly_date_time = []
                     report_7_weekly_ve1 = []
@@ -1336,6 +1378,7 @@ $(document).ready(function() {
                     report_7_weekly_vw4 = []                    
 
                     report_7.forEach(function(obj) {
+                        // report_7_weekly_date_time.push(new Date(moment(obj.report_date).format('MM/DD/YYYY')).getTime())
                         report_7_weekly_date_time.push(moment(obj.report_date).format('MM/DD/YYYY'))
                         report_7_weekly_ve1.push(obj['50th_ve1_pc'])
                         report_7_weekly_ve2.push(obj['50th_ve2_pc'])
@@ -1367,9 +1410,30 @@ $(document).ready(function() {
                     turboThreshold: 12000 // to accept point object configuration
                 }],
                 xAxis: {
+                    // type:'datetime',
                     categories: report_7_weekly_date_time,
-                    tickInterval: 3,
+                    tickInterval: 7,
+        //             tickPositioner: function(min, max){
+        //                  var interval = this.options.tickInterval,
+        //                      ticks = [],
+        //                      count = 0;
+                        
+        //                 while(min < max) {
+        //                     ticks.push(min);
+        //                     min += interval;
+        //                     count ++;
+        //                 }
+                        
+        //                 ticks.info = {
+        //                     unitName: 'day',
+        //                     count: 7,
+        //                     higherRanks: {},
+        //                     totalRange: interval * count
+        //                 }            
+        //     return ticks;
+        // }
                 },
+
                 yAxis: {
                     title: {
                         text: 'Time in MilliSeconds'
@@ -1444,6 +1508,8 @@ $(document).ready(function() {
                 console.log('monthly report-8 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_8))
+                    $('#report-weekly-8-comments').show()
+                    $('#report-weekly-8-comments-txt').val(result.results.report_comments.report_8_comments)
                     report_8 = result.results.report_8
                     report_8_weekly_categories = []
                     report_8_weekly_nbr_error_rate = []
@@ -1476,8 +1542,8 @@ $(document).ready(function() {
     })}
 
     var drawchart_weekly_report_8 = function() {
-            console.log("report_2_weekly_categories == ", JSON.stringify(report_8_weekly_categories))
-            console.log("report_2_weekly_br_denial_rate == ", JSON.stringify(report_8_weekly_vlqok_error_rate))
+            console.log("report_8_weekly_categories == ", JSON.stringify(report_8_weekly_categories))
+            console.log("report_8_weekly_br_denial_rate == ", JSON.stringify(report_8_weekly_vlqok_error_rate))
             $('#weekly-report-8').highcharts({
                 title: {
                     text: '',
@@ -1492,7 +1558,7 @@ $(document).ready(function() {
                 }],
                 xAxis: {
                     categories: report_8_weekly_categories,
-                    // tickInterval: 180,
+                    tickInterval: 7,
                 },
                 yAxis: {
                     max: 10,                    
@@ -1588,6 +1654,8 @@ $(document).ready(function() {
                 console.log('monthly report-9 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_9))
+                    $('#report-weekly-9-comments').show()
+                    $('#report-weekly-9-comments-txt').val(result.results.report_comments.report_9_comments)
                     report_9 = result.results.report_9
                     report_9_weekly_categories = []
                     report_9_weekly_nbr_error_rate = []
@@ -1636,7 +1704,7 @@ $(document).ready(function() {
                 }],
                 xAxis: {
                     categories: report_9_weekly_categories,
-                    // tickInterval: 180,
+                    tickInterval: 14,
                     // minTickInterval: 3600*24*30
                 },
                 yAxis: {
@@ -1733,6 +1801,10 @@ $(document).ready(function() {
                 console.log('monthly report-10 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_10))
+                    $('#report-weekly-10A-comments').show()
+                    $('#report-weekly-10A-comments-txt').val(result.results.report_comments.report_10A_comments)
+                    $('#report-weekly-10B-comments').show()
+                    $('#report-weekly-10B-comments-txt').val(result.results.report_comments.report_10B_comments)
                     report_10= result.results.report_10
                     report_10_weekly_categories = []
                     report_10_weekly_x1_network_error_rate = []
@@ -1745,9 +1817,9 @@ $(document).ready(function() {
                         report_10_weekly_legacy_network_error_rate.push(obj.legacy_networkresourcefailure_rate)
                         
                     })
-                    drawchart_weekly_report_10('#report-10-1-weekly','Network Resource Failure Rate',
+                    drawchart_weekly_report_10('#weekly-report-10A','Network Resource Failure Rate',
                         report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate)                    
-                    drawchart_weekly_report_10('#report-10-2-weekly','Tune Error Rate',
+                    drawchart_weekly_report_10('#weekly-report-10B','Tune Error Rate',
                         report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate)                    
         }
     }
@@ -1756,7 +1828,7 @@ $(document).ready(function() {
     var drawchart_weekly_report_10 = function(id,text,report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate) {            
             $(id).highcharts({
                 title: {
-                    text: '',
+                    text: text,
                     x: -20 //center
                 },
                 subtitle: {
@@ -1768,7 +1840,7 @@ $(document).ready(function() {
                 }],
                 xAxis: {
                     categories: report_10_weekly_categories,
-                    // tickInterval: 180,
+                    tickInterval: 7,
                     // minTickInterval: 3600*24*30
                 },
                 yAxis: {
@@ -1824,6 +1896,8 @@ $(document).ready(function() {
                 console.log('monthly report-11 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_10))
+                    $('#report-weekly-11-comments').show()
+                    $('#report-weekly-11-comments-txt').val(result.results.report_comments.report_11_comments)
                     report_11= result.results.report_11
                     report_11_weekly_categories = []
                     report_11_weekly_cm_connect_error_rate = []
@@ -1862,7 +1936,7 @@ $(document).ready(function() {
                 }],
                 xAxis: {
                     categories: report_11_weekly_categories,
-                    // tickInterval: 180,
+                    tickInterval: 7,
                     // minTickInterval: 3600*24*30
                 },
                 yAxis: {
@@ -1928,6 +2002,8 @@ $(document).ready(function() {
             	console.log('monthly report-14 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_14))
+                    $('#report-weekly-14-comments').show()
+                    $('#report-weekly-14-comments-txt').val(result.results.report_comments.report_14_comments)
                     report_14 = result.results.report_14
                     report_14_categories = []
 
@@ -2113,6 +2189,8 @@ $(document).ready(function() {
             	console.log('monthly report-14 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_15))
+                    $('#report-weekly-15-comments').show()
+                    $('#report-weekly-15-comments-txt').val(result.results.report_comments.report_15_comments)
                     report_15 = result.results.report_15
                     report_15_categories = []
                     report_15_error_x1 = []
@@ -2122,10 +2200,7 @@ $(document).ready(function() {
                     	report_15_categories.push(obj.error_code)
                     	report_15_error_x1.push(obj.x1)
                     	report_15_error_legacy.push(obj.legacy)
-                    	})
-					
-
-                    
+                    	})					
                     drawchart_weekly_report_15()
         }
 	    }
@@ -2208,6 +2283,18 @@ $(document).ready(function() {
                 console.log('monthly report-16 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results report-16 == ', JSON.stringify(result.results.report_16))
+
+                    $('#report-weekly-16A-comments').show()
+                    $('#report-weekly-16A-comments-txt').val(result.results.report_comments.report_16A_comments)
+                    $('#report-weekly-16B-comments').show()
+                    $('#report-weekly-16B-comments-txt').val(result.results.report_comments.report_16B_comments)
+                    $('#report-weekly-16C-comments').show()
+                    $('#report-weekly-16C-comments-txt').val(result.results.report_comments.report_16C_comments)
+                    $('#report-weekly-16D-comments').show()
+                    $('#report-weekly-16D-comments-txt').val(result.results.report_comments.report_16D_comments)
+                    $('#report-weekly-16E-comments').show()
+                    $('#report-weekly-16E-comments-txt').val(result.results.report_comments.report_16E_comments)
+
                     report_16 = result.results.report_16
                     report_16_categories = []
                     report_16_legacy_network_error = []
@@ -2224,7 +2311,7 @@ $(document).ready(function() {
                         }
                         })
 
-                    drawchart_weekly_report_16_1('#report-16-1-weekly','Top 5 PeerGroups - NetworkTeardown Error Rate')
+                    drawchart_weekly_report_16_1('#weekly-report-16A','Top 5 PeerGroups - NetworkTeardown Error Rate')
 
                     report_16_categories = []
                     report_16_legacy_network_error = []
@@ -2240,7 +2327,7 @@ $(document).ready(function() {
                         })
                     
 
-                    drawchart_weekly_report_16_1('#report-16-2-weekly','Top 5 PeerGroups - QAM Capacity Error Rate')
+                    drawchart_weekly_report_16_1('#weekly-report-16B','Top 5 PeerGroups - QAM Capacity Error Rate')
 
                     report_16_categories = []
                     report_16_legacy_network_error = []
@@ -2254,7 +2341,7 @@ $(document).ready(function() {
                             }
                             
                         })
-                    drawchart_weekly_report_16_1('#report-16-3-weekly','Top 5 PeerGroups - Tune Error Rate')
+                    drawchart_weekly_report_16_1('#weekly-report-16C','Top 5 PeerGroups - Tune Error Rate')
 
 
 
@@ -2270,7 +2357,7 @@ $(document).ready(function() {
                             }
                             
                         })
-                    drawchart_weekly_report_16_1('#report-16-4-weekly','Top 5 PeerGroups - CM Connect Error Rate')
+                    drawchart_weekly_report_16_1('#weekly-report-16D','Top 5 PeerGroups - CM Connect Error Rate')
 
 
                     report_16_categories = []
@@ -2285,14 +2372,14 @@ $(document).ready(function() {
                             }
                             
                         })
-                    drawchart_weekly_report_16_1('#report-16-5-weekly','Top 5 PeerGroups - VideoLost QAM OK Error Rate')
+                    drawchart_weekly_report_16_1('#weekly-report-16E','Top 5 PeerGroups - VideoLost QAM OK Error Rate')
                     
         }
         }
         })}
 
         var drawchart_weekly_report_16_1 = function(id,title){
-            // alert('drawchart_weekly_report_16_1()')
+            // alert('drawchart_weekly_report_16()')
             console.log('im gonna draw now == ', id)
           // $('#weekly-report-16').highcharts({
             $(id).highcharts({
@@ -2356,7 +2443,7 @@ $(document).ready(function() {
     });
         }
 
-        var show_weekly_report_17 = function(){
+    var show_weekly_report_17 = function(){
         alert('show_weekly_report_17()')        
         $.ajax({
             url: '/vbo/monthly/report-17/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
@@ -2368,7 +2455,7 @@ $(document).ready(function() {
                     // obj = result.results.report_17
 
                                      
-                 $("<div class='weekly-report-17-table'  style=' width:100%; overflow:scroll' >").appendTo("#report-17-weekly");
+                 $("<div class='weekly-report-17-table'  style=' width:100%; overflow:scroll' >").appendTo("#weekly-report-17");
                     $(".weekly-report17-CSSTableGenerator1").empty() 
                     $("<table id='weekly-report-17-table' class='table'  style=''> </table>").appendTo('.weekly-report-17-table')
 

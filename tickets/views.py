@@ -854,7 +854,7 @@ def enum_results(user_id,results):
 	output = []
 
 	for counter, each in enumerate(results):
-		print 'prem cm-error == ', each[18]
+		# print 'prem cm-error == ', each[18]
 		curr_ticket_num = each[0]
 		if counter == 0:
 			prev_ticket_num = curr_ticket_num				
@@ -925,7 +925,7 @@ def enum_results(user_id,results):
 			else:
 				data['addt_notes'] = each[11]
 		else:
-			print 'prem cm-error == ', each[18]
+			# print 'prem cm-error == ', each[18]
 			if 'ALL' in pg_cd:
 				pg_cd = ['ALL']
 			data['pg'] = pg_cd
@@ -1000,8 +1000,8 @@ def enum_results(user_id,results):
 		output.append(data)
 		data = {}
 		pg_cd = []			
-	import pprint
-	print 'output == ' ,pprint.pprint(output)
+	# import pprint
+	# print 'output == ' ,pprint.pprint(output)
 	return output
 
 class PDFDownload(View):
@@ -1443,7 +1443,7 @@ class UpdateTicketData(View):
 						if t.antenna_network_error not in [None,'']:
 							ticket.antenna_network_error = t.antenna_network_error
 						if t.antenna_insuff_qam_error not in [None,'']:
-							ticket.antenna_tune_error = t.antenna_insuff_qam_error
+							ticket.antenna_insuff_qam_error = t.antenna_insuff_qam_error
 						if t.antenna_cm_error not in [None,'']:
 							ticket.antenna_cm_error = t.antenna_cm_error
 

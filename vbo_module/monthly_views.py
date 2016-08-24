@@ -314,6 +314,44 @@ class Report11(View):
 			logger.debug("ReportData-11 VBO-Module Exception == {0}".format(e))
 			return JsonResponse({'status': 'Contact Support Team'})					
 
+class Report12(View):
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(Report12, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		userid = utils.check_session_variable(request)
+		
+		if userid is None:
+			return render(request,'tickets/loginpage.html',{'error':'N'})
+		try:
+			results = requests.get(settings.VBO_SERVER + '/monthly/report-12/?' + 'report_name=' + request.GET.get('report_name') + '&report_run_date=' + request.GET.get('report_run_date') \
+				 + '&report_id=' + request.GET.get('report_id'))			
+			return JsonResponse({'status':'success', 'results':results.json()})
+		except Exception as e:
+			logger.debug("ReportData-12 VBO-Module Exception == {0}".format(e))
+			return JsonResponse({'status': 'Contact Support Team'})								
+
+class Report13(View):
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(Report13, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		userid = utils.check_session_variable(request)
+		
+		if userid is None:
+			return render(request,'tickets/loginpage.html',{'error':'N'})
+		try:
+			results = requests.get(settings.VBO_SERVER + '/monthly/report-13/?' + 'report_name=' + request.GET.get('report_name') + '&report_run_date=' + request.GET.get('report_run_date') \
+				 + '&report_id=' + request.GET.get('report_id'))			
+			return JsonResponse({'status':'success', 'results':results.json()})
+		except Exception as e:
+			logger.debug("ReportData-12 VBO-Module Exception == {0}".format(e))
+			return JsonResponse({'status': 'Contact Support Team'})											
+
 
 class Report14(View):
 
@@ -391,6 +429,27 @@ class Report17(View):
 		except Exception as e:
 			logger.debug("ReportData VBO-Module Exception == {0}".format(e))
 			return JsonResponse({'status': 'Contact Support Team'})								
+
+
+class Report19(View):
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(Report19, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		userid = utils.check_session_variable(request)
+		
+		if userid is None:
+			return render(request,'tickets/loginpage.html',{'error':'N'})
+		try:
+			results = requests.get(settings.VBO_SERVER + '/monthly/report-19/?' + 'report_name=' + request.GET.get('report_name') + '&report_run_date=' + request.GET.get('report_run_date') \
+				 + '&report_id=' + request.GET.get('report_id'))			
+			return JsonResponse({'status':'success', 'results':results.json()})
+		except Exception as e:
+			logger.debug("ReportData VBO-Module Exception == {0}".format(e))
+			return JsonResponse({'status': 'Contact Support Team'})								
+
 
 
 class UpdateCallouts(View):

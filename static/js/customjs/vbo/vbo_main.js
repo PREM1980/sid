@@ -752,7 +752,7 @@ $(document).ready(function() {
             success: function(result) {
             	console.log('monthly report-2 result == ', result)
                 if (result.status == 'success') {
-                    
+                    $('#weekly-2-loading-animation').hide()
                     $('#report-weekly-2-comments').show()
                     $('#report-weekly-2-comments-txt').val(result.results.report_comments.report_2_comments)
                     // $('#report-weekly-2-comments').show()
@@ -895,6 +895,7 @@ $(document).ready(function() {
             	console.log('monthly report-3 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_3))
+                    $('#weekly-3-loading-animation').hide()
                     $('#report-weekly-3-comments').show()
                     $('#report-weekly-3-comments-txt').val(result.results.report_comments.report_3_comments)
                     spikes = result.results.report_3
@@ -1031,6 +1032,7 @@ $(document).ready(function() {
             	
                 if (result.status == 'success') {
                     // console.log('chart results == ', JSON.stringify(result.results.report_4))
+                    $('#weekly-4-loading-animation').hide()
                     $('#report-weekly-4-comments').show()
                     $('#report-weekly-4-comments-txt').val(result.results.report_comments.report_4_comments)
 
@@ -1168,6 +1170,7 @@ $(document).ready(function() {
             success: function(result) {
             	console.log('monthly report-5 result == ', result)
                 if (result.status == 'success') {
+                    $('#weekly-5-loading-animation').hide()
                     console.log('chart results == ', JSON.stringify(result.results.report_5))
                     $('#report-weekly-5-comments').show()
                     $('#report-weekly-5-comments-txt').val(result.results.report_comments.report_5_comments)
@@ -1272,6 +1275,7 @@ $(document).ready(function() {
             url: '/vbo/monthly/report-6/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
             type: 'GET',
             success: function(result) {
+                $('#weekly-6-loading-animation').hide()
             	console.log('monthly report-6 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_6))
@@ -1396,6 +1400,7 @@ $(document).ready(function() {
             success: function(result) {
                 console.log('monthly report-7 result == ', result)
                 if (result.status == 'success') {
+                    $('#weekly-7-loading-animation').hide()
                     console.log('chart results == ', JSON.stringify(result.results.report_7))
                     $('#report-weekly-7-comments').show()
                     $('#report-weekly-7-comments-txt').val(result.results.report_comments.report_7_comments)
@@ -1540,6 +1545,7 @@ $(document).ready(function() {
             success: function(result) {
                 console.log('monthly report-8 result == ', result)
                 if (result.status == 'success') {
+                    $('#weekly-8-loading-animation').hide()
                     console.log('chart results == ', JSON.stringify(result.results.report_8))
                     $('#report-weekly-8-comments').show()
                     $('#report-weekly-8-comments-txt').val(result.results.report_comments.report_8_comments)
@@ -1686,6 +1692,7 @@ $(document).ready(function() {
             success: function(result) {
                 console.log('monthly report-9 result == ', result)
                 if (result.status == 'success') {
+                    $('#weekly-9-loading-animation').hide()
                     console.log('chart results == ', JSON.stringify(result.results.report_9))
                     $('#report-weekly-9-comments').show()
                     $('#report-weekly-9-comments-txt').val(result.results.report_comments.report_9_comments)
@@ -1833,6 +1840,7 @@ $(document).ready(function() {
             success: function(result) {
                 console.log('monthly report-10 result == ', result)
                 if (result.status == 'success') {
+                    $('#weekly-10-loading-animation').hide()
                     console.log('chart results == ', JSON.stringify(result.results.report_10))
                     $('#report-weekly-10A-comments').show()
                     $('#report-weekly-10A-comments-txt').val(result.results.report_comments.report_10A_comments)
@@ -1919,6 +1927,7 @@ $(document).ready(function() {
             url: '/vbo/monthly/report-11/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
             type: 'GET',
             success: function(result) {
+                $('#weekly-11-loading-animation').hide()
                 console.log('monthly report-11 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_10))
@@ -2027,6 +2036,7 @@ $(document).ready(function() {
             success: function(result) {
                 console.log('monthly report-12 result == ', result)
                 if (result.status == 'success') {
+                    $('#weekly-12-loading-animation').hide()
                     // console.log('chart results == ', JSON.stringify(result.results.report_12))
                     $('#report-weekly-12-comments').show()
                     $('#report-weekly-12-comments-txt').val(result.results.report_comments.report_12_comments)
@@ -2147,6 +2157,7 @@ $(document).ready(function() {
             success: function(result) {
                 console.log('monthly report-13 result == ', result)
                 if (result.status == 'success') {
+                    $('#weekly-13-loading-animation').hide()
                     // console.log('chart results == ', JSON.stringify(result.results.report_12))
                     $('#report-weekly-13-comments').show()
                     $('#report-weekly-13-comments-txt').val(result.results.report_comments.report_13_comments)
@@ -2266,6 +2277,7 @@ $(document).ready(function() {
             success: function(result) {
             	console.log('monthly report-14 result == ', result)
                 if (result.status == 'success') {
+                    $('#weekly-14-loading-animation').hide()
                     console.log('chart results == ', JSON.stringify(result.results.report_14))
                     $('#report-weekly-14-comments').show()
                     $('#report-weekly-14-comments-txt').val(result.results.report_comments.report_14_comments)
@@ -2483,6 +2495,7 @@ $(document).ready(function() {
             	console.log('monthly report-14 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_15))
+                    $('#weekly-15-loading-animation').hide()
                     $('#report-weekly-15-comments').show()
                     $('#report-weekly-15-comments-txt').val(result.results.report_comments.report_15_comments)
                     report_15 = result.results.report_15
@@ -2584,6 +2597,7 @@ $(document).ready(function() {
             success: function(result) {
                 console.log('monthly report-16 result == ', result)
                 if (result.status == 'success') {
+                    $('#weekly-16-loading-animation').hide()
                     console.log('chart results report-16 == ', JSON.stringify(result.results.report_16))
 
                     $('#report-weekly-16A-comments').show()
@@ -2756,6 +2770,7 @@ $(document).ready(function() {
             success: function(result) {
                 console.log('monthly report-16 result == ', result)
                 if (result.status == 'success') {
+                    $('#weekly-17-loading-animation').hide()
                     console.log('chart results report-17 == ', JSON.stringify(result.results.report_17))
                     // obj = result.results.report_17
 
@@ -2807,6 +2822,7 @@ $(document).ready(function() {
                 console.log('monthly report-19 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_19))
+                    $('#weekly-19-loading-animation').hide()
                     $('#report-weekly-19-comments').show()
                     $('#report-weekly-19-comments-txt').val(result.results.report_comments.report_19_comments)
                     report_19 = result.results.report_19

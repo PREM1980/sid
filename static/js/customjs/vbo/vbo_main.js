@@ -770,7 +770,7 @@ $(document).ready(function() {
                     report_2_weekly_tune_error_rate = []
 
                     report_2.forEach(function(obj) {
-                        report_2_weekly_categories.push(obj.report_create_time)
+                        report_2_weekly_categories.push(moment(obj.report_create_time).format('MM/DD/YYYY HH:mm'))
                         report_2_weekly_br_denial_rate.push(obj.br_denial_rate)
                         report_2_weekly_vlqok_error_rate.push(obj.vlqok_error_rate)
                         report_2_weekly_udb_error_rate.push(obj.udb_error_rate)
@@ -790,7 +790,7 @@ $(document).ready(function() {
     		
             $('#weekly-report-2').highcharts({
                 title: {
-                    text: '',
+                    text: 'Spikes NBRF%',
                     x: -20 //center
                 },
                 subtitle: {
@@ -803,6 +803,9 @@ $(document).ready(function() {
                 xAxis: {
                     categories: report_2_weekly_categories,
                     tickInterval: 180,
+                    labels:{
+                        format : '{value} CST'
+                    }
                 },
                 yAxis: {
                 	max: 5,
@@ -926,7 +929,7 @@ $(document).ready(function() {
    		console.log('spikes_weekly_date_time == ', spikes_weekly_date_time)
             $('#weekly-report-3').highcharts({
                 title: {
-                    text: 'Simultaneous Session Graph',
+                    text: 'Simultaneous Sessions Graph',
                     x: -20 //center
                 },
                 subtitle: {
@@ -939,17 +942,28 @@ $(document).ready(function() {
                 xAxis: {
                     categories: spikes_weekly_date_time,
                     tickInterval: 40,
+                    lang: {
+                       numericSymbols: null //otherwise by default ['k', 'M', 'G', 'T', 'P', 'E']
+                    },                    
                 },
                 yAxis: {
                     title: {
                         text: 'Number of Simultaneous Sessions'
+                    },
+                    lang: {
+                       numericSymbols: null //otherwise by default ['k', 'M', 'G', 'T', 'P', 'E']
                     },
                     tickInterval: 20000,
                     plotLines: [{
                         value: 0,
                         width: 1,
                         color: '#808080'
-                    }]
+                    }],
+                    labels: {
+                        formatter: function () {
+                            return Highcharts.numberFormat(this.value,0);
+                        }
+                    }
                 },
                 tooltip: {
                     valueSuffix: ''
@@ -1014,12 +1028,14 @@ $(document).ready(function() {
             url: '/vbo/monthly/report-4/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
             type: 'GET',
             success: function(result) {
-            	console.log('monthly report-4 result == ', result)
+            	
                 if (result.status == 'success') {
                     // console.log('chart results == ', JSON.stringify(result.results.report_4))
                     $('#report-weekly-4-comments').show()
                     $('#report-weekly-4-comments-txt').val(result.results.report_comments.report_4_comments)
+
                     spikes = result.results.report_4
+                    console.log('monthly report-4 result == ', JSON.stringify(spikes))
                     spikes_weekly_date_time = []
                     spikes_weekly_99th_rtime_sessiondhtclientimpl_persist  = []
                     // spikes_weekly_99th_rtime_setup_js = []
@@ -1032,7 +1048,7 @@ $(document).ready(function() {
                     // spikes_weekly_99th_rtime_teardown_js = []                    
 
                     spikes.forEach(function(obj) {
-                        spikes_weekly_date_time.push(moment(obj.report_create_time).format('MM/DD/YYYY HH:mm'))
+                        spikes_weekly_date_time.push(moment(obj.report_time).format('MM/DD/YYYY HH:mm'))
                         spikes_weekly_99th_rtime_sessiondhtclientimpl_persist.push(obj['99th_rtime_sessiondhtclientimpl_persist'])
                         // spikes_weekly_99th_rtime_setup_js.push(obj['99th_rtime_setup_js'])
                         spikes_weekly_99th_rtime_expandplaylist.push(obj['99th_rtime_expandplaylist'])
@@ -1043,13 +1059,14 @@ $(document).ready(function() {
                         spikes_weekly_99th_rtime_getsoplist.push(obj['99th_rtime_getsoplist'])
                         // spikes_weekly_99th_rtime_teardown_js.push(obj['99th_rtime_getsoplist'])
                     })
-                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_sessiondhtclientimpl_persist))
-                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_expandplaylist))
-                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_setupermsession))
-                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_setupodrmsession))
-                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_sessionpersistenceservice_getsettopstatus))
-                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_udbservice_validateplayeligibility))
-                    console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_getsoplist))
+                    console.log('spikes_weekly_date_time == ', spikes_weekly_date_time)
+                    // console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_sessiondhtclientimpl_persist))
+                    // console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_expandplaylist))
+                    // console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_setupermsession))
+                    // console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_setupodrmsession))
+                    // console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_sessionpersistenceservice_getsettopstatus))
+                    // console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_udbservice_validateplayeligibility))
+                    // console.log('chart results == ', JSON.stringify(spikes_weekly_99th_rtime_getsoplist))
                     drawchart_weekly_report_4()
         }
     }
@@ -1073,6 +1090,9 @@ $(document).ready(function() {
                 xAxis: {
                     categories: spikes_weekly_date_time,
                     tickInterval: 4,
+                    labels:{
+                        format : '{value} CST'
+                    }
                 },
                 yAxis: {
                     title: {
@@ -1289,7 +1309,7 @@ $(document).ready(function() {
    		console.log('spikes_weekly_date_time == ', spikes_weekly_date_time)
             $('#weekly-report-6').highcharts({
                 title: {
-                    text: '',
+                    text: 'Stripe Setup Times Graph 99th',
                     x: -20 //center
                 },
                 subtitle: {
@@ -1412,7 +1432,7 @@ $(document).ready(function() {
         console.log('spikes_weekly_date_time == ', report_7_weekly_date_time)
             $('#weekly-report-7').highcharts({
                 title: {
-                    text: '',
+                    text: '50th % Setup Time Trend Graph',
                     x: -20 //center
                 },
                 subtitle: {
@@ -1559,7 +1579,7 @@ $(document).ready(function() {
             console.log("report_8_weekly_br_denial_rate == ", JSON.stringify(report_8_weekly_vlqok_error_rate))
             $('#weekly-report-8').highcharts({
                 title: {
-                    text: '',
+                    text: 'Major Events Graph',
                     x: -20 //center
                 },
                 subtitle: {
@@ -1705,7 +1725,7 @@ $(document).ready(function() {
             console.log("report_9_weekly_br_denial_rate == ", JSON.stringify(report_9_weekly_vlqok_error_rate))
             $('#weekly-report-9').highcharts({
                 title: {
-                    text: '',
+                    text: 'Major Events Graph-Full Year',
                     x: -20 //center
                 },
                 subtitle: {
@@ -1831,17 +1851,17 @@ $(document).ready(function() {
                         
                     })
                     drawchart_weekly_report_10('#weekly-report-10A','Network Resource Failure Rate',
-                        report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate)                    
+                        report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate,'NetworkResourceFailure','X1 NetworkResourceFailure Rate', 'Legacy NetworkResourceFailure Rate')                    
                     drawchart_weekly_report_10('#weekly-report-10B','Tune Error Rate',
-                        report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate)                    
+                        report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate,'Tune Error Rate by STB Type','X1 Tune Error Rate', 'Legacy Tune Error Rate')                    
         }
     }
     })}
 
-    var drawchart_weekly_report_10 = function(id,text,report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate) {            
+    var drawchart_weekly_report_10 = function(id,text,report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate, title, series_1_title, series_2_title) {            
             $(id).highcharts({
                 title: {
-                    text: text,
+                    text: title,
                     x: -20 //center
                 },
                 subtitle: {
@@ -1864,12 +1884,7 @@ $(document).ready(function() {
                     tickInterval: .1,
                     labels:{
                         format : '{value} %'
-                    }
-                //       labels: {
-                       //  formatter:function() {
-                       //      var pcnt = (this.value / dataSum) * 100;
-                       //      return Highcharts.numberFormat(pcnt,0,',') + '%';
-                    // }}
+                    }                
                 },
                 tooltip: {
                     valueSuffix: ''
@@ -1883,13 +1898,13 @@ $(document).ready(function() {
                 series: [
                     // {turboThreshold: 2000 },
                     {
-                        name: 'X1 Tune Error Rate',
+                        name: series_1_title,
                         data: report_10_weekly_x1_network_error_rate,
                         turboThreshold: 12000,
                         lineWidth: 2
                     }, 
                     {
-                        name: 'Legacy Tune Error Rate',
+                        name: series_2_title,
                         data: report_10_weekly_legacy_network_error_rate,
                         turboThreshold: 12000,
                         lineWidth: 2
@@ -1923,7 +1938,7 @@ $(document).ready(function() {
                         report_11_weekly_vlqok_error_rate.push(obj.vlqok_error_rate)                                                                        
                     })
                     console.log(report_11_weekly_cm_connect_error_rate)
-                    drawchart_weekly_report_11('#weekly-report-11','Daily Error Rate by Category',
+                    drawchart_weekly_report_11('#weekly-report-11','National QAM VOD Error Rate',
                         report_11_weekly_cm_connect_error_rate,report_11_weekly_networkresource_failure_error_rate
                         ,report_11_weekly_tune_error_rate,report_11_weekly_vlqok_error_rate)                                        
         }
@@ -1933,7 +1948,7 @@ $(document).ready(function() {
     var drawchart_weekly_report_11 = function(id,text,report_10_weekly_x1_network_error_rate,report_10_weekly_legacy_network_error_rate) {            
             $(id).highcharts({
                 title: {
-                    text: '',
+                    text: 'Daily Error Rate by Category',
                     x: -20 //center
                 },
                 subtitle: {
@@ -2315,18 +2330,31 @@ $(document).ready(function() {
                     text: 'Daily Error Rate by STB Type'
                 },
                 xAxis: {                    
-                    categories: report_14_categories
+                    categories: report_14_categories,
+                    stackLabels: {
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold',
+                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'blue'
+                        }
+                    }
                 },
                 yAxis: {
                     min: 0,
                     title: {
                         text: ''
                     },
+                    labels:{
+                        format : '{value} %'
+                    },
                     stackLabels: {
                         enabled: true,
                         style: {
                             fontWeight: 'bold',
-                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'blue'
+                        },
+                        formatter: function(){
+                            return this.stack;
                         }
                     }
                 },
@@ -2496,7 +2524,15 @@ $(document).ready(function() {
                         enabled: true,
                         style: {
                             fontWeight: 'bold',
-                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'blue'
+                        },
+                        formatter: function(){
+                            return this.stack;
+                        }
+                    },
+                    labels: {
+                        formatter: function () {
+                            return Highcharts.numberFormat(this.value,0);
                         }
                     }
                 },
@@ -2658,12 +2694,12 @@ $(document).ready(function() {
         subtitle: {
             text: ''
         },
-        xAxis: {
-            // categories: ['Africa', 'America', 'Asia', 'Europe', 'Oceania'],
+        xAxis: {            
             categories: report_16_categories,
             title: {
                 text: null
-            }
+            },
+            
         },
         yAxis: {
             min: 0,
@@ -2673,10 +2709,13 @@ $(document).ready(function() {
             },
             labels: {
                 overflow: 'justify'
+            },
+            labels:{
+                format : '{value} %'
             }
         },
         tooltip: {
-            valueSuffix: ' millions'
+            valueSuffix: ' million'
         },
         plotOptions: {
             bar: {
@@ -2691,7 +2730,7 @@ $(document).ready(function() {
             verticalAlign: 'top',
             x: -40,
             y: 80,
-            floating: true,
+            // floating: true,
             borderWidth: 1,
             backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
             shadow: true
@@ -2834,35 +2873,35 @@ $(document).ready(function() {
                         }
                     )
                     
-                    console.log('peak udb ==',report_19_peak_udb_errors)
-                    console.log('peak plant ==',report_19_peak_plant_errors)
-                    console.log('peak cdn ==',report_19_peak_cdn_setup_errors)
-                    console.log('peak network ==',report_19_peak_network_teardown_errors)
-                    console.log('peak vcp ==',report_19_peak_vcp_errors)
-                    console.log('peak tune ==',report_19_peak_tune_errors)
-                    console.log('peak cm connect ==',report_19_peak_cm_connect_errors)
-                    console.log('peak vlqok ==',report_19_peak_vlqok_errors)
+                    // console.log('peak udb ==',report_19_peak_udb_errors)
+                    // console.log('peak plant ==',report_19_peak_plant_errors)
+                    // console.log('peak cdn ==',report_19_peak_cdn_setup_errors)
+                    // console.log('peak network ==',report_19_peak_network_teardown_errors)
+                    // console.log('peak vcp ==',report_19_peak_vcp_errors)
+                    // console.log('peak tune ==',report_19_peak_tune_errors)
+                    // console.log('peak cm connect ==',report_19_peak_cm_connect_errors)
+                    // console.log('peak vlqok ==',report_19_peak_vlqok_errors)
 
-                    console.log('maint udb ==',report_19_maint_udb_errors)
-                    console.log('maint plant ==',report_19_maint_plant_errors)
-                    console.log('maint cdn ==',report_19_maint_cdn_setup_errors)
-                    console.log('maint network ==',report_19_maint_network_teardown_errors)
-                    console.log('maint vcp ==',report_19_maint_vcp_errors)
-                    console.log('maint tune ==',report_19_maint_tune_errors)
-                    console.log('maint cm connect ==',report_19_maint_cm_connect_errors)
-                    console.log('maint vlqok ==',report_19_maint_vlqok_errors)
+                    // console.log('maint udb ==',report_19_maint_udb_errors)
+                    // console.log('maint plant ==',report_19_maint_plant_errors)
+                    // console.log('maint cdn ==',report_19_maint_cdn_setup_errors)
+                    // console.log('maint network ==',report_19_maint_network_teardown_errors)
+                    // console.log('maint vcp ==',report_19_maint_vcp_errors)
+                    // console.log('maint tune ==',report_19_maint_tune_errors)
+                    // console.log('maint cm connect ==',report_19_maint_cm_connect_errors)
+                    // console.log('maint vlqok ==',report_19_maint_vlqok_errors)
 
-                    console.log('other udb ==',report_19_others_udb_errors)
-                    console.log('other plant ==',report_19_others_plant_errors)
-                    console.log('other cdn ==',report_19_others_cdn_setup_errors)
-                    console.log('other network ==',report_19_others_network_teardown_errors)
-                    console.log('other vcp ==',report_19_others_vcp_errors)
-                    console.log('other tune ==',report_19_others_tune_errors)
-                    console.log('other cm connect ==',report_19_others_cm_connect_errors)
-                    console.log('other vlqok ==',report_19_others_vlqok_errors)
-                    console.log('category ==', report_19_categories)
+                    // console.log('other udb ==',report_19_others_udb_errors)
+                    // console.log('other plant ==',report_19_others_plant_errors)
+                    // console.log('other cdn ==',report_19_others_cdn_setup_errors)
+                    // console.log('other network ==',report_19_others_network_teardown_errors)
+                    // console.log('other vcp ==',report_19_others_vcp_errors)
+                    // console.log('other tune ==',report_19_others_tune_errors)
+                    // console.log('other cm connect ==',report_19_others_cm_connect_errors)
+                    // console.log('other vlqok ==',report_19_others_vlqok_errors)
+                    // console.log('category ==', report_19_categories)
                     report_19_categories = eliminateDuplicates(report_19_categories)                    
-                    console.log('category ==', report_19_categories)
+                    // console.log('category ==', report_19_categories)
                     drawchart_weekly_report_19()                    
         }
         }
@@ -2892,7 +2931,7 @@ $(document).ready(function() {
                         enabled: true,
                         style: {
                             fontWeight: 'bold',
-                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'blue'
                         },
                         formatter: function(){
                             return this.stack;

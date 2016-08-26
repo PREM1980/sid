@@ -14,6 +14,9 @@ $(document).ready(function() {
         result = (Math.round(nbr * 100 * 100) / 100)
         return result
     }
+    function add_percentage(val) {                
+        return val + '%'
+    }
     $('#report-daily-1-submit, #report-daily-2-submit, #report-daily-3-submit,' + 
         '#report-weekly-1-submit, #report-weekly-2-submit, #report-weekly-3-submit ' + 
         ',#report-weekly-4-submit, #report-weekly-5-submit, #report-weekly-6-submit ' + 
@@ -546,7 +549,6 @@ $(document).ready(function() {
         $('#monthly-non-business-rules-success').text(100 - x1.non_business_rules_success + '%')
         $('#monthly-non-business-rules-error').text(x1.non_business_rules_success + '%')
 
-
         $('#monthly-udb-total').text(x1.udb_total.toLocaleString())
         $('#monthly-udb-success').text(100 - x1.udb_success + '%')
         $('#monthly-udb-error').text(x1.udb_success + '%')
@@ -569,8 +571,6 @@ $(document).ready(function() {
         $('#monthly-net-success').text(100 - x1.net_success + '%')
         $('#monthly-net-error').text(x1.net_success + '%')
         $('#monthly-net-nbr').text(roundoff(x1.net_total / x1.non_business_rules_total) + '%')
-
-        
 
         $('#monthly-field-plant-total').text(x1.field_plant_total.toLocaleString())
         $('#monthly-field-plant-success').text(100 - x1.field_plant_success + '%')
@@ -656,6 +656,52 @@ $(document).ready(function() {
         $('#setup-timing-max-vw4').text(Math.round(x1['qry-2']['max_vw4']).toString().toLocaleString())
         $('#setup-timing-max-national').text(Math.round(x1['qry-2']['max_all']).toString().toLocaleString())
 
+        // console.log('x1 == ', JSON.stringify(x1))
+
+        x1['qry-4'].forEach(function(obj) {
+            console.log(JSON.stringify(obj))
+            if (obj.dayname == 'Saturday'){
+                $('#stb-x1-weekly').text(add_percentage(obj.x1_nbr_error_rate))
+                $('#stb-legacy-weekly').text(add_percentage(obj.legacy_nbr_error_rate))
+                $('#stb-nat-weekly').text(add_percentage(obj.nbr_error_rate))
+            }
+            })
+
+        x1['qry-3'].forEach(function(obj) {
+            console.log(JSON.stringify(obj))
+            if (obj.dayname == 'Saturday'){
+                $('#stb-x1-sat').text(add_percentage(obj.x1_nbr_error_rate))
+                $('#stb-legacy-sat').text(add_percentage(obj.legacy_nbr_error_rate))
+                $('#stb-nat-sat').text(add_percentage(obj.nbr_error_rate))
+            }else if (obj.dayname == 'Sunday') {
+                $('#stb-x1-sun').text(add_percentage(obj.x1_nbr_error_rate))
+                $('#stb-legacy-sun').text(add_percentage(obj.legacy_nbr_error_rate))
+                $('#stb-nat-sun').text(add_percentage(obj.nbr_error_rate))
+            }else if (obj.dayname == 'Monday') {
+                $('#stb-x1-mon').text(add_percentage(obj.x1_nbr_error_rate))
+                $('#stb-legacy-mon').text(add_percentage(obj.legacy_nbr_error_rate))
+                $('#stb-nat-mon').text(add_percentage(obj.nbr_error_rate))
+            }else if (obj.dayname == 'Tuesday') {
+                $('#stb-x1-tue').text(add_percentage(obj.x1_nbr_error_rate))
+                $('#stb-legacy-tue').text(add_percentage(obj.legacy_nbr_error_rate))
+                $('#stb-nat-tue').text(add_percentage(obj.nbr_error_rate))
+            }
+            else if (obj.dayname == 'Wednesday') {
+                $('#stb-x1-wed').text(add_percentage(obj.x1_nbr_error_rate))
+                $('#stb-legacy-wed').text(add_percentage(obj.legacy_nbr_error_rate))
+                $('#stb-nat-wed').text(add_percentage(obj.nbr_error_rate))
+            }
+            else if (obj.dayname == 'Thursday') {
+                $('#stb-x1-thu').text(add_percentage(obj.x1_nbr_error_rate))
+                $('#stb-legacy-thu').text(add_percentage(obj.legacy_nbr_error_rate))
+                $('#stb-nat-thu').text(add_percentage(obj.nbr_error_rate))
+            }
+            else if (obj.dayname == 'Friday') {
+                $('#stb-x1-fri').text(add_percentage(obj.x1_nbr_error_rate))
+                $('#stb-legacy-fri').text(add_percentage(obj.legacy_nbr_error_rate))
+                $('#stb-nat-fri').text(add_percentage(obj.nbr_error_rate))
+            }
+        })
 
         return;
     }

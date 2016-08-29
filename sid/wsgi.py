@@ -19,8 +19,8 @@ sys.path.append('/var/www/sid')
 sys.path.append('/var/www/sid/sid')
 
 #Activate your virtual env
-activate_env=os.path.expanduser('/var/www/venv/bin/activate_this.py')
-execfile(activate_env,dict(__file__=activate_env))
+#activate_env=os.path.expanduser('/var/www/venv/bin/activate_this.py')
+#execfile(activate_env,dict(__file__=activate_env))
 
 
 from django.core.wsgi import get_wsgi_application

@@ -1,14 +1,50 @@
 $(document).ready(function() {
 
 $(function() {
-   $( "#month" ).datepicker({
-		dateFormat: 'yy-mm',
-		maxDate: "-1m"
-});
-   $( "#trending_month" ).datepicker({
-		dateFormat: 'yy-mm',
-		maxDate: "-1m"
-});
+//   $( "#month" ).datepicker({
+//		dateFormat: 'yy-mm',
+//		maxDate: "-1m"
+//});
+//   $( "#trending_month" ).datepicker({
+//                dateFormat: 'yy-mm',
+//                maxDate: "-1m"
+//});
+
+     $('.date-picker').datepicker(
+                    {
+                        dateFormat: "yy-mm",
+			maxDate: "-1m",
+                        changeMonth: true,
+                        changeYear: true,
+                        showButtonPanel: true,
+                        onClose: function(dateText, inst) {
+
+
+                            function isDonePressed(){
+                                return ($('#ui-datepicker-div').html().indexOf('ui-datepicker-close ui-state-default ui-priority-primary ui-corner-all ui-state-hover') > -1);
+                            }
+
+                            if (isDonePressed()){
+                                var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+                                var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+                                $(this).datepicker('setDate', new Date(year, month, 1)).trigger('change');
+                                
+                                 $('.date-picker').focusout()//Added to remove focus from datepicker input box on selecting date
+                            }
+                        },
+                        beforeShow : function(input, inst) {
+
+                            inst.dpDiv.addClass('month_year_datepicker')
+
+                            if ((datestr = $(this).val()).length > 0) {
+                                year = datestr.substring(datestr.length-4, datestr.length);
+                                month = datestr.substring(0, 2);
+                                $(this).datepicker('option', 'defaultDate', new Date(year, month-1, 1));
+                                $(this).datepicker('setDate', new Date(year, month-1, 1));
+                                $(".ui-datepicker-calendar").hide();
+                            }
+                        }
+                    })
 
 });
 
@@ -26,9 +62,9 @@ $(function() {
 
     verbiage={"bestpgs_ec":"Best Peergroups by Error Count", "worstpgs_ec":"Worst Peergroups by Error Count", "bestpgs_eps":"Best Peergroups by Error Percent of Streams", "worstpgs_eps":"Worst Peergroups by Error Percent of Streams", "bestpgs_ms": "Best Market Share of Errors", "worstpgs_ms": "Worst Market Share of Errors","top_errors_count":"Top Errors by Count", "top_errors_percent":"Top Errors by Percent"};
 
-    var clabel = verbiage[rtype]
+    var clabel = verbiage[rtype]+" ( "+$('#month').val()+")";
 
-    var tt_label = ttverbiage[rtype]
+    var tt_label = ttverbiage[rtype];
 
 
     $.getJSON("etstats?rtype="+rtype+"&month="+month+"&no_requested="+no_requested+"&no_errors_requested="+no_errors_requested, function(json){
@@ -55,6 +91,9 @@ $(function() {
     chart: {
         renderTo: 'container',
         type: 'pie'
+    },
+    lang: {
+        thousandsSep: ","
     },
     title: {
 	text: clabel
@@ -88,14 +127,14 @@ var genChart = function(){
 $(function() {
 
 
-  title_verbiage={"ec": "Error Count", "eps":"Error Percent of Streams", "ms":"Market Share of Errors", "de_counts":"Specific Error Counts", "de_pcts":"Specific Errors by Percent"};
-  yaxis_verbiage={"ec": "Number", "eps":"Percent", "ms":"Market Share of Errors", "de_counts":"Counts", "de_pcts":"Percent"};
+  title_verbiage={"ec": "Error Count", "eps":"Error Percent of Streams (PGs)", "ms":"Market Share of Errors", "de_counts":"Specific Error Counts", "de_pcts":"Specific Errors by Percent", "eps_nd": "Error Percent of Streams (Nat/Div)"};
+  yaxis_verbiage={"ec": "Number", "eps":"Percent", "ms":"Market Share of Errors", "de_counts":"Counts", "de_pcts":"Percent", "eps_nd":"Percent"};
 
   trending_month = $('#trending_month').val()+"-01";
   trending_rtype = $('#trending_rtype').val();
   months_requested = $('#months_requested').val();
 
-  var chart_title = title_verbiage[trending_rtype]
+  var chart_title = title_verbiage[trending_rtype]+" ( "+$('#trending_month').val()+" ) ";
   var chart_yaxis = yaxis_verbiage[trending_rtype]
 
   $.getJSON("ettrending?trending_month="+trending_month+"&trending_rtype="+trending_rtype+"&months_requested="+months_requested, function(json){

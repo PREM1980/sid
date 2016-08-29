@@ -1,57 +1,91 @@
 {% block content %}
+<style>
+.nav-tabs > li.active > a,
+        .nav-tabs > li.active > a:hover,
+        .nav-tabs > li.active > a:focus{
+            color: #555555;
+            background-color: lightblue;  
+        } 
+</style>        
 <div id="weekly-div" style="display:none">
 <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
 
 <ul class="nav nav-tabs">
   <li role="presentation" class="active"><a data-toggle="tab" href="#weekly-report-1">Summary</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-2">Spikes - NBRF%</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-3">Simultaneous Sessions Graph</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-4">Workflow 99th% Graph</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-5">Workflow 50th% Graph</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-6">Stripe Setup Times Graph 99th</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-7">50th% Setup Time Trend Graph</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-8">Major Events Graph</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-9">Major Events Graph-Full Year</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-10">NBRF TrendBySTB Graph</a></li>
-
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-11">Error Trend Graph</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-12">WorstPGs-TuneError</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-13">WorstPGs-NetworkResourceFailure</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-14">STB Error Rates</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-15">Top 5 ErrorsBySTB</a></li>
-  <li role="presentation"><a data-toggle="tab" href="#weekly-report-16">Top5 Graphs</a></li>
-  <li role="presentation"><a href="#weekly-report-17">Weekly Errors</a></li>
-  <li role="presentation"><a href="#weekly-report-18">PompanoDade TunesByFreq Graph</a></li>
-  <li role="presentation"><a href="#weekly-report-19">Maint Window Errors</a></li>  
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-2-h">Spikes - NBRF%</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-3-h">Simultaneous Sessions Graph</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-4-h">Workflow 99th% Graph</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-5-h">Workflow 50th% Graph</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-6-h">Stripe Setup Times Graph 99th</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-7-h">50th% Setup Time Trend Graph</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-8-h">Major Events Graph</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-9-h">Major Events Graph-Full Year</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-10-h">NBRF Trend By STB Graph</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-11-h">Error Trend Graph</a></li>
+  <!-- <li role="presentation"><a data-toggle="tab" href="#weekly-report-12-h">WorstPGs-TuneError</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-13-h">WorstPGs-NetworkResourceFailure</a></li> -->
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-14-h">STB Error Rates</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-15-h">Top 5 Errors By STB</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-16-h">Top 5 Graphs</a></li>
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-17-h">Weekly Errors</a></li>
+  <!-- <li role="presentation"><a data-toggle="tab" href="#weekly-report-18-h">PompanoDade TunesByFreq Graph</a></li> -->
+  <li role="presentation"><a data-toggle="tab" href="#weekly-report-19-h">Maint Window Errors</a></li>  
 </ul>
 
    <div class="tab-content">
     <div id="weekly-report-1" class="tab-pane fade in active">
       {% include "vbo_module/weekly_report_1.html" %} 
     </div>
-    <div id="weekly-report-2" class="tab-pane fade">
+    <div id="weekly-report-2-h" class="tab-pane fade">
       {% include "vbo_module/weekly_report_2.html" %} 
     </div>
-    <div id="weekly-report-3" class="tab-pane fade">
+    <div id="weekly-report-3-h" class="tab-pane fade">
       {% include "vbo_module/weekly_report_3.html" %} 
     </div>
-    <div id="weekly-report-4" class="tab-pane fade">
+    <div id="weekly-report-4-h" class="tab-pane fade">
       {% include "vbo_module/weekly_report_4.html" %} 
     </div>
-    <div id="weekly-report-5" class="tab-pane fade">
+    <div id="weekly-report-5-h" class="tab-pane fade">
       {% include "vbo_module/weekly_report_5.html" %} 
     </div>
-    <div id="weekly-report-6" class="tab-pane fade">
+    <div id="weekly-report-6-h" class="tab-pane fade">
       {% include "vbo_module/weekly_report_6.html" %} 
     </div>
-    <div id="weekly-report-14" class="tab-pane fade">
+    <div id="weekly-report-7-h" class="tab-pane fade">
+      {% include "vbo_module/weekly_report_7.html" %} 
+    </div>
+    <div id="weekly-report-8-h" class="tab-pane fade">
+      {% include "vbo_module/weekly_report_8.html" %} 
+    </div>
+    <div id="weekly-report-9-h" class="tab-pane fade">
+      {% include "vbo_module/weekly_report_9.html" %} 
+    </div>
+    <div id="weekly-report-10-h" class="tab-pane fade">
+      {% include "vbo_module/weekly_report_10.html" %} 
+    </div>
+    <div id="weekly-report-11-h" class="tab-pane fade">
+      {% include "vbo_module/weekly_report_11.html" %} 
+    </div>
+    <div id="weekly-report-12-h" class="tab-pane fade">
+      {% include "vbo_module/weekly_report_12.html" %} 
+    </div>
+    <div id="weekly-report-13-h" class="tab-pane fade">
+      {% include "vbo_module/weekly_report_13.html" %} 
+    </div>
+    <div id="weekly-report-14-h" class="tab-pane fade">
       {% include "vbo_module/weekly_report_14.html" %} 
     </div>
-    <div id="weekly-report-15" class="tab-pane fade">
+    <div id="weekly-report-15-h" class="tab-pane fade">
       {% include "vbo_module/weekly_report_15.html" %} 
     </div>    
-    <div id="weekly-report-16" class="tab-pane fade">
+    <div id="weekly-report-16-h" class="tab-pane fade">
       {% include "vbo_module/weekly_report_16.html" %} 
+    </div>
+    <div id="weekly-report-17-h" class="tab-pane fade">
+      {% include "vbo_module/weekly_report_17.html" %} 
+    </div>
+    <div id="weekly-report-19-h" class="tab-pane fade">
+      {% include "vbo_module/weekly_report_19.html" %} 
     </div>
   </div>
 

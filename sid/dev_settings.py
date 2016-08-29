@@ -98,6 +98,8 @@ if HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
     else:
         host = 'prod-sid-web-server'
         VBO_SERVER = 'http://prod-api-box:9000/'
+        PPE_SERVER = 'http://prod-api-box:5000/'
+        ET_SERVER = 'http://prod-api-box:5000/'
 elif HOSTNAME in ['test-sid-web-server','prod-sid-web-server']:
     host = 'localhost'
 else:

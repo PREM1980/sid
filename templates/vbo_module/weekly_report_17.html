@@ -1,0 +1,19 @@
+{% block content %}
+{% load staticfiles %}
+
+<div class="col-md-8 col-md-offset-4" id="weekly-17-loading-animation">
+                <img src="{% static "animations/ajax-loader.gif" %}" alt="home background image">
+</div>
+<div class="row">
+    <div class="col-md-12" id="weekly-report-17"></div>
+    <div class="col-md-10" id="report-weekly-17-comments" style="display:none">
+        <div class="form-group">
+            <textarea class="form-control" rows="10" id="report-weekly-17-comments-txt" placeholder="Please provide your comments here..."></textarea>
+        </div>
+        <div class="col-sm-2">
+            <input type="submit" class="btn btn-success" value="Update Comments" id="report-weekly-17-submit">
+        </div>
+    </div>
+
+</div>
+{% endblock content %}

@@ -5,79 +5,77 @@
 
 {% block content %}
 
-Report-16
+{% load staticfiles %}
+
+<div class="col-md-8 col-md-offset-4" id="weekly-16-loading-animation">
+                <img src="{% static "animations/ajax-loader.gif" %}" alt="home background image">
+</div>
+
+
 <div class="row">
-	
-    <div class="col-md-8" id="report-16-1-weekly" >How are you</div>
-    <div class="col-md-4" id="report-16-1-weekly-comments" style="display:none">
+    <div class="col-md-8" id="weekly-report-16A"></div>
+    <div class="col-md-4" id="report-weekly-16A-comments" style="display:none">
         <div class="form-group">
-            <textarea class="form-control" rows="10" id="report-16-1-weekly-comments-txt" placeholder="Please provide your comments here..."></textarea>
+            <textarea class="form-control" rows="10" id="report-weekly-16A-comments-txt" placeholder="Please provide your comments here..."></textarea>
         </div>
         <div class="col-sm-2">
-            <input type="submit" class="btn btn-success" value="Update Comments" id="report-16-1-submit">
+            <input type="submit" class="btn btn-success" value="Update Comments" id="report-weekly-16A-submit">
         </div>
     </div>
-
 </div>
+<span class='help-block'>&nbsp;</span>
+<span class='help-block'>&nbsp;</span>
 <div class="row">
-    <div class="col-md-8" id="report-16-2-weekly"></div>
-    <div class="col-md-4" id="report-16-2-weekly-comments" style="display:none">
+    <div class="col-md-8" id="weekly-report-16B"></div>
+    <div class="col-md-4" id="report-weekly-16B-comments" style="display:none">
         <div class="form-group">
-            <textarea class="form-control" rows="10" id="report-16-2-weekly-comments-txt" placeholder="Please provide your comments here..."></textarea>
+            <textarea class="form-control" rows="10" id="report-weekly-16B-comments-txt" placeholder="Please provide your comments here..."></textarea>
         </div>
         <div class="col-sm-2">
-            <input type="submit" class="btn btn-success" value="Update Comments" id="report-16-2-submit">
+            <input type="submit" class="btn btn-success" value="Update Comments" id="report-weekly-16B-submit">
         </div>
     </div>
-
 </div>
+<span class='help-block'>&nbsp;</span>
+<span class='help-block'>&nbsp;</span>
 <div class="row">
-    <div class="col-md-8" id="report-16-3-weekly"></div>
-    <div class="col-md-4" id="report-16-3-weekly-comments" style="display:none">
+    <div class="col-md-8" id="weekly-report-16C"></div>
+    <div class="col-md-4" id="report-weekly-16C-comments" style="display:none">
         <div class="form-group">
-            <textarea class="form-control" rows="10" id="report-16-3-weekly-comments-txt" placeholder="Please provide your comments here..."></textarea>
+            <textarea class="form-control" rows="10" id="report-weekly-16C-comments-txt" placeholder="Please provide your comments here..."></textarea>
         </div>
         <div class="col-sm-2">
-            <input type="submit" class="btn btn-success" value="Update Comments" id="report-16-3-submit">
+            <input type="submit" class="btn btn-success" value="Update Comments" id="report-weekly-16C-submit">
         </div>
     </div>
-
 </div>
+<span class='help-block'>&nbsp;</span>
+<span class='help-block'>&nbsp;</span>
 <div class="row">
-    <div class="col-md-8" id="report-16-4-weekly"></div>
-    <div class="col-md-4" id="report-16-4-weekly-comments" style="display:none">
+    <div class="col-md-8" id="weekly-report-16D"></div>
+    <div class="col-md-4" id="report-weekly-16D-comments" style="display:none">
         <div class="form-group">
-            <textarea class="form-control" rows="10" id="report-16-4-weekly-comments-txt" placeholder="Please provide your comments here..."></textarea>
+            <textarea class="form-control" rows="10" id="report-weekly-16D-comments-txt" placeholder="Please provide your comments here..."></textarea>
         </div>
         <div class="col-sm-2">
-            <input type="submit" class="btn btn-success" value="Update Comments" id="report-16-4-submit">
+            <input type="submit" class="btn btn-success" value="Update Comments" id="report-weekly-16D-submit">
         </div>
     </div>
-
 </div>
+<span class='help-block'>&nbsp;</span>
+<span class='help-block'>&nbsp;</span>
 <div class="row">
-    <div class="col-md-8" id="report-16-5-weekly"></div>
-    <div class="col-md-4" id="report-16-5-weekly-comments" style="display:none">
+    <div class="col-md-8" id="weekly-report-16E"></div>
+    <div class="col-md-4" id="report-weekly-16E-comments" style="display:none">
         <div class="form-group">
-            <textarea class="form-control" rows="10" id="report-16-5-weekly-comments-txt" placeholder="Please provide your comments here..."></textarea>
+            <textarea class="form-control" rows="10" id="report-weekly-16E-comments-txt" placeholder="Please provide your comments here..."></textarea>
         </div>
         <div class="col-sm-2">
-            <input type="submit" class="btn btn-success" value="Update Comments" id="report-16-5-submit">
+            <input type="submit" class="btn btn-success" value="Update Comments" id="report-weekly-16E-submit">
         </div>
     </div>
-
 </div>
-<div class="row">
-    <div class="col-md-8" id="report-16-6-weekly"></div>
-    <div class="col-md-4" id="report-16-6-weekly-comments" style="display:none">
-        <div class="form-group">
-            <textarea class="form-control" rows="10" id="report-16-6-weekly-comments-txt" placeholder="Please provide your comments here..."></textarea>
-        </div>
-        <div class="col-sm-2">
-            <input type="submit" class="btn btn-success" value="Update Comments" id="report-16-6-submit">
-        </div>
-    </div>
 
-</div>
+
 
 {% endblock content %}

@@ -8,7 +8,6 @@ $(document).ready(function() {
         dateFormat: 'yymmdd'
     });
 
-
     var genChart = function() {
         console.log('called')
         
@@ -39,11 +38,18 @@ $(document).ready(function() {
             rtype = $('#rtype').val();
             stb = $('#stb').val();
 
+            var pointFormatting
+            if (metricvar == "daily_ef" || metricvar == "daily_er"){
+		pointFormatting = '{series.name}:<b>{point.y}%</b>'
+	    }else{
+		pointFormatting = '{series.name}:<b>{point.y:,.0f}</b>'	
+	    }
+
             // var metricvar = $("input[name='metricVar']:selected").val();
             var stbtext
 
             if (rtype != "herrin") {
-                stbtext = " ( " + verbosestb[stb] + " ) "
+               stbtext = " ( " + verbosestb[stb] + " ) "
             } else {
                 stbtext = ""
             }
@@ -78,6 +84,9 @@ $(document).ready(function() {
                         renderTo: 'container',
                         type: 'spline'
                     },
+		    lang: {
+			thousandsSep: ","
+		    },
                     plotOptions: {
                         series: {
                             marker: {
@@ -85,6 +94,9 @@ $(document).ready(function() {
                             }
                         }
                     },
+		    tooltip: {
+			pointFormat: pointFormatting 
+		    },
                     exporting: {
                         csv: {
                             dateFormat: '%Y-%m-%d'
@@ -97,6 +109,16 @@ $(document).ready(function() {
                         categories: []
                     },
                     yAxis: {
+			plotBands: [{
+				color: '#e0fde0',
+				from: 99,
+				to: 100,
+			},
+			{
+				color: '#ecf4a8',
+				from: 98,
+				to: 99	
+			}],
                         title: {
                             text: x_axis
                         }

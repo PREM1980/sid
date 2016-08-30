@@ -8,11 +8,13 @@
     <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
     <script src="{% static "highcharts/highcharts.js" %}"></script>
     <script src="{% static "highcharts/exporting.js" %}"></script>
+    <script src="{% static "highcharts/no-data-to-display.js" %}"></script>
 
     <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
     <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
     <script src="{% static "js/customjs/common.js" %}"></script>
     <script src="{% static "js/customjs/et/main.js" %}"></script>
+    <script src="{% static "js/export-csv.js" %}"></script>
     <!-- <script src="{% static "js/customjs/vbo/daily.js" %}"></script>
     <script src="{% static "js/customjs/vbo/weekly.js" %}"></script>
  -->
@@ -22,6 +24,8 @@ $(document).ready(function()
     if ("{{error}}" == 'N') {
        $('#loginid').html("{{request.session.userid}}")
     }
+    $("#genChart").click();
+
 }
 )
 </script>
@@ -41,6 +45,10 @@ td.right-align{
   text-align: right;  
 }
 
+.ui-datepicker-calendar {
+    display: none;
+}
+
 </style>
     
 {% endblock jscontent %}
@@ -56,7 +64,7 @@ td.right-align{
       <TABLE>
       <TR><TD colspan=2><B>Specific Month Reports</B></TD></TR>
 
-      <TR><TD>Reference Month: <input type="text" id="month"></TD>
+      <TR><TD>Reference Month: <input type="text" name="month" id="month" class="date-picker" value="2016-07"></TD>
         <TD><select id="rtype">
         <option value="bestpgs_ec" selected>Best Peergroups by Error Count</option>
         <option value="worstpgs_ec">Worst Peergroups by Error Count</option>
@@ -71,15 +79,16 @@ td.right-align{
         <TD>No. Errors requested:<input type="text" value="ALL"  id="no_errors_requested"><button id="pieChart" >Generate Monthly Chart</button></TD></TR>
 
       <TR><TD colspan=2><B>Trending Month Reports</B></TD></TR>
-        <TR><TD>Reference Month: <input type="text" id="trending_month"></TD>
+        <TR><TD>Reference Month: <input type="text" name="trending_month" id="trending_month" class="date-picker" value="2016-07"></TD>
         <TD><select id="trending_rtype">
-        <option value="ec" selected>Error Count</option>
-        <option value="eps">Error % of Streams</option>
+        <option value="ec">Error Count</option>
+        <option value="eps">Error % of Streams (by PG)</option>
+	<option value="eps_nd" selected>Error % of Streams (Nat/Div)</option>
         <option value="ms">Market Shares of Errors</option>
         <option value="de_counts">Specific Error Counts</option>
         <option value="de_pcts">Specific Errors (Percents)</option>
         </select></TD></TR>
-       <TR><TD>Months requested:<input type="text" id="months_requested"></TD>
+       <TR><TD>Months requested:<input type="text" id="months_requested" value="6"></TD>
         <TD><button id="genChart" >Generate Trending Chart</button></TD></TR>
         </TABLE>
       </CENTER>

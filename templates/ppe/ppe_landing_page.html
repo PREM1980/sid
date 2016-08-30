@@ -13,6 +13,7 @@
     <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
     <script src="{% static "js/customjs/common.js" %}"></script>
     <script src="{% static "js/customjs/ppe/main.js" %}"></script>    
+    <script src="{% static "js/export-csv.js" %}"></script>
 <script>
 $(document).ready(function()
 {
@@ -58,9 +59,9 @@ td.right-align{
             <TABLE border="0">
                 <TR>
                     <TD><select id="rtype">
-  <option value="herrin" selected>Charlie Herrin</option>
-  <option value="wilen">Wilen</option>
-  <option value="wilen_nobr">Wilen w/o Bus. Rules</option>
+  <option value="herrin" selected>VOD Positive Platform Experience (overall)</option>
+  <option value="wilen">VOD Positive Platform Experience (PT w/STB breakouts)</option>
+  <option value="wilen_nobr">VOD Positive Platform Experience (as above, no BR)</option>
 </select></TD>
                     <TD><select id="metricVar">
   <option value="actives">Active Accounts</option>

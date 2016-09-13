@@ -1,0 +1,5 @@
+.navbar-nav>.active> a, 
+.navbar-nav>.active> a:focus, 
+.navbar-nav>.active> a:hover {
+  background: red; /* Anything you want */
+}

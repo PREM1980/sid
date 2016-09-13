@@ -1,5 +1,8 @@
+
  <h4 style="text-align:center;color:red">Create Event Correlation Record <span style="text-align:center;color:blue"></span></h4>
+ <span><strong>Fields with </strong> </span><span class="mandatory"><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></span> <strong>are mandatory</strong></span>
         
+  
 
         <div class="row" style="background-color:#505978;"  > 
         
@@ -10,12 +13,12 @@
                 
             </tr>
             <tr>
-                <td>
+                <td class="mandatory">
                     <div>
                     <input type="text" class="form-control input-sm" id="datepicker" onchange="checkval(this);">
                     </div>
                 </td>
-                <td>
+                <td class="mandatory">
                     <div>
                         <select id="division" class="form-control input-sm" onchange="getval(this,'inputting',[]);" >
                         <!--<select id="division">-->
@@ -28,12 +31,59 @@
                         </select>
                     </div>
                 </td>
-                <td>
-                    <div>
+                <td class="mandatory">
+                    <div >
                         <select id="peergroup" name="peergroup" multiple="multiple"></select>
                     </div>
                 </td>
+                <td colspan="2" class="mandatory">
+                    <div class="input-group">
+                    <input type="text" id="ticket_no" class="form-control" style="width:300px" placeholder="Ticket Number">
+                    <span class="input-group-addon">
+                     <label class="radio-inline" for="random-check">
+                    <!-- <input type="radio" id="random-radio" name="" value=''>Auto generate</label>  -->
+                    <input type="checkbox" id="random-check" name="" value="">&nbsp;Auto Generate<br></label>
+                    </span>
+                    </div>
+                </td>
+
+                <td colspan="2" class="mandatory">                    
+                        <span class="label label-default">Ticket Type</span>
+                        <label class="radio-inline" for="radio1">
+                        <input type="radio" id="radio1" name="tkt-radio" value='JIRA'>Jira</label>
+                        <label class="radio-inline" for="radio2">
+                        <input type="radio" id="radio2" name="tkt-radio" value='TTS'>TTS</label>
+                </td>
+                <td rowspan="2">
+                    <input type="submit"  class="form-control input-sm btn-warning" value="SUBMIT" id="upload">
+                </td>
+       
+            </tr>
+            <tr>
+                <!--<td colspan="1">Additional Notes:-->
                 <td>
+                    <div>
+                        <select id="subcause" class="form-control input-sm">
+                            <option selected='selected'>System Caused</option>
+                            <option>Capacity</option>
+                            <option>Backoffice</option>
+                            <option>Cisco Pump</option>
+                            <option>Arris Pump</option>
+                            <option>Network</option>
+                            <option>UDB</option>
+                            <option>Content</option>
+                            <option>Aloha Network</option>
+                            <option>Billing System</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </td>
+                <td colspan="2">
+                    <div>
+                        <textarea id="additional_notes" placeholder="Additional Notes" class="form-control input-sm expandable" rows="1"></textarea>
+                    </div>
+                </td>                
+                         <td>
                     <div>
                         <select id="duration" class="form-control input-sm">
                             <option selected='selected'>Duration (in mins)</option>
@@ -82,52 +132,8 @@
                     </div>
                 </td>
                 
-                <td rowspan="2">
-                    <input type="submit"  class="form-control input-sm btn-warning" value="SUBMIT" id="upload">
-                </td>
-            </tr>
-            <tr>
-                <!--<td colspan="1">Additional Notes:-->
-                <td>
-                    <div>
-                        <select id="subcause" class="form-control input-sm">
-                            <option selected='selected'>System Caused</option>
-                            <option>Capacity</option>
-                            <option>Backoffice</option>
-                            <option>Cisco Pump</option>
-                            <option>Arris Pump</option>
-                            <option>Network</option>
-                            <option>UDB</option>
-                            <option>Content</option>
-                            <option>Aloha Network</option>
-                            <option>Billing System</option>
-                            <option>Other</option>
-                        </select>
-                    </div>
-                </td>
-                <td colspan="2">
-                    <div>
-                        <textarea id="additional_notes" placeholder="Additional Notes" class="form-control input-sm expandable" rows="1"></textarea>
-                    </div>
-                </td>                
-                <td colspan="2">
-                    <div class="input-group">
-                    <input type="text" id="ticket_no" class="form-control" style="width:300px" placeholder="Ticket Number">
-                    <span class="input-group-addon">
-                     <label class="radio-inline" for="random-check">
-                    <!-- <input type="radio" id="random-radio" name="" value=''>Auto generate</label>  -->
-                    <input type="checkbox" id="random-check" name="" value="">&nbsp;Auto Generate<br></label>
-                    </span>
-                    </div>
-                </td>
-
-                <td colspan="2">                    
-                        <span class="label label-default">Ticket Type</span>
-                        <label class="radio-inline" for="radio1">
-                        <input type="radio" id="radio1" name="tkt-radio" value='JIRA'>Jira</label>
-                        <label class="radio-inline" for="radio2">
-                        <input type="radio" id="radio2" name="tkt-radio" value='TTS'>TTS</label>
-                </td>
+                
+                
                 
             </tr>
             

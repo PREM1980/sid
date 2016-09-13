@@ -278,6 +278,16 @@ $(document).ready(function() {
         }
 
         var drawchart_nbrf_spikes = function() {
+            // console.log('spikes_categories == ', JSON.stringify(spikes_categories))
+            // console.log('spikes_br_denial_rate  == ', JSON.stringify(spikes_br_denial_rate))
+            // console.log('spikes_vlqok_error_rate  == ', JSON.stringify(spikes_vlqok_error_rate))
+            // console.log('spikes_udb_error_rate  == ', JSON.stringify(spikes_udb_error_rate))
+            // console.log('spikes_vcp_error_rate  == ', JSON.stringify(spikes_vcp_error_rate))
+            // console.log('spikes_plant_error_rate  == ', JSON.stringify(spikes_plant_error_rate))
+            console.log('spikes_networkresourcefailure_error_rate  == ', JSON.stringify(spikes_networkresourcefailure_error_rate))
+            console.log('spikes_cdn_setup_error_rate  == ', JSON.stringify(spikes_cdn_setup_error_rate))
+            console.log('spikes_cm_connect_error_rate  == ', JSON.stringify(spikes_cm_connect_error_rate))
+            console.log('spikes_tune_error_rate == ', JSON.stringify(spikes_tune_error_rate))
             $('#vbo-nbrf-spikes').highcharts({
                 title: {
                     text: 'Spikes NBRF %',
@@ -337,7 +347,7 @@ $(document).ready(function() {
                         lineWidth: 1
                     }, {
                         name: 'VCP Error Rate',
-                        data: spikes_udb_error_rate,
+                        data: spikes_vcp_error_rate,
                         turboThreshold: 2000,
                         lineWidth: 1
                     }, {

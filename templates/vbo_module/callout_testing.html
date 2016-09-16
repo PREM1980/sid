@@ -1,0 +1,223 @@
+{% extends "base_ninja.html" %}
+
+{% block jscontent %}
+    <title>NINJA Analytics and Reporting Portal - VBO  Module</title>
+    {% load staticfiles %}
+    <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+    <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
+    <script src="{% static "highcharts/highcharts.js" %}"></script>
+    <script src="{% static "highcharts/exporting.js" %}"></script>
+
+    <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
+    <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
+    <script src="{% static "js/customjs/common.js" %}"></script>
+    <script src="{% static "js/customjs/vbo/vbo_main.js" %}"></script>
+    <!-- <script src="{% static "js/customjs/vbo/daily.js" %}"></script>
+    <script src="{% static "js/customjs/vbo/weekly.js" %}"></script>
+ -->
+<script>
+$(document).ready(function(){
+     var drawchart = function() {
+          categories = ["09/07/2016 00:00","09/07/2016 00:01","09/07/2016 00:02","09/07/2016 00:03","09/07/2016 00:04"]
+          rate_1 = [0.8,0.54,0.6,0.3,0.4]
+          rate_2 = [0.33,0.16,0.33,0.3,0.38]
+          rate_3 = [0.03,0.04,0.05,0.03,0.01]
+
+          var addCallout = function(chart) {
+              $('.dL').remove();
+              var xAxis = chart.xAxis[0],
+              yAxis = chart.yAxis[0],              
+              series = chart.series[0],
+              point = series.data[0]; 
+              console.log('xAxis == ', xAxis)
+              console.log('yAxis == ', yAxis.toPixels)
+              console.log('series == ', series)
+              console.log('point == ', point)     
+              console.log(point.plotY)
+              console.log(point.plotX)
+              
+               var a = chart.renderer.label('<div class="callout top">This is the callout text!</div>',  point.plotX + chart.plotLeft + 10, 
+                point.plotY + chart.plotTop - 20, 'callout',null, null, false).add();                      
+              };
+        
+                $('#container').highcharts({
+                  chart: {
+                // type: 'bar',
+                events: {
+                  load: function() {          
+                    addCallout(this);
+                  },
+                  redraw: function() {
+                    addCallout(this);
+                  },
+                }
+              },
+                    title: {
+                        text: 'Spikes Graph',
+                        x: -20 //center
+                    },
+                    subtitle: {
+                        text: '',
+                        x: -20
+                    }
+                    ,
+                     events: {
+                  load: function() {                                  
+                    // addCallout(this);
+                },
+                  redraw: function() {
+                    addCallout(this);
+                },
+                }
+              ,
+                    series: [{
+                        turboThreshold: 2000 // to accept point object configuration
+                    }],
+                    xAxis: {
+                        categories: categories,
+                        tickInterval: 60,
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Error Rate'
+                        },
+                        min: 0,
+                        max: 5,
+                        plotLines: [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }],
+                        labels:{
+                            format : '{value} %'
+                        }
+                    },
+                    tooltip: {
+                        valueSuffix: '°C'
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    series: [
+                        // {turboThreshold: 2000 },
+                        {
+                            name: 'Rate-1',
+                            data: rate_1,
+                            turboThreshold: 2000,
+                            lineWidth: 1,
+                            dataLabels: {
+                            enabled: true,
+                            useHTML: true,                        
+                            style: {
+                                fontWeight: 'bold'
+                            },                        
+                        },
+                        }, {
+                            name: 'Rate-2',
+                            data: rate_2,
+                            turboThreshold: 2000,
+                            lineWidth: 1
+                        }, {
+                            name: 'Rate-3',
+                            data: rate_3,
+                            turboThreshold: 2000,
+                            lineWidth: 1
+                        }
+                        
+                    ]
+                });
+        };
+
+        
+
+  drawchart()
+
+  $('#pick-x-y-axis').multiselect({
+    height: 600,
+        show: ['slide', 500],
+    hide: ['slide', 500],
+        noneSelectedText: 'Pick Division and select pg'
+  }).multiselectfilter();
+  
+    var chart=$("#container").highcharts();      
+    line_charts = chart.series.map(function(obj){   
+    return obj.name;
+  })  
+  $.each(line_charts, function (index, value) {       
+      $('#line-elements').append($('<option/>', {         
+          value: value,
+          text : value
+      }));
+  });     
+
+  $('#line-elements').on('change', function() {
+    var dict = {};      
+      line_chart_name = this.value 
+      console.log('before dict == ', JSON.stringify(dict))
+      chart.series.forEach(function(obj,index){       
+        if (obj.name == line_chart_name){
+          categories = chart.xAxis.map(function(obj){   
+                return obj.categories;
+              })
+          series_data = chart.series[index]         
+          series_data.yData.forEach(function(obj,ix){           
+            dict[series_data.yData[ix]] = series_data.yData[ix] + ' && ' + categories[0][ix] + ' && ' + ix            
+          })
+        }
+      })
+      console.log('after dict == ', JSON.stringify(dict))
+      var keys = Object.keys(dict)        
+      keys.sort()
+      keys.reverse()    
+    
+    var sorted_dict = keys.map(function(ix,index){
+      key = keys[index]
+      return { [key] : dict[key]   };
+    })
+    
+    // $("#pick-x-y-axis").multiselect('destroy');
+    // $('#pick-x-y-axis').multiselect();
+    // $("#pick-x-y-axis").empty()
+    // $("#pick-x-y-axis").multiselect('refresh');
+    $("#pick-x-y-axis").multiselect('destroy');
+    $("#pick-x-y-axis").multiselect();
+    $.each(sorted_dict, function (index, value) {   
+      var key = Object.keys(this)[0]
+        var value = this[key]
+        // console.log('adding')
+        $('#pick-x-y-axis').append($('<option/>', {         
+            value: key,
+            text : value
+        }));
+        $('#pick-x-y-axis').multiselect('refresh'); 
+    });
+    
+    });  
+})
+</script>
+
+    
+{% endblock jscontent %}
+
+{% block content %}
+    {% load staticfiles %}
+    <div class="container-fluid">
+    <br>
+      <div class="row">
+        <select id="line-elements" class="selectpicker">
+        <option>Line Elements</option>        
+      </select>            
+      <!-- <select id="peergroup"      multiple="multiple"></select> -->
+      <select id="pick-x-y-axis"  multiple="multiple"></select>            
+
+      </div>
+      
+    
+    <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    </div>
+{% endblock content %}
+   

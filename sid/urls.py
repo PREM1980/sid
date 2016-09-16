@@ -37,6 +37,9 @@ if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server'] or \
         #Urls for PPE Module
         url(r'^ppe/',include('ppe.urls')),
 
+        #Urls for QVFB Module
+        url(r'^qvfb/',include('qvfb.urls')),
+
         url(r'^.*$', RedirectView.as_view(pattern_name='loginpage', permanent=False))
 
     ]

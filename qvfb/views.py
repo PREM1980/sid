@@ -30,12 +30,14 @@ class LoginView(View):
 		return super(LoginView, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):
+		print 'im here '
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
 			return utils.page_redirects_login(request)
 		return render(request,'qvfb/qvfb_landing_page.html',{'error':'N'})
 
 	def post(self, request):
+		print 'im here '
 		ip = utils.getip()
 		username = request.POST['username']
 		password = request.POST['password']

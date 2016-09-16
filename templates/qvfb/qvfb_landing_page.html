@@ -1,0 +1,295 @@
+{% extends "base_ninja.html" %}
+
+{% block jscontent %}
+    <title>NINJA Analytics and Reporting Portal - QVFB Module</title>
+    {% load staticfiles %}
+    <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+    <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
+    <script src="{% static "highcharts/highcharts.js" %}"></script>
+    <script src="{% static "highcharts/exporting.js" %}"></script>
+    <script src="{% static "highcharts/no-data-to-display.js" %}"></script>
+
+    <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
+    <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
+    <script src="{% static "js/customjs/common.js" %}"></script>
+
+    <!-- <script src="{% static "js/customjs/qvfb/main.js" %}"></script> -->
+
+    <script src="{% static "js/export-csv.js" %}"></script>
+    <!-- <script src="{% static "js/customjs/vbo/daily.js" %}"></script>
+    <script src="{% static "js/customjs/vbo/weekly.js" %}"></script>
+ -->
+<script>
+     function fetch() {
+        from_date=$('#from_date').val();
+                //alert(from_date);
+                to_date=$('#to_date').val();
+        //alert(to_date);
+   var from_epoch = moment(from_date).format('x');
+        //alert(from_epoch);
+   var to_epoch = moment(to_date).format('x');
+        //alert(to_epoch);
+        //req_metric = $('#req_metric').val();
+        var granularity = $('#granularity').val();
+    var dataurl = getUrl(from_epoch,to_epoch,granularity);
+    function getUrl(from_epoch,to_epoch,granularity) {
+                    //var date = $('#startDatePicker').datepicker('getFormattedDate');
+                    //console.log(date);
+
+                    if (granularity == "hourly"){ 
+                        var dataurl = "http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodGlobalByGroupByHourJsonP?startTime="+from_epoch+"&endTime="+to_epoch;
+                    }else{
+                     var dataurl = "http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodGlobalByGroupByDayJsonP?startTime="+from_epoch+"&endTime="+to_epoch;
+                   }
+
+                   return dataurl;
+                 }
+
+                 function find(breakdown,typeValue){
+                   var len = breakdown.length;
+                   for(var i=0;i<len;i++){
+                     if(breakdown[i].type=="typeValue"){
+                       return breakdown[i].count
+                     }
+                   }
+                 }
+
+                 function onDataReceived(data) {
+                    //console.log(data);
+                    //var obj = data[0];
+                    req_metric = $('#req_metric').val();
+                    spec_metric = $('#spec_metric').val();
+                    spec_metric_detail = $('#spec_metric_detail').val();
+
+                    var obj=data;
+                    var ttext = JSON.stringify(obj);
+                    console.log(ttext); 
+                    //console.log(obj);
+                    //$("#errors").text(obj[0].ttext);
+            //$("#errors").text(ttext);
+            
+
+        report_name = {"lte":"Classic Tune Errors", "x1n":"X1 none", "lpte":"Classic Pump Teardown Errors", "ln":"Classic None", "x1pte":"X1 Plant Teardown Errors", "lp":"Classic Plant", "x1p":"X1 Pump", "none": ""}
+
+        req_metric_report = {"errors":"Errors", "errorFree":"Positive Platform", "business":"Business Rule Errors", "errorRate":"Error Rate %"}
+        granularity_verbiage = {"hourly":"Hourly", "daily":"Daily"}
+
+        if ( spec_metric == "none"){
+          report_title = req_metric_report[req_metric] +" ( "+granularity_verbiage[granularity]+" )";
+        }else{
+          report_title = report_name[spec_metric]+" ( "+granularity_verbiage[granularity]+" )";
+        }
+
+        var options = {
+          chart: {
+            renderTo: 'container',
+            type: 'spline'
+          },
+          plotOptions: {
+          series: {
+                marker: {
+                        enabled: false
+                }
+            }
+          },
+          xAxis: {
+           type: 'datetime'
+         },
+        exporting : {
+          csv: {
+           dateFormat: '%Y-%m-%d'
+         }
+        },
+         title: {
+          text: report_title
+         },
+         yAxis: {
+          title: {
+            text: "" 
+          }
+        },
+        series: [{
+          name: report_title,
+          data: []
+        }]
+      }
+      
+      error_translate = {"lte":"Legacy Tune Errors", "x1n":"X1 none", "lpte":"Legacy Pump Teardown Errors", "ln":"Legacy None", "x1pte":"X1 Plant Teardown Errors", "lp":"Legacy Plant", "x1p":"X1 Pump"}
+      translated_metric = error_translate[spec_metric];     
+
+        //#alert(spec_metric);
+        
+        if (spec_metric == "none"){
+     Highcharts.each(data, function(p, i) {
+       for (var i = 0; i < p.length; i++) {
+         options.series[0].data.push(
+           [p[i].timeBucket, parseFloat(p[i][req_metric])]
+           );
+       }
+     });
+   }else{
+     Highcharts.each(data, function(ele, idx) {
+      var count = ele[0].breakdown.filter(function(ele, idx) {
+       return ele.type == translated_metric;
+     })[0];
+      count = (count === undefined) ? 0 : +count.count
+      options.series[0].data.push(
+       [ele[0].timeBucket, parseFloat(count)]);
+    });
+   }
+   $('#container').highcharts(options);
+ }
+
+
+ function onError(xhr, status, errorThrown) {
+  console.log("Received Error from AJAX: " + errorThrown);
+}
+
+$.ajax({
+  url: dataurl,
+  type: 'GET',
+  dataType: 'JSONP',
+  crossDomain: true,
+  success: onDataReceived,
+  error: onError
+});
+}
+
+//TESTING BELOW -- KILL
+function alert_time(){
+    from_date=$('#from_date').val();
+    to_date=$('#to_date').val();
+  var from_epoch = moment(from_date).unix();
+  var to_epoch = moment(to_date).unix();
+  alert(from_epoch);
+  alert(to_epoch);
+}
+
+$(document).ready(function()
+{
+    if ("{{error}}" == 'N') {
+       $('#loginid').html("{{request.session.userid}}")
+    }
+      $('#from_date').datetimepicker({
+            //2013-02-08 09:30:26
+            dateFormat: "yy-mm-dd",
+            timeFormat: "HH:mm:ss",
+            minDate: new Date('2016/08/25'),
+            maxDate: '0'
+     });
+  $('#to_date').datetimepicker({
+    dateFormat: "yy-mm-dd",
+    timeFormat: "HH:mm:ss",
+    minDate: new Date('2016/08/25'),
+    maxDate: '0'
+  });
+}
+)
+</script>
+<style>
+.center {
+     float: none;
+     margin-left: auto;
+     margin-right: auto;
+}
+
+td {
+  padding: 5px;
+  border:1px solid;
+  
+} 
+td.right-align{
+  text-align: right;  
+}
+
+.ui-datepicker-calendar {
+    display: none;
+}
+#chart {
+        height: 400px;
+        width: 100%;
+      }
+
+      #btn-holder {
+        position: relative;
+        height: 1px;
+        width: 100%;
+      }
+
+      #compare-btn {
+        font-size: 12px;
+        position: absolute;
+        right: 0;
+        top: -34px;
+      }
+</style>
+    
+{% endblock jscontent %}
+
+{% block content %}
+    {% load staticfiles %}
+    <div class="container-fluid" >
+        
+        <div class="row">            
+<div id="container"></div>
+<div id="testwindow"></div>
+<center>
+  <table>
+    <tr><td>From: <input type="text" name="from_date" id="from_date" value="" /></td><td>To: <input type="text" name="to_date" id="to_date" value="" /></td>
+      <td>Granularity needed
+        <select id="granularity">
+          <option value="hourly" selected>hourly</option>
+          <option value="daily">daily</option>
+        </select>
+      </td>
+      <td>Metric Desired
+        <select id="req_metric">
+          <option value="errors" selected>Errors</option>
+          <option value="errorFree">Positive Platform</option>
+          <option value="business">Business</option>
+          <option value="errorRate">Error Rate</option>
+        </select>
+
+      </td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td>Specific Error Types (for breakdown details)
+        <select id="spec_metric">
+         <option value="none">NONE</option>
+         <option value="lte">Classic Tune Errors</option>
+         <option value="x1n">X1 none</option>
+         <option value="lpte">Classic Pump Teardown Errors</option>
+         <option value="ln">Classic None</option>
+         <option value="x1pte">X1 Plant Teardown Errors</option>
+         <option value="lp">Classic Plant</option>
+         <option value="x1p">X1 Pump</option>
+       </select>
+     </td><td>
+     <!-- Specific Error Type Detail (ONLY COUNT)
+     <select id="spec_metric_detail">
+    <option value="none">NONE</option>
+    <option value="count">Count</option>
+    <option value="errorRate">Error Rate</option>
+</select> --> 
+</td>
+
+<td><button id="genChart" onclick="fetch()">Generate Chart</button></td></tr>
+</table>
+</center>
+
+        </div><!-- /.bg -->
+    </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+
+{% endblock content %}
+   

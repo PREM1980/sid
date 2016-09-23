@@ -51,8 +51,8 @@ class Migration(migrations.Migration):
                 ('found_in_support_system', models.TextField(default=b'', db_column=b'found_in_support_system')),
                 ('alert_event_text', models.TextField(default=b'', db_column=b'alert_event_text')),
                 ('alert_type', models.TextField(default=b'', db_column=b'alert_type')),
-                ('row_create_ts', models.DateTimeField(default=b'2016-09-21T16:49:02.879292+00:00')),
-                ('row_update_ts', models.DateTimeField(default=b'2016-09-21T16:49:02.879315+00:00')),
+                ('row_create_ts', models.DateTimeField(default=b'2016-09-23T20:54:43.210514+00:00')),
+                ('row_update_ts', models.DateTimeField(default=b'2016-09-23T20:54:43.210538+00:00')),
                 ('row_end_ts', models.DateTimeField(default=b'9999-12-31 00:00:00.00000-00', db_column=b'row_end_ts')),
                 ('create_user_id', models.CharField(max_length=50, null=True, db_column=b'crt_user_id')),
                 ('update_user_id', models.CharField(max_length=50, null=True, db_column=b'upd_user_id')),
@@ -65,16 +65,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='ninjausers',
             name='row_create_ts',
-            field=models.DateTimeField(default=datetime.datetime(2016, 9, 21, 16, 49, 2, 873574)),
+            field=models.DateTimeField(default=datetime.datetime(2016, 9, 23, 20, 54, 43, 205073)),
         ),
         migrations.AlterField(
             model_name='tickets',
             name='row_create_ts',
-            field=models.DateTimeField(default=b'2016-09-21T16:49:02.877038+00:00'),
+            field=models.DateTimeField(default=b'2016-09-23T20:54:43.208309+00:00'),
         ),
         migrations.AlterField(
             model_name='tickets',
             name='row_update_ts',
-            field=models.DateTimeField(default=b'2016-09-21T16:49:02.877071+00:00'),
+            field=models.DateTimeField(default=b'2016-09-23T20:54:43.208339+00:00'),
         ),
     ]

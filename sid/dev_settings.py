@@ -120,9 +120,9 @@ DATABASES = {
         'USER': 'ninja',
         'PASSWORD': 'ninja!@#$',
         'HOST': host,
-        'OPTIONS': {
-                    'init_command': 'SET character_set_connection=utf8mb4,collation_connection=utf8mb4_unicode_ci',
-        }
+        # 'OPTIONS': {
+        #             'init_command': 'SET character_set_connection=utf8mb4,collation_connection=utf8mb4_unicode_ci',
+        # }
     }
 }
 
@@ -211,7 +211,7 @@ MEDIA_ROOT = '/var/www/ams-files/'
 
 API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
-LOCAL_TEST_NINJA = True
+LOCAL_TEST_NINJA = False
 NINJA = False
 
 

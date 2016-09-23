@@ -92,9 +92,7 @@ class OutageCategories(models.Model):
 		db_table = 'outage_categories'
 
 
-class Tickets(models.Model):
-	#ID = models.UUIDField(primary_key=True, default=uuid.uuid4,
-	#                      editable=False, db_column='ticket_id')
+class Tickets(models.Model):	
 	ticket_num = models.CharField(max_length=100, db_column='ticket_num',primary_key=True)
 	ticket_link = models.TextField(default="")
 	#divisions = models.ManyToManyField(Division,db_column='division_id')
@@ -149,6 +147,54 @@ class AddtNotes(models.Model):
 		if self.notes is None:
 			self.notes = ""
 		super(AddtNotes,self).save(*args,**kwargs)
+
+class Ams(models.Model):	
+	ticket_num = models.CharField(max_length=100, db_column='ticket_num',primary_key=True)
+	url = models.TextField(default="",db_column='url')	
+	brouha = models.TextField(default="",db_column='brouha')	
+	action = models.TextField(default="",db_column='action')	
+	last_action_before_clear = models.TextField(default="",db_column='last_action_before_clear')	
+	resolve_close_reason = models.TextField(default="",db_column='resolve_close_reason')	
+	in_process = models.TextField(default="",db_column='in_process')	
+	chronic = models.TextField(default="",db_column='chronic')	
+	service_affecting = models.TextField(default="",db_column='service_affecting')	
+	from_dt = models.DateTimeField(default="",db_column='from_dt')	
+	from_dt_am_pm = models.CharField(max_length=2,default="",db_column='from_dt_am_pm')	
+	till_dt = models.DateTimeField(default="",db_column='till_dt')
+	till_dt_am_pm = models.CharField(max_length=2,default="",db_column='till_dt_am_pm')
+	duration = models.IntegerField(db_column='duration')
+	customers = models.IntegerField(db_column='customers')
+	stbs = models.IntegerField(db_column='stbs')
+	tta = models.IntegerField(db_column='tta')
+	tti = models.IntegerField(db_column='tti')
+	tts = models.IntegerField(db_column='tts')
+	ttr = models.IntegerField(db_column='ttr')
+	created_by = models.TextField(default='',db_column='created_by')
+	division = models.TextField(default='',db_column='division')
+	region = models.TextField(default='',db_column='region')
+	dac = models.TextField(default='',db_column='dac')
+	device = models.TextField(default='',db_column='device')
+	ip = models.TextField(default='',db_column='ip')
+	upstreams = models.TextField(default='',db_column='upstreams')
+	reason = models.TextField(default='',db_column='reason')
+	comment = models.BinaryField(default='',db_column='comment')
+	root_cause = models.TextField(default='',db_column='root_cause')
+	corrective_action_taken = models.TextField(default='',db_column='corrective_action_taken')
+	si_ticket = models.TextField(default='',db_column='si_ticket')
+	jb_ticket = models.TextField(default='',db_column='jb_ticket')
+	found_in_support_system = models.TextField(default='',db_column='found_in_support_system')
+	alert_event_text = models.TextField(default='',db_column='alert_event_text')
+	alert_type = models.TextField(default='',db_column='alert_type')
+	row_create_ts = models.DateTimeField(default=datetime.now(tz=pytz.utc).isoformat())
+	row_update_ts = models.DateTimeField(default=datetime.now(tz=pytz.utc).isoformat())
+	row_end_ts = models.DateTimeField(
+		default='9999-12-31 00:00:00.00000-00', db_column='row_end_ts')
+	create_user_id = models.CharField(max_length=50, db_column='crt_user_id',null=True)
+	update_user_id = models.CharField(max_length=50, db_column='upd_user_id',null=True)
+	valid_flag = models.CharField(max_length=1,db_column='valid_flag',default="Y")
+	
+	class Meta:
+		db_table = 'ams_tickets'
 
 # @receiver(pre_save, sender=Tickets)
 # def my_handler(sender, instance, *args, **kwargs):

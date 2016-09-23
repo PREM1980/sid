@@ -8,7 +8,7 @@
             url: '/sid-get-uuid',
             type: 'GET',            
             success: function(result) {
-                console.log('getuuid == ' + JSON.stringify(result))
+                // console.log('getuuid == ' + JSON.stringify(result))
                 if (result.status == 'success') {
                     $('#ticket_no').val(result.uuid)
                 } else {
@@ -36,7 +36,7 @@
      disable_local_tz()
 
      $('#radio-local,#radio-est,#radio-utc').click(function(){        
-        console.log("prem-prem elem == ", this)
+        // console.log("prem-prem elem == ", this)
         set_tz($(this).val())
 
      })
@@ -139,7 +139,7 @@
 
      $('#upload').click(function(event) {
         create_dt = moment($('#datepicker').val(),'YYYY/MM/DD HH:mm');
-        console.log(create_dt.format())         
+        // console.log(create_dt.format())         
 
          event.preventDefault();
          event.stopPropagation();
@@ -217,7 +217,7 @@
                  'sid_antenna_insuff_qam_error': ($('#sid-antenna-insuff-qam-error').val() == '' ? 0: $('#sid-antenna-insuff-qam-error').val()),
                  'sid_antenna_cm_error': ($('#sid-antenna-cm-error').val() == '' ? 0: $('#sid-antenna-cm-error').val())
              }
-             console.log("Insert ticket data ", data)
+             // console.log("Insert ticket data ", data)
              
              $.ajax({
                  type: "POST",
@@ -355,13 +355,13 @@
                              'antenna_insuff_qam_error': ($('#dialog-sid-antenna-insuff-qam-error').val() == '' ? 0: $('#dialog-sid-antenna-insuff-qam-error').val()),                             
                              'antenna_cm_error': ($('#dialog-sid-antenna-cm-error').val() == '' ? 0: $('#dialog-sid-antenna-cm-error').val()),                              
                          }
-                         console.log('update data == ', data)
+                         // console.log('update data == ', data)
                          $.ajax({
                              url: '/update-ticket-data',
                              type: 'POST',
                              data: data,
                              success: function(result) {
-                                 console.log(JSON.stringify(result))
+                                 // console.log(JSON.stringify(result))
                                  if (result.status == 'success') {
                                      alert("Row Updated!! Playaround!!")
                                      $('#dialog').dialog("close");
@@ -451,7 +451,7 @@
              'antenna_cm_error_e': ($('#query-sid-antenna-cm-error-e').val() == '' ? 0: $('#query-sid-antenna-cm-error-e').val()),            
              'initial': initial
          }
-         console.log('data_table data == ', data)
+         // console.log('data_table data == ', data)
 
          reports = ['EXCEL', 'PDF']
 
@@ -488,7 +488,7 @@
                  data: data,
                  success: function(result) {
                      if (result.status == 'success') {
-                        console.log(JSON.stringify(result))
+                        // console.log(JSON.stringify(result))
                          create_tickets(result)
                          set_division(login_id)
                          disable_local_tz()
@@ -526,14 +526,14 @@
          //data: data,
          success: function(result) {
              if (result.status == 'success') {
-                 console.log('call success == ', result.results)
+                 // console.log('call success == ', result.results)
                  //console.log(toType(result.results))
                  ninja_users = []
-                 console.log('***'+login_id)
+                 // console.log('***'+login_id)
                  JSON.parse(result.results).forEach(function(obj, i, a) {
-                     console.log(obj.fields.userid)
+                     // console.log(obj.fields.userid)
                      if (obj.fields.userid == login_id){
-                        console.log('id matched == ' + obj.fields.region)
+                        // console.log('id matched == ' + obj.fields.region)
                         $("#division").val(obj.fields.region);
                         getval({'value':obj.fields.region},'inputting',[])
                      }                   
@@ -585,7 +585,7 @@
             + '<th class="admin-button"> Antenna - Tune Error </th><th class="admin-button">  Antenna - VIDEO LOST QAM Error </th><th class="admin-button"> Antenna - Network Resource Error </th><th class="admin-button"> Antenna - Inff QAM </th><th class="admin-button"> Antenna - CM Connect </th></tr></thead>');
 
          slicedata.forEach(function(obj, i, a) {
-                 console.log("object == ", obj)
+                 // console.log("object == ", obj)
                  user_id = obj.crt_user_id
                  if (typeof user_id === 'string') {
                  } else {
@@ -677,7 +677,7 @@
              format: function(s) {
                  //alert('prem date == '+ s)
                  var date = s.match(/^(\w{3})[ ](\d{1,2}),[ ](\d{4})[ ](\d{2})[:](\d{2})[:](\d{2})$/);
-                 console.log('prem date == ' + date)
+                 // console.log('prem date == ' + date)
 
                  var m = monthNames[date[1]];
                  var d = String(date[2]);
@@ -743,7 +743,7 @@
                  'update_end_dt': 'Y',
              }
 
-             console.log('update data == ', data)
+             // console.log('update data == ', data)
              $.ajax({
                  url: '/update-ticket-data',
                  type: 'POST',

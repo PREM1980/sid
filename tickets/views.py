@@ -46,7 +46,7 @@ class LoginView(View):
 		if user_id is None:
 			return utils.page_redirects_login(request)
 		else:
-			return utils.page_redirects(request,request.session['userid'])
+			return utils.page_redirects(request,request.session['userid'], active_tab='vod')
 		
 	def post(self, request):
 		ip = utils.getip()
@@ -56,7 +56,7 @@ class LoginView(View):
 		result = utils.check_user_auth(request.POST['username'],request.POST['password'])
 		if result['status'] == 'success':
 			request.session['userid'] = request.POST['username']			
-			return utils.page_redirects(request,request.session['userid'])
+			return utils.page_redirects(request,request.session['userid'], active_tab='vod')
 		else:
 			return utils.page_redirects_login(request)
 

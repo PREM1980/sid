@@ -1,0 +1,166 @@
+{% block jscontent %}
+    <title>NINJA Analytics and Reporting Portal - Service Impact Database Module</title>
+    {% load staticfiles %}
+    <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
+    
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/momentjs.timezone/0.5.3/moment-timezone.min.js"></script> -->
+    <!-- <script src="http://momentjs.com/downloads/moment-timezone.min.js"></script> -->
+    <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
+    <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
+    <script src="{% static "js/customjs/common.js" %}"></script>
+    <script src="{% static "js/customjs/ams_ticket_list.js" %}"></script>
+
+    <script>
+        
+    </script>
+{% endblock jscontent %}
+
+
+{% block content %}
+    {% load staticfiles %}
+    <div>
+    
+        {% if admin_user %}
+            {% include "tickets/ams_admin_createsection.html" %} 
+        {% endif %}
+    <br>
+    <br>
+            <h4 style="text-align:center;color:red">Filter Panel</h4>
+
+        <div class="row" style="background-color:#505979;"> 
+        <!--<div class="col-sm-1"></div>-->
+        <div class="col-sm-11">
+        <table class="table table-borderless">
+            
+            <tr>
+                <td>
+                    <div>
+                        <input id="ams-query-ticket-no" width="100%" placeholder="Ticket Number" class="form-control input-sm"> 
+                    </div>
+                </td>
+                <td>
+                    <div colspan="2">
+                    <input class="form-control input-sm" type="text" id="ams-query-datepicker-start" placeholder="Start Date">
+                    </div>
+                    
+                </td>
+                <td colspan="1">
+                    <div>
+                    <input class="form-control input-sm" type="text" id="ams-query-datepicker-start-end" placeholder="End Date">
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <select id="ams-query-division" class="form-control input-sm">
+                            <option selected='selected'>Division</option>
+                            <option></option>
+                            <option>All</option>
+                            <option>Central Division</option>
+                            <option>NorthEast Division</option>
+                            <option>West Division</option>                            
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <select id="ams-query-region" class="form-control input-sm">
+                            <option selected='selected'>Region</option>
+                            <option></option>
+                            <option>All</option>
+                            <option>Bay Area</option>
+                            <option>Beltway</option>
+                            <option>Big South</option>
+                            <option>Central California</option>
+                            <option>Central California</option>
+                            <option>Chicago</option>
+                            <option>Florida</option>
+                            <option>Freedom</option>
+                            <option>Greater Boston Region</option>
+                            <option>Heartland</option>
+                            <option>Keystone</option>
+                            <option>Mountain West - Denver</option>
+                            <option>Mountain West - Seattle</option>
+                            <option>Portland</option>
+                            <option>Seattle</option>
+                            <option>Twin Cities</option>
+                            <option>Western New England</option>                            
+                        </select>
+                    </div>
+                </td>
+                   
+                <td rowspan="0">
+                <div> 
+                    <input class="form-control btn btn-warning"  type="submit" value="QUERY" id="ams-query" >
+                </div> 
+                
+                </td>
+                
+            </tr>
+                <td>
+                    <div>
+                        <select id="ams-query-action" class="form-control input-sm">
+                            <option selected='selected'>Action</option>
+                            <option></option>
+                            <option>All</option>
+                            <option>Close/Release</option>
+                            <option>Escalate</option>
+                            <option>Monitor</option>                                                 
+                            <option>Resolved</option>                                                 
+                            <option>Soak</option>                                                
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <select id="ams-query-last-action" class="form-control input-sm">
+                            <option selected='selected'>Last Action before clear</option>
+                            <option></option>
+                            <option>All</option>
+                            <option>Close/Release</option>
+                            <option>Escalate</option>
+                            <option>Investigating</option>                                                 
+                            <option>Monitor</option>                                                 
+                            <option>New</option>                                                
+                            <option>Resolved</option>                                                
+                            <option>Soak</option>                                                                            
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <select id="ams-query-resolve-close" class="form-control input-sm">
+                            <option selected='selected'>Resolve/Close Reason</option>
+                            <option></option>
+                            <option>All</option>
+                            <option>Cleared</option>
+                            <option>Expired</option>                            
+                        </select>
+                    </div>
+                </td>
+
+            <tr>
+
+
+            </tr>
+                
+        </table>
+
+        </div>
+
+        </div> 
+        <br><br><br>
+    <div class="row">
+        <div id="pagination-ams"></div>
+
+        <div style="float:right;color:red;font-weight:bold">
+            Only first 500 rows are displayed &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        </div>        
+    </div>    
+    <br><br><br>
+    <div id="ams-ticket-list" class=""></div>
+    
+    </div>
+
+{% endblock content %}
+   

@@ -74,6 +74,7 @@ TEMPLATES = [
         'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
+
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -89,6 +90,7 @@ WSGI_APPLICATION = 'sid.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+# HOSTNAME = 'localhost'
 if HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
     if HOSTNAME == 'test-ninja-web-server':
         host = 'test-sid-web-server'
@@ -104,6 +106,7 @@ elif HOSTNAME in ['test-sid-web-server','prod-sid-web-server']:
     host = 'localhost'
 else:
     host = 'localhost'
+    host = '127.0.0.1'
     VBO_SERVER = 'http://localhost:9000/'
     PPE_SERVER = 'http://localhost:5000/'
     ET_SERVER = 'http://localhost:5000/'
@@ -117,6 +120,9 @@ DATABASES = {
         'USER': 'ninja',
         'PASSWORD': 'ninja!@#$',
         'HOST': host,
+        'OPTIONS': {
+                    'init_command': 'SET character_set_connection=utf8mb4,collation_connection=utf8mb4_unicode_ci',
+        }
     }
 }
 
@@ -200,8 +206,13 @@ LOGGING = {
 
 SESSION_COOKIE_AGE = 500* 60
 
+MEDIA_URL = '/var/www/ams-files/'
+MEDIA_ROOT = '/var/www/ams-files/'
+
 API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
 LOCAL_TEST_NINJA = True
-NINJA = True
+NINJA = False
+
+
 

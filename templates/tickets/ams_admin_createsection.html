@@ -1,0 +1,21 @@
+{% block content %}
+<br>
+<br>
+<div class="row">
+    <button type="button" class="btn btn-success" data-toggle="collapse" data-target="#demo">Click here for file Upload</button>
+    <div id="demo" class="collapse">
+    <div class="col-md-2 col-md-offset-5">
+    <form action="/ams-file-upload" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <div class="fileinput fileinput-new" data-provides="fileinput" >
+            <span class="btn btn-default btn-file" style="background-color:#b7afb3"><span></span>
+            <input type="file" name="amsFile"/></span> 
+            <br>
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" class="btn btn-info" value="Upload">
+
+        </div>
+    </form>
+    </div>
+    </div>
+</div>
+{% endblock content %}

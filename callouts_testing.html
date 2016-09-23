@@ -1,0 +1,416 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/19999/xhtml">
+
+<head>
+
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="http://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css">
+
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="http://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+  <!-- <script src="/var/www/sid/static/multiselect/jquery.multiselect.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/var/www/sid/static/multiselect/jquery.multiselect.css"/> -->
+
+    <script src="/var/www/sid/static/multiselect/jquery.multiselect.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/var/www/sid/static/multiselect/jquery.multiselect.css"/>
+
+    <script src="/var/www/sid/static/multiselect/jquery.multiselect.filter.js"></script>
+    <link rel="stylesheet" type="text/css" href="/var/www/sid/static/multiselect/jquery.multiselect.filter.css"/>
+
+    <!-- <script src="https://code.highcharts.com/modules/exporting.js"></script> -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+
+
+<style>
+       body {
+     font-family: Helvetica;
+     font-size: 13px;
+   }
+   
+   div.callout {
+     height: 20px;
+     width: 130px;
+     /*float: left;*/
+     z-index: 1;
+   }
+   
+   div.callout {
+     background-color: #444;
+     background-image: -moz-linear-gradient(top, #444, #444);
+     position: relative;
+     color: #ccc;
+     padding: 20px;
+     border-radius: 3px;
+     box-shadow: 0px 0px 20px #999;
+     //margin: 25px;
+     min-height: 20px;
+     border: 1px solid #333;
+     text-shadow: 0 0 1px #000;
+     /*box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset;*/
+   }
+   
+   .callout::before {
+     content: "";
+     width: 0px;
+     height: 0px;
+     border: 0.8em solid transparent;
+     position: absolute;
+   }
+   
+   .callout.left::before {
+      left: 0%;
+     right: -20px;
+     top: 40%;
+     border-left: 10px solid #444;
+   }
+   
+
+   
+   
+.callout.top::before {
+    border-right: 11px solid #444;
+    bottom: 10px;
+    left: -20px;
+}
+   
+   .callout.bottom::before {
+     left: 45%;
+     top: -20px;
+     border-bottom: 10px solid #444;
+   }
+   
+   
+   .callout.right::before {
+     
+     top: 40%;
+     border-right: 10px solid #444;
+   }
+   
+   .callout.top-left::before {
+     /*left: 7px;*/
+     bottom: -20px;
+     border-top: 10px solid #444;
+   }
+   
+   .callout.top-right::before {
+     /*right: 7px;*/
+     bottom: -20px;
+     border-top: 10px solid #444;
+   }
+
+    </style>
+</head>
+
+<body>
+  
+
+    <div class="container-fluid">
+      <br>
+      <div class="row">
+        <select id="line-elements" >
+        <option>Line Elements</option>        
+      </select>            
+      <!-- <select id="peergroup"      multiple="multiple"></select> -->
+      <select id="pick-x-y-axis"  multiple="multiple"></select>            
+      
+      <!-- DivTable.com -->
+
+      </div>
+      <br>
+      <br>
+      <div class="row">
+        <table id="points-table" class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Line Item</th>
+                <th>xAxis</th>
+                <th>yAxis</th>
+                <th>Position</th>
+                <th>CalloutText</th>
+                <th>Graph-Y-axis-position</th>
+                <th>Graph-X-axis-position</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            </tbody>
+        </table>
+
+      </div>
+      <div class="row">
+        <button id="gen-graph" type="button" class="btn btn-success">Generate Graph</button>
+      </div>
+      
+      <div class="row">
+        <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+      </div>
+    </div>
+    
+
+    <script>    
+         
+    $(document).ready(function(){
+      var gen_points = {}
+        var drawchart = function() {
+          x_axis_position_default = 10
+          y_axis_position_default = 30
+          categories = ["09/07/2016 00:00","09/07/2016 00:01","09/07/2016 00:02","09/07/2016 00:03","09/07/2016 00:04"]
+          rate_1 = [0.8,0.54,0.6,0.3,0.4]
+          rate_2 = [0.33,0.16,0.33,0.3,0.38]
+          rate_3 = [0.03,0.04,0.05,0.03,0.01]
+
+          var addCallout = function(chart) {              
+               var xAxis;
+               var yAxis;
+              if (Object.keys(gen_points).length === 0) {
+              // alert('empty object')
+            }             
+            else{
+              for (var key in gen_points){
+                // console.log('******generate callouts******* == ')
+                xAxis = chart.xAxis[0]
+                yAxis = chart.yAxis[0]
+                gen_points[key].forEach(function(obj,index){
+                  point_val = gen_points[key][index]['point']
+                  callout = gen_points[key][index]['callout']                       
+                  series = chart.series[parseInt(key)]                
+                  point = series.data[parseInt(point_val)]; 
+                  if (y_axis_position == '' || parseInt(y_axis_position) == 0) {
+                      y_axis_position = 0
+                    }
+                  if (x_axis_position == '' || parseInt(y_axis_position) == 0) {
+                      x_axis_position = 0
+                    }
+                    console.log('chart.plotLeft == ', chart.plotLeft)
+                    console.log('chart.plotTop == ', chart.plotTop)
+                    console.log('point.plotX == ', point.plotX)
+                    console.log('point.plotY == ', point.plotY)
+                    console.log('x_axis_position == ', x_axis_position)
+                    console.log('y_axis_position == ', y_axis_position)
+                    console.log('xAxis position 1 == ', (point.plotX + chart.plotLeft + x_axis_position_default))
+                    console.log('yAxis position 1 == ', (point.plotY + chart.plotTop -  y_axis_position_default))
+
+                    console.log('xAxis position 2 == ', (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position))                       
+                    console.log('yAxis position 2 == ', (point.plotY + chart.plotTop - y_axis_position_default) + parseInt(y_axis_position))        
+                    
+
+                  if (remove_labels){
+                      console.log(chart.renderer.label)
+                    var a = chart.renderer.label('<div class="callout top">'+callout+'</div>',  
+                      point.plotX + chart.plotLeft + 10, 
+                      point.plotY + chart.plotTop - parseInt(y_axis_position), 'callout',null, null, true).destroy();
+                    alert('destroy')
+                      console.log('a',a);
+                    }else{
+
+                      var a = chart.renderer.label('<div class="callout top">'+callout+'</div>',  
+                        (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position), 
+                        (point.plotY + chart.plotTop -  y_axis_position_default) - parseInt(y_axis_position), 'callout',null, null, true).add();
+                      // console.log('a',a);
+                    }
+
+
+                  })
+              }   
+              }                          
+        };
+        
+                $('#container').highcharts({
+                  chart: {
+                // type: 'bar',
+                events: {
+                  load: function() {  
+                    // alert('load')        
+                    addCallout(this);
+                  },
+                  redraw: function() {
+                    // alert('redraw')
+                    addCallout(this);
+                  },
+                }
+              },
+                    title: {
+                        text: 'Spikes Graph',
+                        x: -20 //center
+                    },
+                    subtitle: {
+                        text: '',
+                        x: -20
+                    }                                                       
+              ,
+                    series: [{
+                        turboThreshold: 2000 // to accept point object configuration
+                    }],
+                    xAxis: {
+                        categories: categories,
+                        tickInterval: 60,
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Error Rate'
+                        },
+                        min: 0,
+                        max: 5,
+                        plotLines: [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }],
+                        labels:{
+                            format : '{value} %'
+                        }
+                    },
+                    tooltip: {
+                        valueSuffix: '°C'
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    series: [
+                        // {turboThreshold: 2000 },
+                        {
+                            name: 'Rate-1',
+                            data: rate_1,
+                            turboThreshold: 2000,
+                            lineWidth: 1,
+                            dataLabels: {
+                            enabled: true,
+                            useHTML: true,                        
+                            style: {
+                                fontWeight: 'bold'
+                            },                        
+                        },
+                        }, {
+                            name: 'Rate-2',
+                            data: rate_2,
+                            turboThreshold: 2000,
+                            lineWidth: 1
+                        }, {
+                            name: 'Rate-3',
+                            data: rate_3,
+                            turboThreshold: 2000,
+                            lineWidth: 1
+                        }
+                        
+                    ]
+                });
+        };
+
+  drawchart()
+
+  $('#pick-x-y-axis').multiselect({
+    height: 600,
+        show: ['slide', 500],
+    hide: ['slide', 500],
+        noneSelectedText: 'Pick Division and select pg',
+        click: function(event, ui){            
+          console.log('ui ==',ui.checked)
+            contents = ui.text.split('&&')
+            console.log('event ==',event)
+            console.log(contents)
+            id = $('#line-elements').val().trim() + '-' +contents[2].trim()
+            if (ui.checked == true){
+              $('#points-table tr:last').after('<tr id=' + id + '>'
+                      + '<td>' + $('#line-elements').find("option:selected").text().trim() + '&&'+ $('#line-elements').val().trim() + '</td>'
+                      + '<td>' + contents[0].trim() + '</td> '
+                      + '<td>' + contents[1].trim() + '</td>'  
+                      + '<td>' + contents[2].trim() + '</td>'  
+                      + '<td>   <textarea/>            </td>'
+                      + '<td>   <input>              </td>'
+                      + '<td>   <input>               </td></tr>');
+          }else{
+            $('#'+id).remove()
+          }
+
+          }
+  }).multiselectfilter();
+  
+    var chart = $("#container").highcharts();      
+    line_charts = chart.series.map(function(obj){         
+    return obj.name + '&&' + obj.index;
+  })  
+  $.each(line_charts, function (index, value) {       
+    console.log('name-index- value== ', value)
+    content = value.split('&&')
+    console.log('name-index- value== ', content)
+      $('#line-elements').append($('<option/>', {         
+          value: content[1].trim(),
+          text : content[0].trim()
+      }));
+  });     
+
+  $('#line-elements').on('change', function() {       
+      line_chart_name = $(this).find("option:selected").text()            
+      chart.series.forEach(function(obj,index){
+        if (obj.name == line_chart_name){
+          console.log('index == ', index)   
+          categories = chart.xAxis.map(function(obj){   
+                return obj.categories;
+              })
+          series_data = chart.series[index]         
+          console.log('series_data == ', series_data)
+          data_points = series_data.yData.map(function(obj,ix){           
+            return {  'yaxis' :parseFloat([series_data.yData[ix]])  
+                  ,'point' :series_data.yData[ix] + ' && ' + categories[0][ix] + ' && ' + ix}           
+          })
+        }
+      })
+      console.log('after dict == ', JSON.stringify(data_points))  
+    data_points.sort(function(a,b){
+      return b.yaxis - a.yaxis
+    })
+    console.log('sorted dict == ', JSON.stringify(data_points))   
+    $("#pick-x-y-axis").empty();
+    $.each(data_points, function () {               
+        $('#pick-x-y-axis')
+            .append($('<option></option>')
+              .attr("value",this.yaxis)
+              .text(this.point))                                
+    });
+    $('#pick-x-y-axis').multiselect('refresh'); 
+  });     
+  remove_labels = true
+  $('#gen-graph').on('click', function(){   
+    remove_labels = true
+    $('.callout').remove();
+    // console.log("re- generate chart")
+    // console.log("remove_labels", remove_labels)
+    // $("#container").highcharts().redraw()
+    // console.log("remove_labels complete")
+    remove_labels = false
+    gen_points = {}
+    $('#points-table tr').not(':first').each(function() {
+        // console.log('content == ', $(this).find("td:first").html())
+          line_item = $(this).find("td:first").html().split('&amp;&amp;')[1];    
+          // console.log('line_item == ', line_item)
+          x_axis = $(this).find("td:nth-child(2)").html();
+          y_axis = $(this).find("td:nth-child(3)").html()
+          point = $(this).find("td:nth-child(4)").html()
+          callout = $(this).find("td:nth-child(5)").find('textarea').val()
+          y_axis_position = $(this).find("td:nth-child(6)").find('input').val()
+          x_axis_position = $(this).find("td:nth-child(7)").find('input').val()
+          if (line_item in gen_points) {        
+            gen_points[line_item].push({x_axis,y_axis,point,callout,y_axis_position,x_axis_position})         
+          }else{
+            gen_points[line_item] = [{x_axis,y_axis,point,callout,y_axis_position,x_axis_position}]         
+          }
+          console.log('gen_points == ', JSON.stringify(gen_points))
+            
+    });
+    $("#container").highcharts().redraw()
+    
+  })
+    
+  })
+    </script>
+</body>
+
+</html>

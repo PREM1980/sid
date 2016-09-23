@@ -1,5 +1,18 @@
 {% extends "base_ninja.html" %}
 
 {% block content %}
-    {% include "tickets/sid.html" %}
+    
+    <ul class="nav nav-tabs">
+          <li role="presentation" class="active"><a data-toggle="tab" href="#vod-sid">VOD SID</a></li>
+          <li role="presentation"><a data-toggle="tab" href="#ams-sid">AMS SID</a></li>
+    </ul>
+    
+    <div class="tab-content">
+        <div id="vod-sid" class="tab-pane fade in active">
+        	{% include "tickets/sid.html" %} 
+        </div>
+        <div id="ams-sid" class="tab-pane fade in active">
+          	{% include "tickets/ams.html" %} 
+        </div> 
+    </div>
 {% endblock content %}

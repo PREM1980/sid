@@ -1,5 +1,40 @@
 {% extends "base_sid.html" %}
 
-{% block content %}
-    {% include "tickets/sid.html" %}
+{% block content %}    
+<script type="text/javascript">
+  // alert('{{active_tab}}')
+  //If the file uploaded we need to redirect it to the AMS tab instead. This is temporary and will deleted slowily as the data 
+  //will be loaded through API
+  
+</script>
+<div>
+    <ul class="nav nav-tabs">
+  <li role="presentation" class="active"><a data-toggle="tab" href="#vod-sid">VOD</a></li>
+  <li role="presentation" ><a data-toggle="tab" href="#ams-sid">AMS</a></li>
+  
+</ul>
+
+   <div class="tab-content">
+    <div id="vod-sid" class="{% if active_tab == 'vod' %} 
+                                tab-pane fade in active                              
+                              {% else %}
+                                tab-pane fade
+                              {% endif %}" >
+      <!-- <h1> {{active_tab}} </h1>                              -->
+      {% include "tickets/sid.html" %} 
+    </div>
+    <div id="ams-sid" class="{% if active_tab == 'ams' %} 
+                                tab-pane fade in active                              
+                                {% else %}
+                                tab-pane fade
+                              {% endif %}">
+                <!-- <h1> ams {{active_tab}} </h1>                              -->
+      {% include "tickets/ams.html" %} 
+    </div>  
+
+  </div>
+
+</div>
 {% endblock content %}
+
+

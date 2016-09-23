@@ -75,16 +75,20 @@ def hide_sid_create_section():
 def check_if_admin(user_id):
 	return True if NinjaUsers.objects.filter(userid=user_id).filter(admin='Y').exists() else False
 
-def page_redirects(request,userid):		
+def page_redirects(request,userid, active_tab='', error_msg=''):		
+	print 'active_tab == ', active_tab
 	if settings.LOCAL_TEST_NINJA == True:
 		if settings.NINJA == True:			
 			return render(request,'dashboard/ninja_landing_page.html',{'error':'N','admin_user':check_if_admin(userid)})				
 		else:
-			return render(request,'tickets/sid_landing_page.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid)})		
+			print 'sid_landing_page'
+			return render(request,'tickets/sid_landing_page.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid),
+						'active_tab':active_tab,'error_msg':error_msg})		
 	else:				
 		if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
 			return render(request,'dashboard/ninja_landing_page.html',{'error':'N','admin_user':check_if_admin(userid)})												
-		return render(request,'tickets/sid_landing_page.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid)})
+		return render(request,'tickets/sid_landing_page.html',{'hide':hide_sid_create_section(),'admin_user':check_if_admin(userid),
+						'active_tab':active_tab,'error_msg':error_msg})		
 
 def page_redirects_login(request):
 	if settings.LOCAL_TEST_NINJA == True:

@@ -1,6 +1,8 @@
 from django.conf.urls import include, url
 from django.contrib import admin
-from tickets.views import ChartsData,ChartsView,NinjaUsersData,PostTicketData, GetTicketData,UpdateTicketData,RecordFeedBack, LoginView,ExcelDownload, PDFDownload, NinjaSIDView, GetUUIDView
+from tickets.views import ChartsData,ChartsView,NinjaUsersData,PostTicketData, \
+    GetTicketData,UpdateTicketData,RecordFeedBack, LoginView,ExcelDownload, PDFDownload, NinjaSIDView, GetUUIDView
+from tickets.ams_views import  AMSUpload,AMSGetTicketData
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
@@ -22,6 +24,7 @@ if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server'] or \
         #Report Downloads
         url(r'^xls-download-data$', ExcelDownload.as_view()),
         url(r'^pdf-download-data$', PDFDownload.as_view()),
+        url(r'^ams-get-ticket-data$', AMSGetTicketData.as_view()),
         url(r'^api_docs$', TemplateView.as_view(template_name="tickets/apipage.html")),
 
         #Get all the Ninja Users and their division.
@@ -57,6 +60,9 @@ else:
             #Report Downloads
             url(r'^xls-download-data$', ExcelDownload.as_view()),
             url(r'^pdf-download-data$', PDFDownload.as_view()),
+            url(r'^ams-file-upload$', AMSUpload.as_view()),
+            url(r'^ams-get-ticket-data$', AMSGetTicketData.as_view()),
+            #
             url(r'^api_docs$', TemplateView.as_view(template_name="tickets/apipage.html")),
 
 

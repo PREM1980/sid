@@ -8,11 +8,21 @@
     </ul>
     
     <div class="tab-content">
-        <div id="vod-sid" class="tab-pane fade in active">
-        	{% include "tickets/sid.html" %} 
-        </div>
-        <div id="ams-sid" class="tab-pane fade in active">
-          	{% include "tickets/ams.html" %} 
-        </div> 
+      <div id="vod-sid" class="{% if active_tab == 'vod' %} 
+                                  tab-pane fade in active                              
+                                {% else %}
+                                  tab-pane fade
+                                {% endif %}" >
+        <!-- <h1> {{active_tab}} </h1>                              -->
+        {% include "tickets/sid.html" %} 
+      </div>
+      <div id="ams-sid" class="{% if active_tab == 'ams' %} 
+                                  tab-pane fade in active                              
+                                  {% else %}
+                                  tab-pane fade
+                                {% endif %}">
+                  <!-- <h1> ams {{active_tab}} </h1>                              -->
+        {% include "tickets/ams.html" %} 
+      </div>  
     </div>
 {% endblock content %}

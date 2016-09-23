@@ -70,7 +70,7 @@ class NinjaSIDView(View):
 		if user_id is None:
 			return utils.page_redirects_login(request)
 		return render(request,'tickets/ninja_sid_page.html',{'hide':utils.hide_sid_create_section(),
-										'admin_user':utils.check_if_admin(user_id)})								
+										'admin_user':utils.check_if_admin(user_id),'active_tab':'vod'})								
 
 class GetUUIDView(View):
 	@method_decorator(csrf_exempt)

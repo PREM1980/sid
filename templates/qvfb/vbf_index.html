@@ -1,25 +1,68 @@
-{% extends "base_ninja.html" %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <title>Bootstrap 101 Template</title>
 
-{% block jscontent %}
-    <title>NINJA Analytics and Reporting Portal - QVFB Module</title>
-    {% load staticfiles %}
-    <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
-    <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
-    <script src="{% static "highcharts/highcharts.js" %}"></script>
-    <script src="{% static "highcharts/exporting.js" %}"></script>
-    <script src="{% static "highcharts/no-data-to-display.js" %}"></script>
+  <!-- Bootstrap -->
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
-    <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
-    <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
-    <script src="{% static "js/customjs/common.js" %}"></script>
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <![endif]-->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+      <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/jquery.ui.timepicker.addon/1.4.5/jquery-ui-timepicker-addon.js"></script>
+      <!-- Include all compiled plugins (below), or include individual files as needed -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+      <script src="https://code.highcharts.com/highcharts.js"></script>
+      <!-- Other dependencies -->
+      <script src="/static/js/exporting.js"></script>
+      <!-- <script src="/static/js/canvas-tools.js"></script> -->
+      <script src="/static/js/export-csv.js"></script>
 
-    <!-- <script src="{% static "js/customjs/qvfb/main.js" %}"></script> -->
+      <!-- This module, after the dependencies -->
+      <script src="/static/js/highcharts-export-clientside.js"></script>
+      <script src="/static/js/moment.js"></script>
+      <STYLE>
+      #chart {
+        height: 400px;
+        width: 100%;
+      }
 
-    <script src="{% static "js/export-csv.js" %}"></script>
-    <!-- <script src="{% static "js/customjs/vbo/daily.js" %}"></script>
-    <script src="{% static "js/customjs/vbo/weekly.js" %}"></script>
- -->
+      #btn-holder {
+        position: relative;
+        height: 1px;
+        width: 100%;
+      }
+
+      #compare-btn {
+        font-size: 12px;
+        position: absolute;
+        right: 0;
+        top: -34px;
+      }
+      table {
+        border: 1px solid black;
+      }
+      th, td {
+        border: 1px solid black;
+        padding: 5px;
+        text-align: left;
+      }
+      </STYLE>
+
+      <! -- http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodGlobalByGroupByHour?startTime=1472058000000&endTime=1472141075336&?callback=?
+
+      // /static/vbf.json -- >
+
 <script>
 function fetch() {
     //from_date=$('#from_date').val();
@@ -27,7 +70,6 @@ function fetch() {
     //to_date=$('#to_date').val();
    //var from_epoch = moment(from_date).format('x'); ----- THIS GIVES MILLIS -- KEEP
    //var to_epoch = moment(to_date).format('x'); ----- THIS GIVES MILLIS -- KEEP
-$('#loading').show();
 from_epoch = 0;
 to_epoch = 1474656545764;
 granularity = "hourly";
@@ -63,7 +105,7 @@ var dataurl = getUrl(from_epoch,to_epoch,granularity);
     var infinite_retry_errors=["VideoLostQAMOk Errors not counted as Antennas"];
     var none=["Other Noise Floor Errors"];  
     var errors=["<B>TOTAL BACKOFFICE NOISE FLOOR:</B>"];
-    
+		
     //First build timebucket and error total array
     new_obj.forEach(function(ele, idx) {
       var formatted_date = moment(ele[0].timestamp).format("DD MMM YYYY");
@@ -127,7 +169,7 @@ var dataurl = getUrl(from_epoch,to_epoch,granularity);
 
   var logdate = moment(1474718400000).format("DD MMM YYYY");
   console.log("LOGDATE IS "+logdate);
-  $('#loading').hide();
+
   $('#table').append("<TABLE BORDER=1>");
 
   placeholder = "</td><td>Target<BR>Reduction %</td><td>July<BR>Reduction</td><td>Dec 2016 Errors<BR>Target</td><td>Dec 2016<BR>Stream Attempts<BR>Target</td><td>Dec 2016<BR>Error Rate<BR>Target</td></tr>";
@@ -164,91 +206,12 @@ var dataurl = getUrl(from_epoch,to_epoch,granularity);
 }
 
 $(document).ready(function () {
-  $('#from_date').datetimepicker({
-            //2013-02-08 09:30:26
-    dateFormat: "yy-mm-dd",
-    timeFormat: "HH:mm:ss",
-    minDate: new Date('2016/08/25'),
-    maxDate: '0'
-  });
-  $('#to_date').datetimepicker({
-    dateFormat: "yy-mm-dd",
-    timeFormat: "HH:mm:ss",
-    minDate: new Date('2016/08/25'),
-    maxDate: '0'
-  });
-
-
     fetch();
                 //$('#updateButton').bind('click', );
   });
 </script>
-<style>
-.center {
-     float: none;
-     margin-left: auto;
-     margin-right: auto;
-}
 
-td {
-  padding: 5px;
-  border:1px solid;
-  
-} 
-td.right-align{
-  text-align: right;  
-}
-
-.ui-datepicker-calendar {
-    display: none;
-}
-#chart {
-        height: 400px;
-        width: 100%;
-      }
-
-      #btn-holder {
-        position: relative;
-        height: 1px;
-        width: 100%;
-      }
-
-      #compare-btn {
-        font-size: 12px;
-        position: absolute;
-        right: 0;
-        top: -34px;
-      }
-</style>
-    
-{% endblock jscontent %}
-
-{% block content %}
-    {% load staticfiles %}
-    <div class="container-fluid" >
-        
-        <div class="row">            
 <div id="table"></div>
-<center>
-  <div id="loading"><img src="{% static "ajax-loader.gif" %}"></script></div>
-</center>
-</div>
-<center>
-<table>
-    <tr><td>From: <input type="text" name="from_date" id="from_date" value="" /></td><td>To: <input type="text" name="to_date" id="to_date" value="" /></td></tr>
-</table>
-</center>
 
-        </div><!-- /.bg -->
-    </div>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
 
-{% endblock content %}
-   
+</HTML>

@@ -211,8 +211,8 @@ MEDIA_ROOT = '/var/www/ams-files/'
 
 API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
-LOCAL_TEST_NINJA = True
-NINJA = True
+LOCAL_TEST_NINJA = False
+NINJA = False
 
 
 

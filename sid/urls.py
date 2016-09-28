@@ -43,6 +43,9 @@ if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server'] or \
         #Urls for QVFB Module
         url(r'^qvfb/',include('qvfb.urls')),
 
+        #Urls for OC Module ( OneController )
+        url(r'^oc/',include('oc.urls')),
+
         url(r'^.*$', RedirectView.as_view(pattern_name='loginpage', permanent=False))
 
     ]

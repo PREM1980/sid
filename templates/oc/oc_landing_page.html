@@ -1,0 +1,109 @@
+{% extends "base_ninja.html" %}
+
+{% block jscontent %}
+    <title>NINJA Analytics and Reporting Portal - VBO  Module</title>
+    {% load staticfiles %}
+    <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+    <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
+    <script src="{% static "highcharts/highcharts.js" %}"></script>
+    <script src="{% static "highcharts/exporting.js" %}"></script>
+    <script src="{% static "highcharts/no-data-to-display.js" %}"></script>
+
+    <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
+    <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
+    <script src="{% static "js/customjs/common.js" %}"></script>
+    <script src="{% static "js/customjs/et/main.js" %}"></script>
+    <script src="{% static "js/export-csv.js" %}"></script>
+    <!-- <script src="{% static "js/customjs/vbo/daily.js" %}"></script>
+    <script src="{% static "js/customjs/vbo/weekly.js" %}"></script>
+ -->
+<script>
+$(document).ready(function()
+{
+    if ("{{error}}" == 'N') {
+       $('#loginid').html("{{request.session.userid}}")
+    }
+   $('#container').highcharts({
+        chart: {
+        renderTo: 'container',
+        type: 'spline'
+        },
+        title: {
+            text: 'OneController Metrics',
+            x: -20 //center
+        },
+        subtitle: {
+            text: 'Source: OneController',
+            x: -20
+        },
+        xAxis: {
+            categories: ['Sep 15', 'Oct 15', 'Nov 15', 'Dec 15', 'Jan 16', 'Feb 16', 'Mar 16', 'Apr 16', 'May 16', 'Jun 16', 'Jul 16', 'Aug 16']
+        },
+        yAxis: {
+            title: {
+                text: 'Number'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        series: [{
+            name: 'Total Transactions',
+            data: [430432, 436765, 423098, 456987, 420987, 460987, 465897, 490876, 439765, 498654, 399654, 410987]
+        }, {
+            name: 'Successes',
+            data: [367987, 345988, 378655, 398765, 388765, 376987, 345765, 367987, 354987, 399234, 376324, 376234]
+        }, {
+            name: 'Failures',
+            data: [111092, 99654, 112654, 111765, 109543, 105123, 102876, 101987, 100234, 99654, 98765, 111654]
+        }]
+    });
+});
+</script>
+<style>
+.center {
+     float: none;
+     margin-left: auto;
+     margin-right: auto;
+};
+
+td {
+  padding: 5px;
+  border:1px solid;
+  
+} 
+td.right-align{
+  text-align: right;  
+}
+
+.ui-datepicker-calendar {
+    display: none;
+}
+
+</style>
+    
+{% endblock jscontent %}
+
+{% block content %}
+    {% load staticfiles %}
+    <div class="container-fluid" >
+        
+        <div class="row">            
+        <center><div id="container"></div></center>
+
+        </div><!-- /.bg -->
+    </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+
+{% endblock content %}
+   

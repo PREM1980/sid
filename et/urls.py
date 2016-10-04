@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
 
-print 'im herer'
+
 urlpatterns = [
     #url(r'^$', TemplateView.as_view(template_name="vbo_module/mainpage.html")),        
     url(r'^main$', LoginView.as_view()),

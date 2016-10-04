@@ -49,7 +49,8 @@ CUSTOM_APPS = ('tickets',
     'vbo_module',
     'et',
     'ppe',
-    'django_extensions')
+    'django_extensions',
+    )
 
 
 INSTALLED_APPS = INSTALLED_APPS + CUSTOM_APPS
@@ -213,6 +214,8 @@ API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
 LOCAL_TEST_NINJA = True
 NINJA = True
+
+# CSRF_FAILURE_VIEW = 'tickets.ams_1views.csrf_failure'
 
 
 

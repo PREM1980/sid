@@ -31,10 +31,14 @@ from pytz import timezone
 import socket
 import time
 
+
+
+
 class AMSUpload(View):
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
+		print 'im on dispatch'
 		return super(AMSUpload, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):
@@ -45,37 +49,102 @@ class AMSUpload(View):
 			return utils.page_redirects(request,request.session['userid'], active_tab='ams')				
 
 	def post(self, request):		
-		if request.method == 'POST' and request.FILES['amsFile']:						
-			fs = FileSystemStorage()			
-			myfile = request.FILES['amsFile']			
-			print 'os.path.isfile(settings.MEDIA_ROOT + myfile.name) == ', os.path.isfile(settings.MEDIA_ROOT + myfile.name)
-			if os.path.isfile(settings.MEDIA_ROOT + myfile.name):
-				print 'file already exist'
-				return utils.page_redirects(request,request.session['userid'], active_tab='ams', error_msg='File already present... ')				
-			else:
-				filename = fs.save(myfile.name, myfile)
-				uploaded_file_url = fs.url(filename)
-				user_id = utils.check_session_variable(request)
-				time.sleep(10)			
-				if os.path.isfile(settings.MEDIA_ROOT + myfile.name):
-					with open('/var/www/ams-files/' + myfile.name ) as f:
-						reader = csv.reader(f)
-						first_row = True
-						for row in reader:
-							if first_row:
-								first_row = False
-								pass
-							else:
-								load_ams_data(row, user_id)
-							
-				user_id = utils.check_session_variable(request)
-				if user_id is None:
-					return utils.page_redirects_login(request)
+		print 'post request'
+		user_id = utils.check_session_variable(request)
+
+		#Get the API Key
+		api_key = request.META.get('HTTP_AUTHORIZATION')
+		print 'api_key == ', api_key
+		if user_id is not None or api_key == settings.API_KEY:			
+			if request.method == 'POST' :						
+				if api_key is not None:
+					row, error  = validate_insert_input(request)
+					# user_id = alldata['userid']
+					if error is not None:
+						return JsonResponse({'status': error})
+					else:
+						try:
+							load_ams_data(row,user_id)
+							return JsonResponse({'status': 'inserted'})
+						except:							
+							return JsonResponse({'status': 'Unable to load - Contact application support'})
+					
+
+				fs = FileSystemStorage()			
+				
+				myfile = request.FILES['amsFile']					
+
+				if os.path.isfile(settings.MEDIA_ROOT + myfile.name):				
+					#If the file is already present, return error message with that error.
+					return utils.page_redirects(request,request.session['userid'], active_tab='ams', error_msg='File already present... ')				
 				else:
+					filename = fs.save(myfile.name, myfile)
+					uploaded_file_url = fs.url(filename)
+					user_id = utils.check_session_variable(request)
+					time.sleep(10)			
+					if os.path.isfile(settings.MEDIA_ROOT + myfile.name):
+						with open('/var/www/ams-files/' + myfile.name ) as f:
+							reader = csv.reader(f)
+							first_row = True
+							for row in reader:
+								if first_row:
+									first_row = False
+									pass
+								else:
+									load_ams_data(row, user_id)
+					# return render(request, 'library/search.html', {'result': results})
 					return utils.page_redirects(request,request.session['userid'],active_tab='ams', error_msg='File loaded... ')				
 
-def load_ams_data(row, user_id):	
+def validate_insert_input(request):
+	row = []
+
+	row.extend(
+		[request.POST.get('id')
+		,request.POST.get('url')
+		,request.POST.get('brouha')
+		,request.POST.get('action')
+		,request.POST.get('last_action_before_clear')
+		,request.POST.get('resolve_close_reason')
+		,request.POST.get('in_process')
+		,request.POST.get('chronic')
+		,request.POST.get('service_affecting')
+		,request.POST.get('from_dt')
+		,request.POST.get('till_dt')
+		,request.POST.get('duration')
+		,request.POST.get('customers')
+		,request.POST.get('stbs')
+		,request.POST.get('tta')
+		,request.POST.get('tti')
+		,request.POST.get('tts')
+		,request.POST.get('ttr')
+		,request.POST.get('by')
+		,request.POST.get('division')
+		,request.POST.get('region')
+		,request.POST.get('dac')
+		,request.POST.get('device')
+		,request.POST.get('ip')
+		,request.POST.get('upstreams')
+		,request.POST.get('reason')
+		,request.POST.get('comment')
+		,request.POST.get('root_cause')
+		,request.POST.get('corrective_action_taken')
+		,request.POST.get('si_ticket')
+		,request.POST.get('jb_ticket')
+		,request.POST.get('found_in_support_system')
+		,request.POST.get('alert_event_text')
+		,request.POST.get('alert_type')
+
+		])
+
+	print 'row == ',row
+	error = None
+	return row,error
+
+
+def load_ams_data(row, user_id):
+	print 'load_ams_data'	
 	try:
+		print 'try'
 		ams = Ams.objects.get(ticket_num=row[0])
 		ams.ticket_num = row[0]
 		ams.url = row[1]
@@ -121,6 +190,7 @@ def load_ams_data(row, user_id):
 		ams.valid_flag='Y'
 		ams.save()
 	except Ams.DoesNotExist:
+		print 'except'
 		ams = Ams.objects.get_or_create(
 		ticket_num=row[0]
 		,url=row[1] 
@@ -177,9 +247,10 @@ class AMSGetTicketData(View):
 
 	def post(self, request):				
 		user_id = utils.check_session_variable(request)
+		
 		if user_id is None:
 			return utils.page_redirects_login(request)
-		print 'ams get ticket data == ', request.POST
+
 		if request.method == 'POST': 
 			if request.POST.get('initial') == 'Y':
 				try:				

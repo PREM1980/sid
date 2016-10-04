@@ -43,8 +43,8 @@ def check_user_auth(username,password):
 	username = "cable\\"+ username 
 	connect = ldap.open(ldap_server)
 
-	if settings.LOCAL_TEST_NINJA == True:
-		return {'status':'success'}
+	# if settings.LOCAL_TEST_NINJA == True:
+	# 	return {'status':'success'}
 		
 	try:
 		print 'ldap username == ', username

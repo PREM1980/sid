@@ -19,7 +19,7 @@ payload = {
 	# 'addt_notes':'hello'
 }
 print payload
-
+# r = requests.get('http://localhost:8000/get-ticket-data',headers=headers,data=payload)
 r = requests.post('http://localhost:8000/post-ticket-data',headers=headers,data=payload)
 #r = requests.post('http://ninja.comcast.net/post-ticket-data',headers=headers,data=payload)
 

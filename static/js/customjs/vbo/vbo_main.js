@@ -1,5 +1,6 @@
 $(document).ready(function() {
 
+
     if (!String.prototype.format) {
        String.prototype.format = function() {
            var args = arguments;
@@ -30,32 +31,16 @@ $(document).ready(function() {
         // report_num = this.id.split('-')[2]        
         report_num = this.id.split('-')[1] + '-' + this.id.split('-')[2]        
         // alert(report_num)
-        elem = "#report-{0}-comments-txt".format(report_num)
-        // alert(elem)
-        comments = $(elem).val()
-        // alert(comments)
-        // if (report_num == 'daily-1'){            
-        //     comments = $('#report-daily-1-comments-txt').val()
-        //     alert('im here-1 == '+ comments)
-        // }
-        // else if (report_num == 'daily-2'){
-        //     alert('im here-2')
-        //     comments = $('#report-daily-2-comments-txt').val()
-        // }
-        // else if (report_num == 'daily-3')            
-        // {   
-        //     alert('im here-3')
-        //     comments = $('#report-daily-3-comments-txt').val()
-        // }
-        // alert('final comments == ' + comments)
+        elem = "#report-{0}-comments-txt".format(report_num)        
+        comments = $(elem).val()        
         
         $.ajax({
-            url: '/vbo/update-report-callouts/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() +  '&report_num=' + report_num + '&report_callouts=' + comments,            
+            url: '/vbo/update-report-comments/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() +  '&report_num=' + report_num + '&report_callouts=' + comments,            
             type: 'GET',            
             success: function(result) {
                 if (result.status == 'success') {
                     alert('comments updated')
-                    console.log('chart results == ', result)
+                    // console.log('chart results == ', result)
                 } else if (result.status == 'session timeout') {
                     alert("Session expired -- Please relogin")
                     document.location.href = "/";
@@ -142,7 +127,9 @@ $(document).ready(function() {
         return;
     }
 
-    var generate_daily_report = function() {
+
+
+    var generate_daily_report = function() {       
 
         $.ajax({
             url: '/vbo/report-data/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val(),
@@ -150,10 +137,11 @@ $(document).ready(function() {
             //data: data,
             success: function(result) {
                 if (result.status == 'success') {
-                    console.log('chart results == ', result)
+                    // console.log('chart results == ', result)
+                    
                     $('#animation,#animation-space').hide()
-                    $('#vbo-stb-error-rates-comments, #vbo-nbrf-spikes-comments, #vbo-x1-vs-legacy-comments, #vbo-x1-vs-legacy-comments, #html-reports-btn').show()
-
+                    // $('#vbo-stb-error-rates-comments, #daily-report2-admin,  #vbo-nbrf-spikes-comments, #vbo-x1-vs-legacy-comments, #vbo-x1-vs-legacy-comments, #html-reports-btn').show()
+                    $('#vbo-stb-error-rates-comments, #report-daily-2-callouts-admin,  #html-reports-btn').show()                    
                     x1 = result.results.results_nbrf_x1_error_rates
                     legacy = result.results.results_nbrf_legacy_error_rates
 
@@ -165,12 +153,10 @@ $(document).ready(function() {
                     network_teardown_errors_rate = [x1.x1_networkresourcefailure_rate, legacy.legacy_networkresourcefailure_rate]
                     vcp_errors_rate = [x1.x1_vcp_error_rate, legacy.legacy_vcp_error_rate]
                     cm_connect_errors_rate = [x1.x1_cm_connect_error_rate, legacy.legacy_cm_connect_error_rate]
-
                     vlqok_errors_rate = [x1.x1_vlqok_error_rate, legacy.legacy_vlqok_error_rate]
                     tune_errors_rate = [x1.x1_tune_error_rate, legacy.legacy_tune_error_rate]
 
                     drawchart_stacked_stb_error_rates()
-
                     spikes = result.results.results_nbrf_spikes
 
                     spikes_categories = []
@@ -210,7 +196,10 @@ $(document).ready(function() {
                     comments = result.results.report_comments
                     $('#report-daily-1-comments-txt').val(comments.report_1_comments)
                     $('#report-daily-2-comments-txt').val(comments.report_2_comments)
-                    $('#report-daily-3-comments-txt').val(comments.report_3_comments)
+                    $('#report-daily-3-comments-txt').val(comments.report_3_comments)                    
+
+                    generate_callouts()
+                    load_highcharts_admin_section()                                        
                 } else if (result.status == 'session timeout') {
                     alert("Session expired -- Please relogin")
                     document.location.href = "/";
@@ -221,10 +210,13 @@ $(document).ready(function() {
             error: function() {
                 alert("Call to charts data failed");
             }
+         
         })
-
-        var drawchart_x1_vs_legacy = function() {
-            $('#vbo-x1-vs-legacy').highcharts({
+       
+        
+        var drawchart_x1_vs_legacy = function() {            
+            // $('#vbo-x1-vs-legacy').highcharts({
+            $('#report-daily-3-highcharts').highcharts({                
                 title: {
                     text: 'National Error Rate by STB Type',
                     x: -20 //center
@@ -277,18 +269,22 @@ $(document).ready(function() {
             });
         }
 
-        var drawchart_nbrf_spikes = function() {
-            // console.log('spikes_categories == ', JSON.stringify(spikes_categories))
-            // console.log('spikes_br_denial_rate  == ', JSON.stringify(spikes_br_denial_rate))
-            // console.log('spikes_vlqok_error_rate  == ', JSON.stringify(spikes_vlqok_error_rate))
-            // console.log('spikes_udb_error_rate  == ', JSON.stringify(spikes_udb_error_rate))
-            // console.log('spikes_vcp_error_rate  == ', JSON.stringify(spikes_vcp_error_rate))
-            // console.log('spikes_plant_error_rate  == ', JSON.stringify(spikes_plant_error_rate))
-            console.log('spikes_networkresourcefailure_error_rate  == ', JSON.stringify(spikes_networkresourcefailure_error_rate))
-            console.log('spikes_cdn_setup_error_rate  == ', JSON.stringify(spikes_cdn_setup_error_rate))
-            console.log('spikes_cm_connect_error_rate  == ', JSON.stringify(spikes_cm_connect_error_rate))
-            console.log('spikes_tune_error_rate == ', JSON.stringify(spikes_tune_error_rate))
-            $('#vbo-nbrf-spikes').highcharts({
+        var drawchart_nbrf_spikes = function() {            
+            // $('#vbo-nbrf-spikes').highcharts({
+            $('#report-daily-2-highcharts').highcharts({
+                chart: {
+                          // type: 'bar',
+                          events: {
+                            load: function() {  
+                                // alert('load')        
+                              addCallout(this);
+                            },
+                            redraw: function() {
+                                // alert('redraw')
+                              addCallout(this);
+                            },
+                          }
+                        },
                 title: {
                     text: 'Spikes NBRF %',
                     x: -20 //center
@@ -381,7 +377,8 @@ $(document).ready(function() {
         }
 
         var drawchart_stacked_stb_error_rates = function() {
-            $('#vbo-stb-error-rates').highcharts({
+            // $('#vbo-stb-error-rates').highcharts({
+            $('#report-daily-1-highcharts').highcharts({
                 chart: {
                     type: 'column'
                 },
@@ -474,7 +471,7 @@ $(document).ready(function() {
             success: function(result) {
                 if (result.status == 'success') {
                     report_names_and_dates = result.results[0].results
-                    console.log(JSON.stringify(report_names_and_dates))
+                    // console.log(JSON.stringify(report_names_and_dates))
                     var report_names = []
                     report_names_and_dates.forEach(function(obj) {
                         report_names.push(obj.report_name)
@@ -500,6 +497,7 @@ $(document).ready(function() {
         })
     }
 
+    // Load all the report names
     load_vbo_report_names()
 
     $('#report-submit').on('click', function() {
@@ -510,6 +508,7 @@ $(document).ready(function() {
         		generate_weekly_report()
         	}else{
             	generate_daily_report()
+                
         	}
         }
     })
@@ -517,17 +516,15 @@ $(document).ready(function() {
     $('#report_names').on('change', function() {
         var selected = $(this).find("option:selected").val();
         var report_dates = []
-        console.log('report_names_and_dates == ', JSON.stringify(report_names_and_dates))
+        // console.log('report_names_and_dates == ', JSON.stringify(report_names_and_dates))
         report_names_and_dates.forEach(function(obj) {
             if (obj.report_name == selected) {
                 report_dates.push(obj.report_run_date + '&&&&' + obj.id)
             }
         })
-        console.log('report_dates == ', JSON.stringify(report_dates))
+        // console.log('report_dates == ', JSON.stringify(report_dates))
         $('#report_dates').empty();
-        report_dates.forEach(function(each) {
-        	console.log('each == ' + each)
-        	console.log('each-length == ' + each.length)
+        report_dates.forEach(function(each) {        	
         	each = each.split('&&&&')
             $('#report_dates')
                 .append($("<option></option>")
@@ -727,7 +724,7 @@ $(document).ready(function() {
             success: function(result) {
             	console.log('monthly report-1 result == ', result)
                 if (result.status == 'success') {
-                    console.log('chart results == ', JSON.stringify(result.results.report_1))
+                    // console.log('chart results == ', JSON.stringify(result.results.report_1))
                     x1 = result.results.report_1
                     console.log('x1 ==',x1)
                     set_summary_weekly(x1)
@@ -950,7 +947,7 @@ $(document).ready(function() {
             success: function(result) {
             	console.log('monthly report-3 result == ', result)
                 if (result.status == 'success') {
-                    console.log('chart results == ', JSON.stringify(result.results.report_3))
+                    // console.log('chart results == ', JSON.stringify(result.results.report_3))
                     $('#weekly-3-loading-animation').hide()
                     $('#report-weekly-3-comments').show()
                     $('#report-weekly-3-comments-txt').val(result.results.report_comments.report_3_comments)
@@ -3163,25 +3160,352 @@ $(document).ready(function() {
                     stack: 'other'
                 },
                 ]
-
-
             });
         }
 
         function eliminateDuplicates(arr) {
-  var i,
-      len=arr.length,
-      out=[],
-      obj={};
+            var i,
+                len = arr.length,
+                out = [],
+                obj = {};
 
-  for (i=0;i<len;i++) {
-    obj[arr[i]]=0;
-  }
-  for (i in obj) {
-    out.push(i);
-  }
-  return out;
-}
+            for (i = 0; i < len; i++) {
+                obj[arr[i]] = 0;
+            }
+            for (i in obj) {
+                out.push(i);
+            }
+            return out;
+        }
 
+        gen_points = {}
+
+        var callouts_data_from_db 
+
+        var generate_callouts = function(){
+            $.ajax({
+                url: '/vbo/store-callouts/?' + 'report_id=' + $('#report_dates').find('option:selected').attr("name"),            
+                type: 'GET',
+                success: function(result){                 
+                if (result.status == 'success')   {                    
+                    callouts = result.results
+                    
+                    callouts.forEach(function(obj){                        
+                        callouts_data_from_db = JSON.parse(obj.results[0].report_data)
+                        gen_points = callouts_data_from_db
+                        console.log('gen_points obj = ', gen_points)
+                    })                  
+                console.log('callouts == ', callouts)
+                if (Object.keys(callouts_data_from_db).length != 0) {
+                    callouts_data_from_db["0"].forEach(function(obj){
+                    id = "0" + '-' + obj.point                    
+                    $('#points-table tr:last').after('<tr id=' + id + '>'
+                                        + '<td class="calloutbox-line-item">' + "0" + '</td>'
+                                        + '<td class="calloutbox-x-axis">' + obj.x_axis + '</td> '
+                                        + '<td class="calloutbox-y-axis">' + obj.y_axis + '</td>'  
+                                        + '<td class="calloutbox-point">' + obj.point + '</td>'  
+                                        + '<td class="calloutbox-callout"> <textarea> ' + obj.callout +  ' </textarea> </td>'
+                                        + '<td class="calloutbox-x-axis-position"> <input value = ' + obj.y_axis_position + '>  </td>'
+                                        + '<td class="calloutbox-y-axis-position"> <input value = ' + obj.x_axis_position + '>  </td>'
+                                        + '<td class="calloutbox-box-type">   <select class="calloutbox-select"> <option>Box</option>   <option>Line</option> </select></td>'
+                                        + '<td class="calloutbox-angle">   <input class="angle" value=' + obj.angle +' ></td>'
+                                        + '<td class="calloutbox-height">  <input class="height" value=' + obj.height +' ></td>'
+                                        + '<td class="calloutbox-width">   <input class="width" value=' + obj.width +'></td>'
+                                        + '<td class="calloutbox-color">   <input class="jscolor" value="' + obj.callout_box_color + '"/>    </td></tr>');
+
+                    new jscolor($('#points-table tr:last').find('.jscolor')[0])
+                    id = '#' + id.trim() + ' > .calloutbox-box-type .calloutbox-select'                    
+                    $(id).val(obj.draw_type);
+                })                
+                //Set the line-elements index to 1. 
+                $('#line-elements').prop('selectedIndex', 1);
+                set_line_items_multi_select()
+                
+                //The charts needs to be redrawn so that the gen_points are visible during this time. It could be done better way in future.
+                $("#report-daily-2-highcharts").highcharts().redraw()
+                }
+                }
+                }
+            }) 
+        }
+        //load data for admin section 
+        var load_highcharts_admin_section = function(){
+            
+        var chart = $("#report-daily-2-highcharts").highcharts();
+            line_charts = chart.series.map(function(obj) {
+                return obj.name + '&&' + obj.index;
+            })                    
+            $.each(line_charts, function(index, value) {                
+                if (index == 0){
+                    content = value.split('&&')                        
+                    $('#line-elements').append($('<option/>', {
+                        value: content[1].trim(),
+                        text: content[0].trim()
+                    }));
+                }
+            });
+
+            $('#pick-x-y-axis').multiselect({
+                height: 600,
+                show: ['slide', 500],
+                hide: ['slide', 500],
+                noneSelectedText: 'Pick Division and select pg',
+                click: function(event, ui){                                
+                    contents = ui.text.split('&&')                                        
+                    id = $('#line-elements').val().trim() + '-' +contents[2].trim()
+                    if (ui.checked == true){
+                        $('#points-table tr:last').after('<tr id=' + id + '>'
+                                        // + '<td id="line-item">' + $('#line-elements').find("option:selected").text().trim() + '&&'+ $('#line-elements').val().trim() + '</td>'
+                                        + '<td class="calloutbox-line-item">' + $('#line-elements').val().trim() + '</td>'
+                                        + '<td class="calloutbox-x-axis">' + contents[0].trim() + '</td> '
+                                        + '<td class="calloutbox-y-axis">' + contents[1].trim() + '</td>'  
+                                        + '<td class="calloutbox-point">' + contents[2].trim() + '</td>'  
+                                        + '<td class="calloutbox-callout">   <textarea/>  </td>'
+                                        + '<td class="calloutbox-x-axis-position">   <input> </td>'
+                                        + '<td class="calloutbox-y-axis-position">   <input> </td>'
+                                        + '<td class="calloutbox-box-type">   <select class="calloutbox-select"> <option>Box</option>   <option>Line</option> </select></td>'
+                                        + '<td class="calloutbox-angle">   <input id="angle"/></td>'
+                                        + '<td class="calloutbox-height">   <input id="height"/></td>'
+                                        + '<td class="calloutbox-width">   <input id="width"/></td>'
+                                        + '<td class="calloutbox-color">   <input class="jscolor" value="ab2567"/>    </td></tr>');
+                        new jscolor($('#points-table tr:last').find('.jscolor')[0])
+                    }else{
+                        $('#'+id).remove()
+                    }
+
+                    }
+                }).multiselectfilter();
+        }
+
+        $('#line-elements').on('change', function() {
+            set_line_items_multi_select(this)
+            
+        });
+
+        var set_line_items_multi_select = function(){
+
+            line_chart_name = $('#line-elements').find("option:selected").text()
+            console.log('line_chart_name == ', line_chart_name)
+
+            var chart = $("#report-daily-2-highcharts").highcharts();
+
+            var series_data_index;
+
+            chart.series.forEach(function(obj, index) {
+                    if (obj.name == line_chart_name) {
+                        // console.log('index == ', index)      
+                        categories = chart.xAxis.map(function(obj) {
+                            return obj.categories;
+                        })
+                        series_data = chart.series[index]                            
+                        series_data_index = index
+
+                        data_points = series_data.yData.map(function(obj, ix) {
+                            return {
+                                'yaxis': parseFloat([series_data.yData[ix]]),
+                                'point': series_data.yData[ix] + ' && ' + categories[0][ix] + ' && ' + ix
+                            }
+                        })
+                    }
+                })                                  
+                
+                //sort items so the max elements are on the top to identify high points
+                data_points.sort(function(a, b) {
+                    return b.yaxis - a.yaxis
+                })
+                
+                // console.log('sorted dict == ', JSON.stringify(data_points))      
+                console.log('callouts_data_from_db == ', callouts_data_from_db)
+
+                //empty the items in the multiselect
+                $("#pick-x-y-axis").empty();
+
+                //populate the items in the multiselect
+                $.each(data_points, function() {
+                        $('#pick-x-y-axis')
+                            .append($('<option></option>')
+                                .attr("value", this.yaxis)
+                                .text(this.point))
+                });
+                
+                $('#pick-x-y-axis').multiselect('refresh');
+
+                //check the items that is returned from the database and checkbox those items                
+                $('#pick-x-y-axis').multiselect("widget").find(":checkbox").each(function(){                    
+                    checkbox_item = $(this)
+                    point = $(this).context.title.split('&&')[2].trim()
+                    //If there is no callouts stored in the database then no need to click the checkboxes
+                    if (Object.keys(callouts_data_from_db).length != 0) {
+                        callouts_data_from_db["0"].forEach(function(obj){
+                            // console.log('db point == ', obj.point )
+                            // console.log('point == ', point )
+                            if (obj.point == point){
+                                // console.log('check item')
+                                checkbox_item.attr("checked",true)                     
+                            }
+                        })
+                    }
+                    
+                })
+            }
+
+        //Store the attributes of the callouts in the database as JSON string
+        $('#store-callouts').on('click', function(){            
+            // get the report number and id value
+            id = $("#store-callouts").closest("div[id*='callouts-admin']").attr('id')            
+            report_num = id.split('-')[1] + '-' + id.split('-')[2]                    
+
+            elem = "#report-{0}-comments-txt".format(report_num)        
+            
+            comments = $(elem).val()                    
+            
+            generate_callout_points()
+            
+            console.log('post == ', JSON.stringify(gen_points))
+
+            $.ajax({
+                url: '/vbo/store-callouts/?' + 'report_number=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() +  '&report_num=' + report_num + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),            
+                type: 'POST',            
+                data: JSON.stringify(gen_points),
+                success: function(result) {
+                    if (result.status == 'success') {
+                        alert('comments updated')
+                        // console.log('chart results == ', result)
+                    } else if (result.status == 'session timeout') {
+                        alert("Session expired -- Please relogin")
+                        document.location.href = "/";
+                    } else {
+                        alert("Unable to get data!! Contact Support");
+                    }
+                },
+                error: function() {
+                    alert("Call to charts data failed");
+                }
+            })
+        })
+        remove_labels = false
+        // Generate the callouts for the admin to view it real time.
+        $('#gen-graph').on('click', function() {        
+            $('.callout').remove();
+            $('.slant').remove();
+            remove_labels = false
+            gen_points = {}
+            generate_callout_points()
+            $("#report-daily-2-highcharts").highcharts().redraw()
+
+        })
+
+        var generate_callout_points = function(){
+            gen_points = {}
+            $('#points-table tr').not(':first').each(function() {                
+                // line_item = $(this).find("#line-item").html().split('&amp;&amp;')[1];                
+                line_item = $(this).find(".calloutbox-line-item").html();
+                x_axis = $(this).find(".calloutbox-x-axis").html();
+                y_axis = $(this).find(".calloutbox-y-axis").html()
+                point = $(this).find(".calloutbox-point").html()
+                callout = $(this).find(".calloutbox-callout").find('textarea').val()
+                y_axis_position = $(this).find(".calloutbox-x-axis-position").find('input').val()
+                x_axis_position = $(this).find(".calloutbox-y-axis-position").find('input').val()
+                angle = $(this).find(".calloutbox-angle").find('input').val()
+                draw_type = $(this).find(".calloutbox-box-type").find('select').val()
+                width = $(this).find(".calloutbox-width").find('input').val()
+                height = $(this).find(".calloutbox-height").find('input').val()
+                callout_box_color = $(this).find(".calloutbox-color").find('input').val()
+                if (line_item in gen_points) {
+                    gen_points[line_item].push({ x_axis, y_axis, point, callout, y_axis_position, x_axis_position, callout_box_color, draw_type, height, width, angle })
+                } else {
+                    gen_points[line_item] = [{ x_axis, y_axis, point, callout, y_axis_position, x_axis_position, callout_box_color, draw_type, height, width, angle }]
+                }
+                console.log('gen_points == ', JSON.stringify(gen_points))
+
+                });
+            }
+
+
+        
+    var addCallout = function(chart) {
+
+         x_axis_position_default = 10
+         y_axis_position_default = 30
+         console.log('******generate callouts******* == ', gen_points)
+         var xAxis;
+         var yAxis;
+         if (Object.keys(gen_points).length === 0) {
+             // alert('empty object')
+         } else {
+             for (var key in gen_points) {
+
+                 xAxis = chart.xAxis[0]
+                 yAxis = chart.yAxis[0]
+
+                 gen_points[key].forEach(function(obj, index) {
+                     point_val = gen_points[key][index]['point']
+                     callout = gen_points[key][index]['callout']
+                     y_axis_position = gen_points[key][index]['y_axis_position']
+                     x_axis_position = gen_points[key][index]['x_axis_position']
+                     callout_box_color = gen_points[key][index]['callout_box_color']
+                     draw_type = gen_points[key][index]['draw_type']
+                     height = gen_points[key][index]['height']
+                     width = gen_points[key][index]['width']
+                     angle = gen_points[key][index]['angle']
+                     series = chart.series[parseInt(key)]
+                     point = series.data[parseInt(point_val)];
+
+                     console.log('gen_points == ', gen_points)
+                     // console.log('xAxis == ', xAxis)
+                     // console.log('yAxis == ', yAxis.toPixels)                                                             
+                     if (y_axis_position == '' || parseInt(y_axis_position) == 0) {
+                         y_axis_position = 0
+                     }
+                     if (x_axis_position == '' || parseInt(x_axis_position) == 0) {
+                         x_axis_position = 0
+                     }
+                     console.log('chart.plotLeft == ', chart.plotLeft)
+                     console.log('chart.plotTop == ', chart.plotTop)
+                     console.log('point.plotX == ', point.plotX)
+                     console.log('point.plotY == ', point.plotY)
+                     console.log('x_axis_position == ', x_axis_position)
+                     console.log('y_axis_position == ', y_axis_position)
+                     console.log('xAxis position 1 == ', (point.plotX + chart.plotLeft + x_axis_position_default))
+                     console.log('yAxis position 1 == ', (point.plotY + chart.plotTop - y_axis_position_default))
+                     console.log('xAxis position 2 == ', (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position))
+                     console.log('yAxis position 2 == ', (point.plotY + chart.plotTop - y_axis_position_default) + parseInt(y_axis_position))
+                     remove_labels = false
+                     if (remove_labels) {
+                         //we dont need this anymore but ill leave it for any future use if needed.
+                         console.log(chart.renderer.label)
+                         var a = chart.renderer.label('<div class="callout">' + callout + '</div>',
+                             point.plotX + chart.plotLeft + 10,
+                             point.plotY + chart.plotTop - parseInt(y_axis_position), 'callout', null, null, true).destroy();
+
+                         console.log('a', a);
+                     } else {
+                         if (draw_type == 'Box') {
+                             // alert('draw')              
+                             // properties = 
+                             var a = chart.renderer.label('<div class="callout" style="background-color:#' + gen_points[key][index]['callout_box_color'] + '; height: '+ height +'px; width: '+ width + 'px ">' + callout + '</div>',
+                                 (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
+                                 (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
+                         } else {
+                             properties = 'style="display:block; background-color:#' + callout_box_color + '; height:' + height + 'px; width:' + width + 'px; -ms-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); transform: rotate(' + angle + 'deg); transform-origin: bottom left;"'
+
+                             console.log(properties)
+                             var a = chart.renderer.label('<div class="slant" ' + properties + '>  </div>',
+                                 (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
+                                 (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
+                             console.log('a', a);
+
+
+                         }
+
+                     }
+                 })
+             }
+         }
+
+
+    };
+
+    
 
 })

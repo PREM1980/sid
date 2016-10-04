@@ -2,7 +2,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from tickets.views import ChartsData,ChartsView,NinjaUsersData,PostTicketData, \
     GetTicketData,UpdateTicketData,RecordFeedBack, LoginView,ExcelDownload, PDFDownload, NinjaSIDView, GetUUIDView
-from tickets.ams_views import  AMSUpload,AMSGetTicketData
+from tickets.ams_views import  *
+
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
@@ -65,10 +66,8 @@ else:
             url(r'^pdf-download-data$', PDFDownload.as_view()),
             url(r'^ams-file-upload$', AMSUpload.as_view()),
             url(r'^ams-get-ticket-data$', AMSGetTicketData.as_view()),
-            #
+            # url(r'^hello$', Hello.as_view()),
             url(r'^api_docs$', TemplateView.as_view(template_name="tickets/apipage.html")),
-
-
             #Get all the Ninja Users and their division.
             url(r'^get-ninja-users$', NinjaUsersData.as_view(), name="update_ticket_data"),    
             url(r'^post-ticket-data$', PostTicketData.as_view()),

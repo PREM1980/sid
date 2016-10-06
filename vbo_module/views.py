@@ -191,7 +191,8 @@ class StoreCallouts(View):
 			except Exception as e:
 				print 'update callouts == ', e
 				logger.debug("ReportData VBO-Module Exception == {0}".format(e))
-				return JsonResponse({'status': 'Contact Support Team'})				
+				return JsonResponse({'status': 'Contact Support Team'})
+
 			return JsonResponse({'status': 'success'})
 		else:
 			return JsonResponse({'status': 'session timeout'})
@@ -201,19 +202,24 @@ class StoreCallouts(View):
 		user_id = utils.check_session_variable(request)		
 		# print ' report_num == ', request.GET.get('report_callouts')
 		ip = utils.getip()
-		alldata = request.POST				
+		alldata = request.body				
 		print 'alldata == ', alldata
 		try:
 			print 'alldata == ', json.loads(request.body)
 		except Exception as e:
 			print 'e == ', e
 		# payload = dict(six.iterlists(json.loads(request.body)))
-		payload = json.dumps(json.loads(request.body))				
+		# payload = json.dumps(json.loads(request.body))				
+		# alldata = request.POST
+		payload = request.body
+				
+		# payload = dict(six.iterlists(request.POST))		
 		if user_id is not None or api_key == settings.API_KEY:			
 			try:				
 				results = requests.post(settings.VBO_SERVER + 'store-callouts/?' + '&report_num=' + request.GET.get('report_num') \
 					+ '&report_id=' + request.GET.get('report_id')  + '&report_run_date='+ request.GET.get('report_run_date'), data=payload )
 				# print 'results.json == ', results.json()
+				print 'results.json == ', results.json()
 				return JsonResponse({'status':'success', 'results':[results.json()]})
 			except Exception as e:
 				print 'update callouts == ', e

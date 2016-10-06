@@ -4,7 +4,11 @@ div.callout {
      /*float: left;*/
      z-index: 1;
      /*word-wrap: initial !important;*/
+<<<<<<< HEAD
      overflow-x: scroll;
+=======
+     /*overflow-x: scroll;*/
+>>>>>>> f55fc0bdf4ebeec59da3a24e6862db594e7c79ed
      white-space: normal !important;
    }
    
@@ -68,6 +72,7 @@ div.callout {
      /*right: 7px;*/
      bottom: -20px;
      border-top: 10px solid #444;
+<<<<<<< HEAD
    }
 
 .slant:after {
@@ -80,3 +85,6 @@ div.callout {
   border-width: 0 10px 20px 10px;
   border-color: transparent transparent black transparent;
 }   
+=======
+   }
+>>>>>>> f55fc0bdf4ebeec59da3a24e6862db594e7c79ed

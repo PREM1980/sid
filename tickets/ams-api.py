@@ -46,7 +46,7 @@ WC03A Plant Integrity: 2.25% DOCSIS Integrity: 19.35    504899781     PRIORITY_P
 }
 print payload
 
-# r = requests.post('http://localhost:8000/hello')
+
 r = requests.post('http://localhost:8000/ams-file-upload',headers=headers,data=payload)
 
 

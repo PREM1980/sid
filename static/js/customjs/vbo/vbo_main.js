@@ -3477,7 +3477,7 @@ $(document).ready(function() {
                      } else {
                          if (draw_type == 'Box') {
                              // alert('draw')              
-                             var a = chart.renderer.label('<div class="callout" style="background-color:#' + gen_points[key][index]['color'] + '">' + callout + '</div>',
+                             var a = chart.renderer.label('<div class="callout" style="background-color:#' + gen_points[key][index]['color'] + ';height:'+ height +'px;width:'+width+'px">' + callout + '</div>',
                                  (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
                                  (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
                          } else {

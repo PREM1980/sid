@@ -4,11 +4,7 @@ div.callout {
      /*float: left;*/
      z-index: 1;
      /*word-wrap: initial !important;*/
-<<<<<<< HEAD
      overflow-x: scroll;
-=======
-     /*overflow-x: scroll;*/
->>>>>>> f55fc0bdf4ebeec59da3a24e6862db594e7c79ed
      white-space: normal !important;
    }
    

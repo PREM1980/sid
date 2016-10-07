@@ -515,18 +515,14 @@ $(document).ready(function() {
 
     $('#report_names').on('change', function() {
         var selected = $(this).find("option:selected").val();
-        var report_dates = []
-        console.log('report_names_and_dates == ', JSON.stringify(report_names_and_dates))
+        var report_dates = []        
         report_names_and_dates.forEach(function(obj) {
             if (obj.report_name == selected) {
                 report_dates.push(obj.report_run_date + '&&&&' + obj.id)
             }
-        })
-        console.log('report_dates == ', JSON.stringify(report_dates))
+        })        
         $('#report_dates').empty();
-        report_dates.forEach(function(each) {
-            console.log('each == ' + each)
-            console.log('each-length == ' + each.length)
+        report_dates.forEach(function(each) {            
             each = each.split('&&&&')
             $('#report_dates')
                 .append($("<option></option>")
@@ -3191,34 +3187,47 @@ $(document).ready(function() {
             type: 'GET',
             // async: false,
             success: function(result){
-             if (result.status == 'success')   {                                                
-                console.log('callouts results - 1 == ', JSON.stringify(result.results[0].results))
-                console.log('callouts results - 2 == ', result.results[0].results)
-                gen_points = result.results[0].results[0]
-                console.log('callouts results - 3 == ', JSON.parse(result.results[0].results[0].report_data)['0'])
-                callouts = JSON.parse(result.results[0].results[0].report_data)['0']
-                callouts.forEach(function(obj){                                        
-                    id = 0 + '-' + obj.point
+             if (result.status == 'success')   {                           
+                if(Object.getOwnPropertyNames(result.results[0]).length != 0){                
+                    // console.log('callouts results - 1 == ', JSON.stringify(result.results[0].results))
+                    console.log('callouts results - 2 == ', result.results[0].results[0])
+                    // gen_points = result.results[0].results[0]
+                    // gen_points = gen_points.report_data
+                    // gen_points = JSON.parse(gen_points.report_data)
+                    // console.log('gen_points - 1 == ', gen_points)
+                    // console.log('gen_points - 2 == ', gen_points.report_data)
+                    // console.log('callouts results - 3 == ', JSON.parse(result.results[0].results[0].report_data)['0'])
+                    callouts = JSON.parse(result.results[0].results[0].report_data)['0']
                     
-                    $('#points-table tr:last').after('<tr id=' + id + '>'
-                        + '<td class="callout-line-item">' + 0 + '</td>'
-                        + '<td class="callout-x-axis">' + obj.x_axis + '</td> '
-                        + '<td class="callout-y-axis">' + obj.y_axis + '</td>'  
-                        + '<td class="callout-point">' + obj.point + '</td>'  
-                        + '<td class="callout-message">   <textarea> ' + obj.callout + ' </textarea>  </td>'
-                        + '<td class="callout-x-axis-position">   <input value='+ obj.y_axis_position+'> </td>'
-                        + '<td class="callout-y-axis-position">   <input value='+ obj.x_axis_position+'> </td>'
-                        + '<td class="callout-box-type">   <select class="callout-box-type-select"> <option>Box</option>   <option>Line</option> </select></td>'
-                        + '<td class="callout-angle">   <input value=' + obj.angle +'></td>'
-                        + '<td class="callout-height">   <input value='+ obj.height+'></td>'
-                        + '<td class="callout-width">   <input value='+ obj.width+'></td>'
-                        + '<td class="callout-color">   <input class="jscolor" value='+ obj.color +'">    </td></tr>');
-                    new jscolor($('#points-table tr:last').find('.jscolor')[0])                    
-                    $('#'+id).find(".callout-box-type, .callout-box-type-select").val(obj.draw_type);
-                })                               
-                $("#line-elements").prop('selectedIndex', 1);
-                load_all_data_points()                
+                    gen_points = JSON.parse(result.results[0].results[0].report_data)
+                    console.log('before gen_points == ', gen_points)
+
+                    callouts.forEach(function(obj){                                        
+                        
+                        id = 0 + '-' + obj.point
+                        
+                        $('#points-table tr:last').after('<tr id=' + id + '>'
+                            + '<td class="callout-line-item">' + 0 + '</td>'
+                            + '<td class="callout-x-axis">' + obj.x_axis + '</td> '
+                            + '<td class="callout-y-axis">' + obj.y_axis + '</td>'  
+                            + '<td class="callout-point">' + obj.point + '</td>'  
+                            + '<td class="callout-message">   <textarea> ' + obj.callout + ' </textarea>  </td>'
+                            + '<td class="callout-x-axis-position">   <input value='+ obj.y_axis_position+'> </td>'
+                            + '<td class="callout-y-axis-position">   <input value='+ obj.x_axis_position+'> </td>'
+                            + '<td class="callout-box-type">   <select class="callout-box-type-select"> <option>Box</option>   <option>Line</option> </select></td>'
+                            + '<td class="callout-angle">   <input value=' + obj.angle +'></td>'
+                            + '<td class="callout-height">   <input value='+ obj.height+'></td>'
+                            + '<td class="callout-width">   <input value='+ obj.width+'></td>'
+                            + '<td class="callout-color">   <input class="jscolor" value='+ obj.color +'">    </td></tr>');
+                        new jscolor($('#points-table tr:last').find('.jscolor')[0])                    
+                        $('#'+id).find(".callout-box-type, .callout-box-type-select").val(obj.draw_type);
+                    })                               
+                    $("#line-elements").prop('selectedIndex', 1);
+                    console.log('load all data')
+                    load_all_data_points()      
+                    $("#report-daily-2-highcharts").highcharts().redraw()                       
              }
+            }
             }
         }) 
         }
@@ -3293,12 +3302,11 @@ $(document).ready(function() {
 
                 chart.series.forEach(function(obj, index) {
                             if (obj.name == line_chart_name) {
-                                // console.log('index == ', index)      
                                 categories = chart.xAxis.map(function(obj) {
                                     return obj.categories;
                                 })
                                 series_data = chart.series[index]
-                                    // console.log('series_data == ', series_data)
+                                    
                                 data_points = series_data.yData.map(function(obj, ix) {
                                     return {
                                         'yaxis': parseFloat([series_data.yData[ix]]),
@@ -3307,11 +3315,10 @@ $(document).ready(function() {
                                 })
                             }
                         })
-                        // console.log('after dict == ', JSON.stringify(data_points))  
+                        
                 data_points.sort(function(a, b) {
                             return b.yaxis - a.yaxis
-                        })
-                        // console.log('sorted dict == ', JSON.stringify(data_points))      
+                        })                        
                 $("#pick-x-y-axis").empty();
                 $.each(data_points, function() {
                         $('#pick-x-y-axis')
@@ -3320,7 +3327,21 @@ $(document).ready(function() {
                                 .text(this.point))
                     });
                 $('#pick-x-y-axis').multiselect('refresh');
-
+                console.log('load_all_data_points - 1')
+                if(Object.getOwnPropertyNames(gen_points).length != 0){                
+                    $('#pick-x-y-axis').multiselect("widget").find(":checkbox").each(function(){
+                        checkbox_item = this
+                        position_value = this.title.split('&&')[2].trim()                                                
+                        console.log('load_all_data_points -gen_points == ', gen_points)
+                        console.log('load_all_data_points -gen_points == ', gen_points['0'])
+                        gen_points['0'].forEach(function(obj){                            
+                            if (position_value == obj.point) {                                                            
+                                $(checkbox_item).attr("checked",true)
+                            }
+                        })                        
+                })
+                }
+                console.log('load_all_data_points - 2')
         }
 
         //Store the attributes of the callouts in the database
@@ -3401,6 +3422,7 @@ $(document).ready(function() {
          x_axis_position_default = 10
          y_axis_position_default = 30
          console.log('******generate callouts******* == ', gen_points)
+         console.log('******generate callouts******* == ', JSON.stringify(gen_points))
          var xAxis;
          var yAxis;
          if (Object.keys(gen_points).length === 0) {
@@ -3416,7 +3438,7 @@ $(document).ready(function() {
                      callout = gen_points[key][index]['callout']
                      y_axis_position = gen_points[key][index]['y_axis_position']
                      x_axis_position = gen_points[key][index]['x_axis_position']
-                     callout_box_color = gen_points[key][index]['color']
+                     color = gen_points[key][index]['color']
                      draw_type = gen_points[key][index]['draw_type']
                      height = gen_points[key][index]['height']
                      width = gen_points[key][index]['width']
@@ -3455,7 +3477,7 @@ $(document).ready(function() {
                      } else {
                          if (draw_type == 'Box') {
                              // alert('draw')              
-                             var a = chart.renderer.label('<div class="callout right" style="background-color:#' + gen_points[key][index]['color'] + '">' + callout + '</div>',
+                             var a = chart.renderer.label('<div class="callout" style="background-color:#' + gen_points[key][index]['color'] + '">' + callout + '</div>',
                                  (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
                                  (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
                          } else {

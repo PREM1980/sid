@@ -3214,7 +3214,7 @@ $(document).ready(function() {
                             + '<td class="callout-message">   <textarea> ' + obj.callout + ' </textarea>  </td>'
                             + '<td class="callout-x-axis-position">   <input value='+ obj.y_axis_position+'> </td>'
                             + '<td class="callout-y-axis-position">   <input value='+ obj.x_axis_position+'> </td>'
-                            + '<td class="callout-box-type">   <select class="callout-box-type-select"> <option>Box</option>   <option>Line</option> </select></td>'
+                            + '<td class="callout-box-type">   <select class="callout-box-type-select"> <option>Box</option>   <option>Line</option> <option>Double Line</option></select></td>'
                             + '<td class="callout-angle">   <input value=' + obj.angle +'></td>'
                             + '<td class="callout-height">   <input value='+ obj.height+'></td>'
                             + '<td class="callout-width">   <input value='+ obj.width+'></td>'
@@ -3274,7 +3274,7 @@ $(document).ready(function() {
                                         + '<td class="callout-message">   <textarea/>  </td>'
                                         + '<td class="callout-x-axis-position">   <input> </td>'
                                         + '<td class="callout-y-axis-position">   <input> </td>'
-                                        + '<td class="callout-box-type">   <select> <option>Box</option>   <option>Line</option> </select></td>'
+                                        + '<td class="callout-box-type">   <select> <option>Box</option>   <option>Line</option> <option>Double Line</option></select></td>'
                                         + '<td class="callout-angle">   <input id="angle"/></td>'
                                         + '<td class="callout-height">   <input id="height"/></td>'
                                         + '<td class="callout-width">   <input id="width"/></td>'
@@ -3382,6 +3382,7 @@ $(document).ready(function() {
         $('#gen-graph').on('click', function() {        
             $('.callout').remove();
             $('.slant').remove();
+            $('.double-arrow-line').remove();
             remove_labels = false
             gen_points = {}
             generate_callout_points()
@@ -3480,10 +3481,20 @@ $(document).ready(function() {
                              var a = chart.renderer.label('<div class="callout" style="background-color:#' + gen_points[key][index]['color'] + ';height:'+ height +'px;width:'+width+'px">' + callout + '</div>',
                                  (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
                                  (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
-                         } else {
+                         }else if (draw_type == 'Line') {
                              properties = 'style="display:block; background-color:#' + color + '; height:' + height + 'px; width:' + width + 'px; -ms-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); transform: rotate(' + angle + 'deg); transform-origin: bottom left;"'
                              console.log(properties)
-                             var a = chart.renderer.label('<div class="slant" ' + properties + '>  </div>',
+                             var a = chart.renderer.label('<div class="single-arrow-line" ' + properties + '>  </div>',
+                                 (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
+                                 (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
+                             console.log('a', a);
+
+                         }
+                         else {
+                            alert('double line')
+                             properties = 'style="display:block; background-color:#' + color + '; height:' + height + 'px; width:' + width + 'px; -ms-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); transform: rotate(' + angle + 'deg); transform-origin: bottom left;"'
+                             console.log(properties)
+                             var a = chart.renderer.label('<div class="double-arrow-line" ' + properties + '>  </div>',
                                  (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
                                  (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
                              console.log('a', a);

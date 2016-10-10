@@ -68,10 +68,23 @@ div.callout {
      /*right: 7px;*/
      bottom: -20px;
      border-top: 10px solid #444;
-<<<<<<< HEAD
+
    }
 
-.slant:after {
+.single-arrow-line {
+  width: 5px;
+  height: 220px;
+  background-color: red;
+  /* Rotate div */
+  -ms-transform: rotate(30deg);
+  /* IE 9 */
+  -webkit-transform: rotate(30deg);
+  /* Chrome, Safari, Opera */
+  transform: rotate(30deg);
+  transform-origin: bottom left;
+  position: relative;
+}
+.single-arrow-line:after {
   content: '';
   position: absolute;
   top: 0;
@@ -80,7 +93,68 @@ div.callout {
   transform: translate(-40%, -50%);
   border-width: 0 10px 20px 10px;
   border-color: transparent transparent black transparent;
-}   
-=======
-   }
->>>>>>> f55fc0bdf4ebeec59da3a24e6862db594e7c79ed
+}
+
+/*
+.slant {
+  width: 5px;
+  height: 220px;
+  background-color: red;
+  
+  -ms-transform: rotate(30deg);
+  
+  -webkit-transform: rotate(30deg);
+  
+  transform: rotate(30deg);
+  transform-origin: bottom left;
+  position: relative;
+}
+
+.slant:before,
+.slant:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  border-style: solid;
+  border-color: black transparent;
+}
+.slant:after {
+  top: 0;
+  transform: translate(-40%, -50%);
+  border-width: 0 10px 20px 10px;
+}
+
+*/
+
+.double-arrow-line {
+  width: 5px;
+  height: 220px;
+  background-color: red;
+  /* Rotate div */
+  -ms-transform: rotate(30deg);
+  /* IE 9 */
+  -webkit-transform: rotate(30deg);
+  /* Chrome, Safari, Opera */
+  transform: rotate(30deg);
+  transform-origin: bottom left;
+  position: relative;
+}
+
+.double-arrow-line:before,
+.double-arrow-line:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  border-style: solid;
+  border-color: black transparent;
+}
+.double-arrow-line:after {
+  top: 0;
+  transform: translate(-40%, -50%);
+  border-width: 0 10px 20px 10px;
+}
+.double-arrow-line:before {
+  bottom: 0;
+  transform: translate(-40%, 50%);
+  border-width: 20px 10px 0 10px;
+}

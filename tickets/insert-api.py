@@ -13,15 +13,15 @@ payload = {
 	'error_count':'5,000 - 10,000',
 	'outage_caused':'',
 	'system_caused':'',
-	'ticket_num':'test11',
+	'ticket_num':'test12',
 	'ticket_type':'JIRA',
 	'userid':'plaksh007c',
 	# 'addt_notes':'hello'
 }
 print payload
 # r = requests.get('http://localhost:8000/get-ticket-data',headers=headers,data=payload)
-r = requests.post('http://localhost:8000/post-ticket-data',headers=headers,data=payload)
-#r = requests.post('http://ninja.comcast.net/post-ticket-data',headers=headers,data=payload)
+# r = requests.post('http://localhost:8000/post-ticket-data',headers=headers,data=payload)
+r = requests.post('https://sid.comcast.net/post-ticket-data',headers=headers,data=payload, verify=False)
 
 print r.status_code
 print r.text

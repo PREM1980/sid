@@ -49,57 +49,28 @@ class LoginView(View):
 		else:
 			return utils.page_redirects_login(request,user_id)
 
-class ETStats(View):
+class VBFCombined(View):
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
 		return super(ETStats, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):
-		print 'ETStats'
+		print 'VBFCombined'
 		# return JsonResponse({'status': 'success'})
 		userid = utils.check_session_variable(request)
 		
 		if userid is None:
 			return render(request,'tickets/loginpage.html',{'error':'N'})
 		try:            
-			rtype = request.GET.get('rtype')
-			month = request.GET.get('month')            
-			no_requested = request.GET.get('no_requested')                      
-			no_errors_requested=request.GET.get('no_errors_requested')
-			call_server = 'etstats?' + 'rtype=' + rtype + '&month='+month + '&no_requested='+no_requested + '&no_errors_requested='+no_errors_requested         
+			from_epoch = request.GET.get('from_epoch')
+			to_epoch = request.GET.get('to_epoch')            
+			call_server = 'vbf_combined?' + 'from_epoch=' + from_epoch + '&to_epoch='+to_epoch         
 			results = requests.get(settings.ET_SERVER + call_server)            
 			print 'results == ', results.text
 			return JsonResponse({'status':'success', 'results':json.loads(results.text)})
 		except Exception as e:
 			print 'Exception == ', e
-			logger.debug("ETStats  Exception == {0}".format(e))
+			logger.debug("VBFCombined Exception == {0}".format(e))
 			return JsonResponse({'status': 'Contact Support Team'})
 
-class ETTrending(View):
-		@method_decorator(csrf_exempt)
-		def dispatch(self, request, *args, **kwargs):
-				return super(ETTrending, self).dispatch(request, *args, **kwargs)
-
-		def get(self, request):
-				print 'ETStats'
-				# return JsonResponse({'status': 'success'})
-				userid = utils.check_session_variable(request)
-
-				if userid is None:
-						return render(request,'tickets/loginpage.html',{'error':'N'})
-				try:
-						print 'pull ET settings.ET_SERVER == ', settings.ET_SERVER
-						trending_rtype = request.GET.get('trending_rtype')
-						trending_month = request.GET.get('trending_month')    
-						months_requested = request.GET.get('months_requested')
-						print 'settings.ET_SERVER-1 == ', settings.ET_SERVER
-						call_server = 'ettrending?' + 'trending_rtype=' + trending_rtype + '&trending_month='+trending_month + '&months_requested='+months_requested
-						print 'call_server == ', call_server
-						results = requests.get(settings.ET_SERVER + call_server)              
-						print 'results-1 == ', results.text
-						return JsonResponse({'status':'success', 'results':json.loads(results.text)})
-				except Exception as e:
-						print 'Exception == ', e
-						logger.debug("ETTrending  Exception == {0}".format(e))
-						return JsonResponse({'status': 'Contact Support Team'})
 

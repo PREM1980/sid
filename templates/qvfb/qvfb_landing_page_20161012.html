@@ -1,0 +1,254 @@
+{% extends "base_ninja.html" %}
+
+{% block jscontent %}
+    <title>NINJA Analytics and Reporting Portal - QVFB Module</title>
+    {% load staticfiles %}
+    <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+    <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
+    <script src="{% static "highcharts/highcharts.js" %}"></script>
+    <script src="{% static "highcharts/exporting.js" %}"></script>
+    <script src="{% static "highcharts/no-data-to-display.js" %}"></script>
+
+    <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
+    <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
+    <script src="{% static "js/customjs/common.js" %}"></script>
+
+    <!-- <script src="{% static "js/customjs/qvfb/main.js" %}"></script> -->
+
+    <script src="{% static "js/export-csv.js" %}"></script>
+    <!-- <script src="{% static "js/customjs/vbo/daily.js" %}"></script>
+    <script src="{% static "js/customjs/vbo/weekly.js" %}"></script>
+ -->
+<script>
+function fetch() {
+    //from_date=$('#from_date').val();
+                //alert(from_date);
+    //to_date=$('#to_date').val();
+   //var from_epoch = moment(from_date).format('x'); ----- THIS GIVES MILLIS -- KEEP
+   //var to_epoch = moment(to_date).format('x'); ----- THIS GIVES MILLIS -- KEEP
+$('#loading').show();
+from_epoch = 0;
+to_epoch = 1474656545764;
+granularity = "hourly";
+//http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodGlobalByGroupByWeekJsonP?startTime=0&endTime=1474656545764
+var dataurl = getUrl(from_epoch,to_epoch,granularity);
+
+  function getUrl(from_epoch,to_epoch,granularity) {
+      if (granularity == "hourly"){ 
+          var dataurl = "http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodGlobalByGroupByWeekJsonP?startTime=0&endTime=1474656545764";
+      }else{
+          var dataurl = "http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodGlobalByGroupByWeekJsonP?startTime=0&endTime=1474656545764";
+      }
+      return dataurl;
+  }
+
+  function draw_tr(dataline){
+      linedraw = "<tr><td>"+dataline
+      $('#table').append(linedraw);
+      //$table.append( '<tr><td>' + 'result' +  i + '</td></tr>' );
+  }
+
+  function onDataReceived(data) {
+    var obj = JSON.stringify(data);
+    var new_obj = JSON.parse(obj);
+    console.log(obj); 
+
+    errorTypes=["Tune Errors","Plant Teardown Errors","Network Resource Failure","CM_CONNECT Errors", "Infinite Retry Errors", "none"];
+    var timestamp=["&nbsp"];
+    var tune_errors=["Tune Errors not counted as Antenna"];
+    var plant_teardown_errors=["CDN Network Errors (Streaming server failures mid-stream) not counted as Antennas"];
+    var network_resource_failure=["Network Errors not counted as Antennas"];
+    var cm_connect=["CDN Network (CM Connect) not counted as Antennas"]; 
+    var infinite_retry_errors=["VideoLostQAMOk Errors not counted as Antennas"];
+    var none=["Other Noise Floor Errors"];  
+    var errors=["<B>TOTAL BACKOFFICE NOISE FLOOR:</B>"];
+    
+    //First build timebucket and error total array
+    new_obj.forEach(function(ele, idx) {
+      var formatted_date = moment(ele[0].timestamp).format("DD MMM YYYY");
+      //timestamp.push(ele[0].timestamp);
+      //timestamp.push(ele[0].timestamp + "Error Rate")
+      timestamp.push(formatted_date + "<BR>Errors");
+      timestamp.push(formatted_date + "<BR>Error Rate");
+      errors.push(parseFloat(ele[0].errors));
+      errors.push(parseFloat(ele[0].errorFree)); //CHANGE to "errorRate" WHEN BRUCE CORRECTS JSON
+    });
+
+    //Next for pushing individual errors
+    //errorTypes = ["tune_errors","plant_teardown_errors","network_resource_failure","cm_connect","infinite_retry_errors","none"]
+    errorTypes.map( function (item) {
+      new_obj.forEach(function(ele, idx) {
+        var count = ele[0].breakdown.filter(function(ele, idx) {
+          return ele.type == item;
+        })[0];
+        count = (count === undefined) ? 0 : +count.count;
+        var errorRate = ele[0].breakdown.filter(function(ele, idx) {
+           return ele.type == item;
+        })[0];
+        errorRate = (errorRate === undefined) ? 0 : +errorRate.errorRate;
+          switch (item){
+              case "Tune Errors":
+                    tune_errors.push(count);
+                    tune_errors.push (errorRate);
+                    break;
+              case "Plant Teardown Errors":
+                    plant_teardown_errors.push(count);
+                    plant_teardown_errors.push(errorRate);
+                    break;
+              case "Network Resource Failure":
+                    network_resource_failure.push(count);
+                    network_resource_failure.push(errorRate);
+                    break;
+              case "CM_CONNECT Errors":
+                    cm_connect.push(count);
+                    cm_connect.push(errorRate);
+                    break;
+              case "Infinite Retry Errors":
+                    infinite_retry_errors.push(count);
+                    infinite_retry_errors.push(errorRate);
+                    break;
+              case "none":
+                    none.push(count);
+                    none.push(errorRate);
+                    break;      
+        }
+      });  
+    });
+
+  console.log(timestamp);
+  console.log(errors);
+  console.log(tune_errors);
+  console.log(plant_teardown_errors);
+  console.log(network_resource_failure);
+  console.log(cm_connect);
+  console.log(infinite_retry_errors);
+  console.log(none);
+
+  var logdate = moment(1474718400000).format("DD MMM YYYY");
+  console.log("LOGDATE IS "+logdate);
+  $('#loading').hide();
+  $('#table').append("<TABLE BORDER=1>");
+
+  placeholder = "</td><td>Target<BR>Reduction %</td><td>July<BR>Reduction</td><td>Dec 2016 Errors<BR>Target</td><td>Dec 2016<BR>Stream Attempts<BR>Target</td><td>Dec 2016<BR>Error Rate<BR>Target</td></tr>";
+  blanks_ph="</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
+
+  tableorder = ["timestamp", "tune_errors", "plant_teardown_errors", "network_resource_failure", "cm_connect","infinite_retry_errors","none","errors"];
+  $.each( tableorder, function( i, l ){
+    var dataline = eval(l).join('</td><td>');
+    if (l == "timestamp"){
+      dataline += placeholder;
+    }else{
+      dataline += blanks_ph;
+    }
+    draw_tr(dataline);
+  });
+
+  $('#table').append("</TABLE>");
+
+}
+
+
+  function onError(xhr, status, errorThrown) {
+    console.log("Received Error from AJAX: " + errorThrown);
+  }
+
+  $.ajax({
+    url: dataurl,
+    type: 'GET',
+    dataType: 'JSONP',
+    crossDomain: true,
+    success: onDataReceived,
+    error: onError
+  });
+}
+
+$(document).ready(function () {
+  $('#from_date').datetimepicker({
+            //2013-02-08 09:30:26
+    dateFormat: "yy-mm-dd",
+    timeFormat: "HH:mm:ss",
+    minDate: new Date('2016/08/25'),
+    maxDate: '0'
+  });
+  $('#to_date').datetimepicker({
+    dateFormat: "yy-mm-dd",
+    timeFormat: "HH:mm:ss",
+    minDate: new Date('2016/08/25'),
+    maxDate: '0'
+  });
+
+
+    fetch();
+                //$('#updateButton').bind('click', );
+  });
+</script>
+<style>
+.center {
+     float: none;
+     margin-left: auto;
+     margin-right: auto;
+}
+
+td {
+  padding: 5px;
+  border:1px solid;
+  
+} 
+td.right-align{
+  text-align: right;  
+}
+
+.ui-datepicker-calendar {
+    display: none;
+}
+#chart {
+        height: 400px;
+        width: 100%;
+      }
+
+      #btn-holder {
+        position: relative;
+        height: 1px;
+        width: 100%;
+      }
+
+      #compare-btn {
+        font-size: 12px;
+        position: absolute;
+        right: 0;
+        top: -34px;
+      }
+</style>
+    
+{% endblock jscontent %}
+
+{% block content %}
+    {% load staticfiles %}
+    <div class="container-fluid" >
+        
+        <div class="row">            
+<div id="table"></div>
+<center>
+  <div id="loading"><img src="{% static "ajax-loader.gif" %}"></script></div>
+</center>
+</div>
+<center>
+<table>
+    <tr><td>From: <input type="text" name="from_date" id="from_date" value="" /></td><td>To: <input type="text" name="to_date" id="to_date" value="" /></td></tr>
+</table>
+</center>
+
+        </div><!-- /.bg -->
+    </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+
+{% endblock content %}
+   

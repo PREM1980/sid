@@ -1,5 +1,6 @@
 $(document).ready(function() {
 
+
     if (!String.prototype.format) {
        String.prototype.format = function() {
            var args = arguments;
@@ -30,27 +31,11 @@ $(document).ready(function() {
         // report_num = this.id.split('-')[2]        
         report_num = this.id.split('-')[1] + '-' + this.id.split('-')[2]        
         // alert(report_num)
-        elem = "#report-{0}-comments-txt".format(report_num)
-        // alert(elem)
-        comments = $(elem).val()
-        // alert(comments)
-        // if (report_num == 'daily-1'){            
-        //     comments = $('#report-daily-1-comments-txt').val()
-        //     alert('im here-1 == '+ comments)
-        // }
-        // else if (report_num == 'daily-2'){
-        //     alert('im here-2')
-        //     comments = $('#report-daily-2-comments-txt').val()
-        // }
-        // else if (report_num == 'daily-3')            
-        // {   
-        //     alert('im here-3')
-        //     comments = $('#report-daily-3-comments-txt').val()
-        // }
-        // alert('final comments == ' + comments)
+        elem = "#report-{0}-comments-txt".format(report_num)        
+        comments = $(elem).val()        
         
         $.ajax({
-            url: '/vbo/update-report-callouts/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() +  '&report_num=' + report_num + '&report_callouts=' + comments,            
+            url: '/vbo/update-report-comments/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() +  '&report_num=' + report_num + '&report_callouts=' + comments,            
             type: 'GET',            
             success: function(result) {
                 if (result.status == 'success') {
@@ -142,7 +127,9 @@ $(document).ready(function() {
         return;
     }
 
-    var generate_daily_report = function() {
+    
+
+    var generate_daily_report = function() {       
 
         $.ajax({
             url: '/vbo/report-data/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val(),
@@ -152,8 +139,8 @@ $(document).ready(function() {
                 if (result.status == 'success') {
                     console.log('chart results == ', result)
                     $('#animation,#animation-space').hide()
-                    $('#vbo-stb-error-rates-comments, #vbo-nbrf-spikes-comments, #vbo-x1-vs-legacy-comments, #vbo-x1-vs-legacy-comments, #html-reports-btn').show()
-
+                    // $('#vbo-stb-error-rates-comments, #daily-report2-admin,  #vbo-nbrf-spikes-comments, #vbo-x1-vs-legacy-comments, #vbo-x1-vs-legacy-comments, #html-reports-btn').show()
+                    $('#vbo-stb-error-rates-comments, #report-daily-2-callouts-admin,  #html-reports-btn').show()                    
                     x1 = result.results.results_nbrf_x1_error_rates
                     legacy = result.results.results_nbrf_legacy_error_rates
 
@@ -165,12 +152,10 @@ $(document).ready(function() {
                     network_teardown_errors_rate = [x1.x1_networkresourcefailure_rate, legacy.legacy_networkresourcefailure_rate]
                     vcp_errors_rate = [x1.x1_vcp_error_rate, legacy.legacy_vcp_error_rate]
                     cm_connect_errors_rate = [x1.x1_cm_connect_error_rate, legacy.legacy_cm_connect_error_rate]
-
                     vlqok_errors_rate = [x1.x1_vlqok_error_rate, legacy.legacy_vlqok_error_rate]
                     tune_errors_rate = [x1.x1_tune_error_rate, legacy.legacy_tune_error_rate]
 
                     drawchart_stacked_stb_error_rates()
-
                     spikes = result.results.results_nbrf_spikes
 
                     spikes_categories = []
@@ -185,7 +170,7 @@ $(document).ready(function() {
                     spikes_tune_error_rate = []
 
                     spikes.forEach(function(obj) {
-                    	spikes_categories.push(moment(obj.report_create_time).format('MM/DD/YYYY HH:mm') )
+                        spikes_categories.push(moment(obj.report_create_time).format('MM/DD/YYYY HH:mm') )
                         spikes_br_denial_rate.push(obj.br_denial_rate)
                         spikes_vlqok_error_rate.push(obj.vlqok_error_rate)
                         spikes_udb_error_rate.push(obj.udb_error_rate)
@@ -211,6 +196,9 @@ $(document).ready(function() {
                     $('#report-daily-1-comments-txt').val(comments.report_1_comments)
                     $('#report-daily-2-comments-txt').val(comments.report_2_comments)
                     $('#report-daily-3-comments-txt').val(comments.report_3_comments)
+
+                    load_highcharts_admin_section()
+                    generate_callouts_from_server()
                 } else if (result.status == 'session timeout') {
                     alert("Session expired -- Please relogin")
                     document.location.href = "/";
@@ -221,10 +209,14 @@ $(document).ready(function() {
             error: function() {
                 alert("Call to charts data failed");
             }
+         
         })
-
-        var drawchart_x1_vs_legacy = function() {
-            $('#vbo-x1-vs-legacy').highcharts({
+       
+        
+    
+        var drawchart_x1_vs_legacy = function() {            
+            // $('#vbo-x1-vs-legacy').highcharts({
+            $('#report-daily-3-highcharts').highcharts({                
                 title: {
                     text: 'National Error Rate by STB Type',
                     x: -20 //center
@@ -277,18 +269,22 @@ $(document).ready(function() {
             });
         }
 
-        var drawchart_nbrf_spikes = function() {
-            // console.log('spikes_categories == ', JSON.stringify(spikes_categories))
-            // console.log('spikes_br_denial_rate  == ', JSON.stringify(spikes_br_denial_rate))
-            // console.log('spikes_vlqok_error_rate  == ', JSON.stringify(spikes_vlqok_error_rate))
-            // console.log('spikes_udb_error_rate  == ', JSON.stringify(spikes_udb_error_rate))
-            // console.log('spikes_vcp_error_rate  == ', JSON.stringify(spikes_vcp_error_rate))
-            // console.log('spikes_plant_error_rate  == ', JSON.stringify(spikes_plant_error_rate))
-            console.log('spikes_networkresourcefailure_error_rate  == ', JSON.stringify(spikes_networkresourcefailure_error_rate))
-            console.log('spikes_cdn_setup_error_rate  == ', JSON.stringify(spikes_cdn_setup_error_rate))
-            console.log('spikes_cm_connect_error_rate  == ', JSON.stringify(spikes_cm_connect_error_rate))
-            console.log('spikes_tune_error_rate == ', JSON.stringify(spikes_tune_error_rate))
-            $('#vbo-nbrf-spikes').highcharts({
+        var drawchart_nbrf_spikes = function() {            
+            // $('#vbo-nbrf-spikes').highcharts({
+            $('#report-daily-2-highcharts').highcharts({
+                chart: {
+                          // type: 'bar',
+                          events: {
+                            load: function() {  
+                                // alert('load')        
+                              addCallout(this);
+                            },
+                            redraw: function() {
+                                // alert('redraw')
+                              addCallout(this);
+                            },
+                          }
+                        },
                 title: {
                     text: 'Spikes NBRF %',
                     x: -20 //center
@@ -381,7 +377,8 @@ $(document).ready(function() {
         }
 
         var drawchart_stacked_stb_error_rates = function() {
-            $('#vbo-stb-error-rates').highcharts({
+            // $('#vbo-stb-error-rates').highcharts({
+            $('#report-daily-1-highcharts').highcharts({
                 chart: {
                     type: 'column'
                 },
@@ -436,23 +433,23 @@ $(document).ready(function() {
                     name: 'VLQOK Errors',
                     data: vlqok_errors_rate
                 }, {
-                	name: 'CM_CONNECT Errors',
+                    name: 'CM_CONNECT Errors',
                     data: cm_connect_errors_rate
                     
                 }, {
-                	name: 'Tune Errors',
+                    name: 'Tune Errors',
                     data: tune_errors_rate
                 }, {
                     name: 'VCP Errors',
                     data: vcp_errors_rate
                 }, {
-                	name: 'Network Teardown Errors',
+                    name: 'Network Teardown Errors',
                     data: network_teardown_errors_rate
                 }, {
                     name: 'CDN Setup Errors',
                     data: cdn_setup_errors_rate
                 }, {
-                	name: 'Plant Errors',
+                    name: 'Plant Errors',
                     data: plant_errors_rate
 
                 }, {
@@ -500,35 +497,33 @@ $(document).ready(function() {
         })
     }
 
+    // Load all the report names
     load_vbo_report_names()
 
     $('#report-submit').on('click', function() {
         if (($('#report_names').val() == 'Pick Your Report') || ($('#report_dates').val() == 'Pick Your Run Date')) {
             alert('Pick your report and run date')
         } else {
-        	if ($('#report_names').val() == 'Weekly Errors Report'){
-        		generate_weekly_report()
-        	}else{
-            	generate_daily_report()
-        	}
+            if ($('#report_names').val() == 'Weekly Errors Report'){
+            generate_weekly_report()
+            }else{
+                generate_daily_report()
+                
+            }
         }
     })
 
     $('#report_names').on('change', function() {
         var selected = $(this).find("option:selected").val();
-        var report_dates = []
-        console.log('report_names_and_dates == ', JSON.stringify(report_names_and_dates))
+        var report_dates = []        
         report_names_and_dates.forEach(function(obj) {
             if (obj.report_name == selected) {
                 report_dates.push(obj.report_run_date + '&&&&' + obj.id)
             }
-        })
-        console.log('report_dates == ', JSON.stringify(report_dates))
+        })        
         $('#report_dates').empty();
-        report_dates.forEach(function(each) {
-        	console.log('each == ' + each)
-        	console.log('each-length == ' + each.length)
-        	each = each.split('&&&&')
+        report_dates.forEach(function(each) {            
+            each = each.split('&&&&')
             $('#report_dates')
                 .append($("<option></option>")
                     .attr("value", each[0])
@@ -717,15 +712,15 @@ $(document).ready(function() {
     }
 
     var generate_weekly_report = function(){
-    	$('#weekly-div').show()
-    	$('#animation,#animation-space').hide()
-    	$('#daily-div').hide()
-    	
-    	$.ajax({
+        $('#weekly-div').show()
+        $('#animation,#animation-space').hide()
+        $('#daily-div').hide()
+        
+        $.ajax({
             url: '/vbo/monthly/report-1/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
             type: 'GET',
             success: function(result) {
-            	console.log('monthly report-1 result == ', result)
+                console.log('monthly report-1 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_1))
                     x1 = result.results.report_1
@@ -738,25 +733,25 @@ $(document).ready(function() {
 
     }
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-  		var target = $(e.target).attr("href") // activated tab
-  		
-  		if (target == '#weekly-report-2-h'){
-  			show_weekly_report_2()
-  		}else if (target == '#weekly-report-3-h') {
-  			show_weekly_report_3()
-  		}
-  		else if (target == '#weekly-report-4-h') {
-  			show_weekly_report_4()
-  		}
-  		else if (target == '#weekly-report-5-h') {
-  			show_weekly_report_5()
-  		}
-  		else if (target == '#weekly-report-6-h') {
-  			show_weekly_report_6()
-  		}
-  		else if (target == '#weekly-report-7-h') {
-  			show_weekly_report_7()
-  		}
+    var target = $(e.target).attr("href") // activated tab
+    
+    if (target == '#weekly-report-2-h'){
+    show_weekly_report_2()
+    }else if (target == '#weekly-report-3-h') {
+    show_weekly_report_3()
+    }
+    else if (target == '#weekly-report-4-h') {
+    show_weekly_report_4()
+    }
+    else if (target == '#weekly-report-5-h') {
+    show_weekly_report_5()
+    }
+    else if (target == '#weekly-report-6-h') {
+    show_weekly_report_6()
+    }
+    else if (target == '#weekly-report-7-h') {
+    show_weekly_report_7()
+    }
         else if (target == '#weekly-report-8-h') {
             show_weekly_report_8()
         }
@@ -777,14 +772,14 @@ $(document).ready(function() {
             
             show_weekly_report_13()
         }
-  		else if (target == '#weekly-report-14-h') {
-  			
-  			show_weekly_report_14()
-  		}
-  		else if (target == '#weekly-report-15-h') {
-  			
-  			show_weekly_report_15()
-  		}
+    else if (target == '#weekly-report-14-h') {
+    
+    show_weekly_report_14()
+    }
+    else if (target == '#weekly-report-15-h') {
+    
+    show_weekly_report_15()
+    }
         else if (target == '#weekly-report-16-h') {
             
             show_weekly_report_16()
@@ -797,16 +792,16 @@ $(document).ready(function() {
             
             show_weekly_report_19()
         }
-  		
-	});
+    
+    });
 
     var show_weekly_report_2 = function(){
-    	
-    	$.ajax({
+        
+        $.ajax({
             url: '/vbo/monthly/report-2/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
             type: 'GET',
             success: function(result) {
-            	console.log('monthly report-2 result == ', result)
+                console.log('monthly report-2 result == ', result)
                 if (result.status == 'success') {
                     $('#weekly-2-loading-animation').hide()
                     $('#report-weekly-2-comments').show()
@@ -840,10 +835,10 @@ $(document).ready(function() {
                     drawchart_weekly_report_2()
         }
     }
-	})}
+    })}
 
     var drawchart_weekly_report_2 = function() {
-    		
+        
             $('#weekly-report-2').highcharts({
                 title: {
                     text: 'Spikes NBRF%',
@@ -864,19 +859,19 @@ $(document).ready(function() {
                     }
                 },
                 yAxis: {
-                	max: 5,
+                    max: 5,
                     title: {
                         text: 'National QAM VOD Error Rate'
                     },                    
                     tickInterval: 1,
                     labels:{
-                    	format : '{value} %'
+                        format : '{value} %'
                     }
-              	//       labels: {
-			           //  formatter:function() {
-			           //      var pcnt = (this.value / dataSum) * 100;
-			           //      return Highcharts.numberFormat(pcnt,0,',') + '%';
-            		// }}
+                //       labels: {
+               //  formatter:function() {
+               //      var pcnt = (this.value / dataSum) * 100;
+               //      return Highcharts.numberFormat(pcnt,0,',') + '%';
+                // }}
                 },
                 tooltip: {
                     valueSuffix: ''
@@ -942,13 +937,13 @@ $(document).ready(function() {
         }
 
     var show_weekly_report_3 = function(){
-    	// alert('show_weekly_report_3()')
-    	
-    	$.ajax({
+        // alert('show_weekly_report_3()')
+        
+        $.ajax({
             url: '/vbo/monthly/report-3/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
             type: 'GET',
             success: function(result) {
-            	console.log('monthly report-3 result == ', result)
+                console.log('monthly report-3 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_3))
                     $('#weekly-3-loading-animation').hide()
@@ -979,11 +974,11 @@ $(document).ready(function() {
                     drawchart_weekly_report_3()
         }
     }
-	})}
+    })}
 
-   	var drawchart_weekly_report_3 = function() {
-   		// alert('drawchart_weekly_report_3')
-   		console.log('spikes_weekly_date_time == ', spikes_weekly_date_time)
+    var drawchart_weekly_report_3 = function() {
+    // alert('drawchart_weekly_report_3')
+    console.log('spikes_weekly_date_time == ', spikes_weekly_date_time)
             $('#weekly-report-3').highcharts({
                 title: {
                     text: 'Simultaneous Sessions Graph',
@@ -1079,13 +1074,13 @@ $(document).ready(function() {
         }
 
         var show_weekly_report_4 = function(){
-    	// alert('show_weekly_report_4()')
-    	
-    	$.ajax({
+        // alert('show_weekly_report_4()')
+        
+        $.ajax({
             url: '/vbo/monthly/report-4/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
             type: 'GET',
             success: function(result) {
-            	
+                
                 if (result.status == 'success') {
                     // console.log('chart results == ', JSON.stringify(result.results.report_4))
                     $('#weekly-4-loading-animation').hide()
@@ -1128,11 +1123,11 @@ $(document).ready(function() {
                     drawchart_weekly_report_4()
         }
     }
-	})}
+    })}
 
-   	var drawchart_weekly_report_4 = function() {
-   		// alert('drawchart_weekly_report')
-   		console.log('spikes_weekly_date_time == ', spikes_weekly_date_time)
+    var drawchart_weekly_report_4 = function() {
+    // alert('drawchart_weekly_report')
+    console.log('spikes_weekly_date_time == ', spikes_weekly_date_time)
             $('#weekly-report-4').highcharts({
                 title: {
                     text: '99th Percentile Workflow Setup Time',
@@ -1218,13 +1213,13 @@ $(document).ready(function() {
 
 
         var show_weekly_report_5 = function(){
-    	// alert('show_weekly_report_5()')
-    	
-    	$.ajax({
+        // alert('show_weekly_report_5()')
+        
+        $.ajax({
             url: '/vbo/monthly/report-5/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
             type: 'GET',
             success: function(result) {
-            	console.log('monthly report-5 result == ', result)
+                console.log('monthly report-5 result == ', result)
                 if (result.status == 'success') {
                     $('#weekly-5-loading-animation').hide()
                     console.log('chart results == ', JSON.stringify(result.results.report_5))
@@ -1258,11 +1253,11 @@ $(document).ready(function() {
                     drawchart_weekly_report_5()
         }
     }
-	})}
+    })}
 
-   	var drawchart_weekly_report_5 = function() {
-   		// alert('drawchart_weekly_report')
-   		console.log('spikes_weekly_date_time == ', spikes_weekly_date_time)
+    var drawchart_weekly_report_5 = function() {
+    // alert('drawchart_weekly_report')
+    console.log('spikes_weekly_date_time == ', spikes_weekly_date_time)
             $('#weekly-report-5').highcharts({
                 title: {
                     text: '50th Percentile Workflow Setup Time',
@@ -1324,15 +1319,15 @@ $(document).ready(function() {
         }
 
 
-	    var show_weekly_report_6 = function(){
-    	// alert('show_weekly_report_6()')
-    	
-    	$.ajax({
+        var show_weekly_report_6 = function(){
+        // alert('show_weekly_report_6()')
+        
+        $.ajax({
             url: '/vbo/monthly/report-6/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
             type: 'GET',
             success: function(result) {
                 $('#weekly-6-loading-animation').hide()
-            	console.log('monthly report-6 result == ', result)
+                console.log('monthly report-6 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_6))
                     $('#report-weekly-6-comments').show()
@@ -1362,11 +1357,11 @@ $(document).ready(function() {
                     drawchart_weekly_report_6()
         }
     }
-	})}
+    })}
 
-   	var drawchart_weekly_report_6 = function() {
-   		// alert('drawchart_weekly_report_6')
-   		console.log('spikes_weekly_date_time == ', spikes_weekly_date_time)
+    var drawchart_weekly_report_6 = function() {
+    // alert('drawchart_weekly_report_6')
+    console.log('spikes_weekly_date_time == ', spikes_weekly_date_time)
             $('#weekly-report-6').highcharts({
                 title: {
                     text: 'Stripe Setup Times Graph 99th',
@@ -2325,13 +2320,13 @@ $(document).ready(function() {
 
 
         var show_weekly_report_14 = function(){
-    	// alert('show_weekly_report_14()')
-    	
-    	$.ajax({
+        // alert('show_weekly_report_14()')
+        
+        $.ajax({
             url: '/vbo/monthly/report-14/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
             type: 'GET',
             success: function(result) {
-            	console.log('monthly report-14 result == ', result)
+                console.log('monthly report-14 result == ', result)
                 if (result.status == 'success') {
                     $('#weekly-14-loading-animation').hide()
                     console.log('chart results == ', JSON.stringify(result.results.report_14))
@@ -2360,36 +2355,36 @@ $(document).ready(function() {
                     report_14_legacy_vlqok_errors_rate = []
 
                     report_14.forEach(function(obj){
-                    	report_14_categories.push(obj.dayname)
-                    	report_14_x1_udb_errors_rate.push(obj.x1_udb_error_rate)     
-                    	report_14_x1_plant_errors_rate.push(obj.x1_plant_error_rate)
-                    	report_14_x1_cdn_setup_errors_rate.push(obj.x1_cdn_setup_error_rate)
-                    	report_14_x1_network_teardown_errors_rate.push(obj.x1_networkresourcefailure_rate)
-                    	report_14_x1_vcp_errors_rate.push(obj.x1_vcp_error_rate)
-                    	report_14_x1_tune_errors_rate.push(obj.x1_tune_error_rate)
-                    	report_14_x1_cm_connect_errors_rate.push(obj.x1_cm_connect_error_rate)
-                    	report_14_x1_vlqok_errors_rate.push(obj.x1_vlqok_error_rate)
+                        report_14_categories.push(obj.dayname)
+                        report_14_x1_udb_errors_rate.push(obj.x1_udb_error_rate)     
+                        report_14_x1_plant_errors_rate.push(obj.x1_plant_error_rate)
+                        report_14_x1_cdn_setup_errors_rate.push(obj.x1_cdn_setup_error_rate)
+                        report_14_x1_network_teardown_errors_rate.push(obj.x1_networkresourcefailure_rate)
+                        report_14_x1_vcp_errors_rate.push(obj.x1_vcp_error_rate)
+                        report_14_x1_tune_errors_rate.push(obj.x1_tune_error_rate)
+                        report_14_x1_cm_connect_errors_rate.push(obj.x1_cm_connect_error_rate)
+                        report_14_x1_vlqok_errors_rate.push(obj.x1_vlqok_error_rate)
 
-                    	report_14_legacy_udb_errors_rate.push(obj.legacy_udb_error_rate)     
-                    	report_14_legacy_plant_errors_rate.push(obj.legacy_plant_error_rate)
-                    	report_14_legacy_cdn_setup_errors_rate.push(obj.legacy_cdn_setup_error_rate)
-                    	report_14_legacy_network_teardown_errors_rate.push(obj.x1_networkresourcefailure_rate)
-                    	report_14_legacy_vcp_errors_rate.push(obj.legacy_vcp_error_rate)
-                    	report_14_legacy_tune_errors_rate.push(obj.legacy_tune_error_rate)
-                    	report_14_legacy_cm_connect_errors_rate.push(obj.legacy_cm_connect_error_rate)
-                    	report_14_legacy_vlqok_errors_rate.push(obj.legacy_vlqok_error_rate)
-                    	
-                    	})
-					
+                        report_14_legacy_udb_errors_rate.push(obj.legacy_udb_error_rate)     
+                        report_14_legacy_plant_errors_rate.push(obj.legacy_plant_error_rate)
+                        report_14_legacy_cdn_setup_errors_rate.push(obj.legacy_cdn_setup_error_rate)
+                        report_14_legacy_network_teardown_errors_rate.push(obj.x1_networkresourcefailure_rate)
+                        report_14_legacy_vcp_errors_rate.push(obj.legacy_vcp_error_rate)
+                        report_14_legacy_tune_errors_rate.push(obj.legacy_tune_error_rate)
+                        report_14_legacy_cm_connect_errors_rate.push(obj.legacy_cm_connect_error_rate)
+                        report_14_legacy_vlqok_errors_rate.push(obj.legacy_vlqok_error_rate)
+                        
+                        })
+    
 
                     
                     drawchart_weekly_report_14()
         }
-	    }
-		})}
+        }
+    })}
 
         var drawchart_weekly_report_14 = function() {
-        	
+            
             $('#weekly-report-14').highcharts({
                 chart: {
                     type: 'column'
@@ -2542,13 +2537,13 @@ $(document).ready(function() {
         }
 
         var show_weekly_report_15 = function(){
-    	// alert('show_weekly_report_15()')
-    	
-    	$.ajax({
+        // alert('show_weekly_report_15()')
+        
+        $.ajax({
             url: '/vbo/monthly/report-15/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
             type: 'GET',
             success: function(result) {
-            	console.log('monthly report-14 result == ', result)
+                console.log('monthly report-14 result == ', result)
                 if (result.status == 'success') {
                     console.log('chart results == ', JSON.stringify(result.results.report_15))
                     $('#weekly-15-loading-animation').hide()
@@ -2560,17 +2555,17 @@ $(document).ready(function() {
                     report_15_error_legacy = []
 
                     report_15.forEach(function(obj){
-                    	report_15_categories.push(obj.error_code)
-                    	report_15_error_x1.push(obj.x1)
-                    	report_15_error_legacy.push(obj.legacy)
-                    	})					
+                        report_15_categories.push(obj.error_code)
+                        report_15_error_x1.push(obj.x1)
+                        report_15_error_legacy.push(obj.legacy)
+                        })  
                     drawchart_weekly_report_15()
         }
-	    }
-		})}
+        }
+    })}
 
         var drawchart_weekly_report_15 = function() {
-        	
+            
             $('#weekly-report-15').highcharts({
                 chart: {
                     type: 'column'
@@ -3169,19 +3164,352 @@ $(document).ready(function() {
         }
 
         function eliminateDuplicates(arr) {
-  var i,
-      len=arr.length,
-      out=[],
-      obj={};
+            var i,
+                len = arr.length,
+                out = [],
+                obj = {};
 
-  for (i=0;i<len;i++) {
-    obj[arr[i]]=0;
-  }
-  for (i in obj) {
-    out.push(i);
-  }
-  return out;
-}
+            for (i = 0; i < len; i++) {
+                obj[arr[i]] = 0;
+            }
+            for (i in obj) {
+                out.push(i);
+            }
+            return out;
+        }
 
+        gen_points = {}
+
+        var generate_callouts_from_server = function(){
+
+        $.ajax({
+            url: '/vbo/store-callouts/?' + 'report_id=' + $('#report_dates').find('option:selected').attr("name"),            
+            type: 'GET',
+            // async: false,
+            success: function(result){
+             if (result.status == 'success')   {                           
+                if(Object.getOwnPropertyNames(result.results[0]).length != 0){                
+                    // console.log('callouts results - 1 == ', JSON.stringify(result.results[0].results))
+                    console.log('callouts results - 2 == ', result.results[0].results[0])
+                    // gen_points = result.results[0].results[0]
+                    // gen_points = gen_points.report_data
+                    // gen_points = JSON.parse(gen_points.report_data)
+                    // console.log('gen_points - 1 == ', gen_points)
+                    // console.log('gen_points - 2 == ', gen_points.report_data)
+                    // console.log('callouts results - 3 == ', JSON.parse(result.results[0].results[0].report_data)['0'])
+                    callouts = JSON.parse(result.results[0].results[0].report_data)['0']
+                    
+                    gen_points = JSON.parse(result.results[0].results[0].report_data)
+                    console.log('before gen_points == ', gen_points)
+
+                    callouts.forEach(function(obj){                                        
+                        
+                        id = 0 + '-' + obj.point
+                        
+                        $('#points-table tr:last').after('<tr id=' + id + '>'
+                            + '<td class="callout-line-item">' + 0 + '</td>'
+                            + '<td class="callout-x-axis">' + obj.x_axis + '</td> '
+                            + '<td class="callout-y-axis">' + obj.y_axis + '</td>'  
+                            + '<td class="callout-point">' + obj.point + '</td>'  
+                            + '<td class="callout-message">   <textarea> ' + obj.callout + ' </textarea>  </td>'
+                            + '<td class="callout-x-axis-position">   <input value='+ obj.y_axis_position+'> </td>'
+                            + '<td class="callout-y-axis-position">   <input value='+ obj.x_axis_position+'> </td>'
+                            + '<td class="callout-box-type">   <select class="callout-box-type-select"> <option>Box</option>   <option>Line</option> <option>Double Line</option></select></td>'
+                            + '<td class="callout-angle">   <input value=' + obj.angle +'></td>'
+                            + '<td class="callout-height">   <input value='+ obj.height+'></td>'
+                            + '<td class="callout-width">   <input value='+ obj.width+'></td>'
+                            + '<td class="callout-color">   <input class="jscolor" value='+ obj.color +'">    </td></tr>');
+                        new jscolor($('#points-table tr:last').find('.jscolor')[0])                    
+                        $('#'+id).find(".callout-box-type, .callout-box-type-select").val(obj.draw_type);
+                    })                               
+                    $("#line-elements").prop('selectedIndex', 1);
+                    console.log('load all data')
+                    load_all_data_points()      
+                    $("#report-daily-2-highcharts").highcharts().redraw()                       
+             }
+            }
+            }
+        }) 
+        }
+
+        var load_highcharts_admin_section = function(){
+            
+                var chart = $("#report-daily-2-highcharts").highcharts();
+                
+                console.log('daily report 2 chart data == ', chart)
+
+                line_charts = chart.series.map(function(obj) {
+                        return obj.name + '&&' + obj.index;
+                    })
+                
+                console.log('daily report 2 line_charts == ', line_charts)
+
+                $.each(line_charts, function(index, value) {
+                        // console.log('name-index- value== ', value)
+                        if (index == 0 ){
+                            content = value.split('&&')
+                                // console.log('name-index- value== ', content)
+                            $('#line-elements').append($('<option/>', {
+                                value: content[1].trim(),
+                                text: content[0].trim()
+                            }));
+                        }
+                    });
+
+                $('#pick-x-y-axis').multiselect({
+                height: 600,
+                show: ['slide', 500],
+                hide: ['slide', 500],
+                noneSelectedText: 'Pick Division and select pg',
+                click: function(event, ui){                                
+                    contents = ui.text.split('&&')                    
+                    id = $('#line-elements').val().trim() + '-' +contents[2].trim()
+                    if (ui.checked == true){
+                        $('#points-table tr:last').after('<tr id=' + id + '>'
+                                        // + '<td class="callout-line-item">' + $('#line-elements').find("option:selected").text().trim() + '&&'+ $('#line-elements').val().trim() + '</td>'
+                                        + '<td class="callout-line-item">' + 0 + '</td>'
+                                        + '<td class="callout-x-axis">' + contents[0].trim() + '</td> '
+                                        + '<td class="callout-y-axis">' + contents[1].trim() + '</td>'  
+                                        + '<td class="callout-point">' + contents[2].trim() + '</td>'  
+                                        + '<td class="callout-message">   <textarea/>  </td>'
+                                        + '<td class="callout-x-axis-position">   <input> </td>'
+                                        + '<td class="callout-y-axis-position">   <input> </td>'
+                                        + '<td class="callout-box-type">   <select> <option>Box</option>   <option>Line</option> <option>Double Line</option></select></td>'
+                                        + '<td class="callout-angle">   <input id="angle"/></td>'
+                                        + '<td class="callout-height">   <input id="height"/></td>'
+                                        + '<td class="callout-width">   <input id="width"/></td>'
+                                        + '<td class="callout-color">   <input class="jscolor" value="ab2567"/>    </td></tr>');
+                        new jscolor($('#points-table tr:last').find('.jscolor')[0])
+
+                    }else{
+                        $('#'+id).remove()
+                    }
+
+                    }
+                }).multiselectfilter();
+
+        }   
+
+        $('#line-elements').on('change', function() {
+                load_all_data_points()                
+        });
+
+
+        load_all_data_points = function(){
+                line_chart_name = $('#line-elements').find("option:selected").text()
+                
+                var chart = $("#report-daily-2-highcharts").highcharts();
+
+                chart.series.forEach(function(obj, index) {
+                            if (obj.name == line_chart_name) {
+                                categories = chart.xAxis.map(function(obj) {
+                                    return obj.categories;
+                                })
+                                series_data = chart.series[index]
+                                    
+                                data_points = series_data.yData.map(function(obj, ix) {
+                                    return {
+                                        'yaxis': parseFloat([series_data.yData[ix]]),
+                                        'point': series_data.yData[ix] + ' && ' + categories[0][ix] + ' && ' + ix
+                                    }
+                                })
+                            }
+                        })
+                        
+                data_points.sort(function(a, b) {
+                            return b.yaxis - a.yaxis
+                        })                        
+                $("#pick-x-y-axis").empty();
+                $.each(data_points, function() {
+                        $('#pick-x-y-axis')
+                            .append($('<option></option>')
+                                .attr("value", this.yaxis)
+                                .text(this.point))
+                    });
+                $('#pick-x-y-axis').multiselect('refresh');
+                console.log('load_all_data_points - 1')
+                if(Object.getOwnPropertyNames(gen_points).length != 0){                
+                    $('#pick-x-y-axis').multiselect("widget").find(":checkbox").each(function(){
+                        checkbox_item = this
+                        position_value = this.title.split('&&')[2].trim()                                                
+                        console.log('load_all_data_points -gen_points == ', gen_points)
+                        console.log('load_all_data_points -gen_points == ', gen_points['0'])
+                        gen_points['0'].forEach(function(obj){                            
+                            if (position_value == obj.point) {                                                            
+                                $(checkbox_item).attr("checked",true)
+                            }
+                        })                        
+                })
+                }
+                console.log('load_all_data_points - 2')
+        }
+
+        //Store the attributes of the callouts in the database
+
+        $('#store-callouts').on('click', function(){
+            alert('store callouts')
+            // get the report number and id value
+            id = $("#store-callouts").closest("div[id*='callouts-admin']").attr('id')            
+            report_num = id.split('-')[1] + '-' + id.split('-')[2]        
+            console.log('report_num == ', report_num)
+            elem = "#report-{0}-comments-txt".format(report_num)        
+            comments = $(elem).val()                    
+            generate_callout_points()
+            console.log('post == ', gen_points)
+
+            $.ajax({
+                url: '/vbo/store-callouts/?' + 'report_number=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() +  '&report_num=' + report_num + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),            
+                type: 'POST',            
+                data: JSON.stringify(gen_points),
+                success: function(result) {
+                    if (result.status == 'success') {
+                        alert('comments updated')
+                        console.log('chart results == ', result)
+                    } else if (result.status == 'session timeout') {
+                        alert("Session expired -- Please relogin")
+                        document.location.href = "/";
+                    } else {
+                        alert("Unable to get data!! Contact Support");
+                    }
+                },
+                error: function() {
+                    alert("Call to charts data failed");
+                }
+            })
+        })
+
+        // Generate the callouts for the admin to view it real time.
+        $('#gen-graph').on('click', function() {        
+            $('.callout').remove();
+            $('.slant').remove();
+            $('.double-arrow-line').remove();
+            remove_labels = false
+            gen_points = {}
+            generate_callout_points()
+            $("#report-daily-2-highcharts").highcharts().redraw()
+
+        })
+
+        var generate_callout_points = function(){
+            gen_points = {}
+            $('#points-table tr').not(':first').each(function() {                
+                // line_item = $(this).find(".callout-line-item").html().split('&amp;&amp;')[1];                
+                line_item = $(this).find(".callout-line-item").html();                
+                x_axis = $(this).find(".callout-x-axis").html();
+                y_axis = $(this).find(".callout-y-axis").html()
+                point = $(this).find(".callout-point").html()
+                callout = $(this).find(".callout-message").find('textarea').val()
+                y_axis_position = $(this).find(".callout-x-axis-position").find('input').val()
+                x_axis_position = $(this).find(".callout-y-axis-position").find('input').val()
+                angle = $(this).find(".callout-angle").find('input').val()
+                draw_type = $(this).find(".callout-box-type").find('select').val()
+                width = $(this).find(".callout-width").find('input').val()
+                height = $(this).find(".callout-height").find('input').val()
+                color = $(this).find(".callout-color").find('input').val()
+                if (line_item in gen_points) {
+                    gen_points[line_item].push({ x_axis, y_axis, point, callout, y_axis_position, x_axis_position, color, draw_type, height, width, angle })
+                } else {
+                    gen_points[line_item] = [{ x_axis, y_axis, point, callout, y_axis_position, x_axis_position, color, draw_type, height, width, angle }]
+                }
+                console.log('gen_points == ', JSON.stringify(gen_points))
+
+                });
+            }
+
+
+        
+    var addCallout = function(chart) {
+
+         x_axis_position_default = 10
+         y_axis_position_default = 30
+         console.log('******generate callouts******* == ', gen_points)
+         console.log('******generate callouts******* == ', JSON.stringify(gen_points))
+         var xAxis;
+         var yAxis;
+         if (Object.keys(gen_points).length === 0) {
+             // alert('empty object')
+         } else {
+             for (var key in gen_points) {
+
+                 xAxis = chart.xAxis[0]
+                 yAxis = chart.yAxis[0]
+
+                 gen_points[key].forEach(function(obj, index) {
+                     point_val = gen_points[key][index]['point']
+                     callout = gen_points[key][index]['callout']
+                     y_axis_position = gen_points[key][index]['y_axis_position']
+                     x_axis_position = gen_points[key][index]['x_axis_position']
+                     color = gen_points[key][index]['color']
+                     draw_type = gen_points[key][index]['draw_type']
+                     height = gen_points[key][index]['height']
+                     width = gen_points[key][index]['width']
+                     angle = gen_points[key][index]['angle']
+
+                     series = chart.series[parseInt(key)]
+                     point = series.data[parseInt(point_val)];
+
+                     console.log('gen_points == ', gen_points)
+                         // console.log('xAxis == ', xAxis)
+                         // console.log('yAxis == ', yAxis.toPixels)                                                             
+                     if (y_axis_position == '' || parseInt(y_axis_position) == 0) {
+                         y_axis_position = 0
+                     }
+                     if (x_axis_position == '' || parseInt(x_axis_position) == 0) {
+                         x_axis_position = 0
+                     }
+                     console.log('chart.plotTop == ', chart.plotTop)
+                     console.log('point.plotX == ', point.plotX)
+                     console.log('point.plotY == ', point.plotY)
+                     console.log('x_axis_position == ', x_axis_position)
+                     console.log('y_axis_position == ', y_axis_position)
+                     console.log('xAxis position 1 == ', (point.plotX + chart.plotLeft + x_axis_position_default))
+                     console.log('yAxis position 1 == ', (point.plotY + chart.plotTop - y_axis_position_default))
+                     console.log('xAxis position 2 == ', (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position))
+                     console.log('yAxis position 2 == ', (point.plotY + chart.plotTop - y_axis_position_default) + parseInt(y_axis_position))
+                     remove_labels = false
+                     if (remove_labels) {
+                         //we dont need this anymore but ill leave it for any future use if needed.
+                         console.log(chart.renderer.label)
+                         var a = chart.renderer.label('<div class="callout">' + callout + '</div>',
+                             point.plotX + chart.plotLeft + 10,
+                             point.plotY + chart.plotTop - parseInt(y_axis_position), 'callout', null, null, true).destroy();
+
+                         console.log('a', a);
+                     } else {
+                         if (draw_type == 'Box') {
+                             // alert('draw')              
+                             var a = chart.renderer.label('<div class="callout" style="background-color:#' + gen_points[key][index]['color'] + ';height:'+ height +'px;width:'+width+'px">' + callout + '</div>',
+                                 (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
+                                 (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
+                         }else if (draw_type == 'Line') {
+                             properties = 'style="display:block; background-color:#' + color + '; height:' + height + 'px; width:' + width + 'px; -ms-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); transform: rotate(' + angle + 'deg); transform-origin: bottom left;"'
+                             console.log(properties)
+                             var a = chart.renderer.label('<div class="single-arrow-line" ' + properties + '>  </div>',
+                                 (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
+                                 (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
+                             console.log('a', a);
+
+                         }
+                         else {
+                            alert('double line')
+                             properties = 'style="display:block; background-color:#' + color + '; height:' + height + 'px; width:' + width + 'px; -ms-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); transform: rotate(' + angle + 'deg); transform-origin: bottom left;"'
+                             console.log(properties)
+                             var a = chart.renderer.label('<div class="double-arrow-line" ' + properties + '>  </div>',
+                                 (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
+                                 (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
+                             console.log('a', a);
+
+
+                         }
+
+                     }
+                 })
+             }
+         }
+
+
+    };
+
+    
 
 })

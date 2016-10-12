@@ -1,6 +1,7 @@
 from django.shortcuts import render, render_to_response, HttpResponse
 from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import six
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 from elasticsearch import Elasticsearch, ElasticsearchException
@@ -21,6 +22,7 @@ import socket
 import uuid
 import datetime
 import json
+
 from django.conf import settings
 
 logger = logging.getLogger('app_logger')
@@ -39,7 +41,7 @@ class LoginView(View):
 		user_id = utils.check_session_variable(request)
 		if user_id is None:
 			return utils.page_redirects_login(request)
-		return render(request,'vbo_module/vbo_landing_page.html',{'error':'N'})
+		return render(request,'vbo_module/vbo_landing_page.html',{'error':'N','hide':utils.hide_sid_create_section(),'admin_user':utils.check_if_admin(user_id)})
 
 	def post(self, request):
 		ip = utils.getip()
@@ -139,11 +141,11 @@ class ReportData(View):
 			return JsonResponse({'status': 'session timeout'})
 
 
-class UpdateCallouts(View):
+class UpdateComments(View):
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
-		return super(UpdateCallouts, self).dispatch(request, *args, **kwargs)
+		return super(UpdateComments, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):
 		user_id = utils.check_session_variable(request)
@@ -170,4 +172,64 @@ class UpdateCallouts(View):
 
 	
 
+class StoreCallouts(View):
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(StoreCallouts, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		user_id = utils.check_session_variable(request)
+		print 'get user id == ', user_id
+		print 'get report id == ', request.GET.get('report_id')
+		if user_id is not None or api_key == settings.API_KEY:			
+			print 'calling vbo get'
+			try:				
+				results = requests.get(settings.VBO_SERVER + 'store-callouts/?' + 'report_id=' + request.GET.get('report_id')   )
+				print 'results.json == ', results.json()
+				return JsonResponse({'status':'success', 'results':[results.json()]})
+			except Exception as e:
+				print 'update callouts == ', e
+				logger.debug("ReportData VBO-Module Exception == {0}".format(e))
+				return JsonResponse({'status': 'Contact Support Team'})
+
+			return JsonResponse({'status': 'success'})
+		else:
+			return JsonResponse({'status': 'session timeout'})
+		return JsonResponse({'status': 'success'})	
+
+	def post(self, request):
+		user_id = utils.check_session_variable(request)		
+		# print ' report_num == ', request.GET.get('report_callouts')
+		ip = utils.getip()
+		alldata = request.body				
+		print 'alldata == ', alldata
+		try:
+			print 'alldata == ', json.loads(request.body)
+		except Exception as e:
+			print 'e == ', e
+		# payload = dict(six.iterlists(json.loads(request.body)))
+		# payload = json.dumps(json.loads(request.body))				
+		# alldata = request.POST
+		payload = request.body
+				
+		# payload = dict(six.iterlists(request.POST))		
+		if user_id is not None or api_key == settings.API_KEY:			
+			try:				
+				results = requests.post(settings.VBO_SERVER + 'store-callouts/?' + '&report_num=' + request.GET.get('report_num') \
+					+ '&report_id=' + request.GET.get('report_id')  + '&report_run_date='+ request.GET.get('report_run_date'), data=payload )
+				# print 'results.json == ', results.json()
+				print 'results.json == ', results.json()
+				return JsonResponse({'status':'success', 'results':[results.json()]})
+			except Exception as e:
+				print 'update callouts == ', e
+				logger.debug("ReportData VBO-Module Exception == {0}".format(e))
+				return JsonResponse({'status': 'Contact Support Team'})
+
+			return JsonResponse({'status': 'success'})
+		else:
+			return JsonResponse({'status': 'session timeout'})
+
 	
+
+		

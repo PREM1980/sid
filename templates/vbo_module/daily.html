@@ -164,50 +164,56 @@
     </div>
 
     <div class="row">
-        <div class="col-md-8" id="vbo-stb-error-rates"></div>
-        <div class="col-md-4" id="vbo-stb-error-rates-comments" style="display:none">
+        <div class="col-md-12" id="report-daily-1-highcharts"></div>
+        <!-- <div class="col-md-4" id="daily-report-1-comments" style="display:none">
             <div class="form-group">
                 <textarea class="form-control" rows="10" id="report-daily-1-comments-txt" placeholder="Please provide your comments here..."></textarea>
             </div>
             <div class="col-sm-2">
                 <input type="submit" class="btn btn-success" value="Update Comments" id="report-daily-1-submit">
             </div>
-        </div>
+        </div> -->
 
     </div>
-    <!-- <div class="col-md-6" id="container_users_by_count"></div> -->
+    <!-- <div class="col-md-6" id="container_users_by_count"></div> -->    
+    <div id="report-daily-2-callouts-admin" style="display:none">
 
-
+    
+    {% if admin_user %}
+            {% include "vbo_module/callout_widget.html" %} 
+    {% endif %}
+    </div>
 <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
 
 <div class="row">
-    <div class="col-md-8" id="vbo-nbrf-spikes"></div>
-    <div class="col-md-4" id="vbo-nbrf-spikes-comments" style="display:none">
+    <div class="col-md-12" id="report-daily-2-highcharts"></div>
+    <!-- <div class="col-md-4" id="daily-report-2-comments" style="display:none">
         <div class="form-group">
             <textarea class="form-control" rows="10" id="report-daily-2-comments-txt" placeholder="Please provide your comments here..."></textarea>
         </div>
         <div class="col-sm-2">
             <input type="submit" class="btn btn-success" value="Update Comments" id="report-daily-2-submit">
         </div>
-    </div>
+    </div> -->
 
 </div>
 
 <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
 
 <div class="row">
-    <div class="col-md-8" id="vbo-x1-vs-legacy"></div>
-    <div class="col-md-4" id="vbo-x1-vs-legacy-comments" style="display:none">
+    <div class="col-md-12" id="report-daily-3-highcharts"></div>
+    <!-- <div class="col-md-4" id="daily-report-3-comments" style="display:none">
         <div class="form-group">
             <textarea class="form-control" rows="10" id="report-daily-3-comments-txt" placeholder="Please provide your comments here..."></textarea>
         </div>
         <div class="col-sm-2">
             <input type="submit" class="btn btn-success" value="Update Comments" id="report-daily-3-submit">
         </div>
-    </div>
+    </div> -->
 
 </div>
 
 </div>
+
 
 {% endblock content %}

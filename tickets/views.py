@@ -140,6 +140,7 @@ class PostTicketData(View):
 		if user_id is not None or api_key == settings.API_KEY:
 			print 'api_key ==', api_key
 			if api_key is not None:
+				logger.debug(" call api ip = {0} && post data  == {1}".format(ip,alldata))
 				error  = validate_insert_input(alldata)
 				user_id = alldata['userid']
 				if error is not None:
@@ -258,6 +259,7 @@ def validate_insert_input(alldata):
 		if alldata[key] is not None and type(alldata[key]) is not list:
 			if alldata[key].strip() == '':
 				alldata[key] = '' 
+	
 
 	if alldata.get('date') in [None,'',' '] \
 		or alldata.get('division') in [None,'',' '] \
@@ -298,9 +300,9 @@ def validate_insert_input(alldata):
 			if each not in constants.CENTRAL:
 				error = 'Not a valid peergroup for the given central division. Valid peergroups are:- ' + ' '.join(constants.CENTRAL)
 	
-	if alldata.get('division') == constants.VALID_DIVISION[2]:
+	if alldata.get('division') == constants.VALID_DIVISION[2]:		
 		for each in alldata.get('pg'):
-			if each not in constants.NORTHEAST:
+			if each not in constants.NORTHEAST:				
 				error = 'Not a valid peergroup for the given NorthEast division. Valid peergroups are:- ' + ' '.join(constants.NORTHEAST)				
 
 	if alldata.get('division') == constants.VALID_DIVISION[3]:

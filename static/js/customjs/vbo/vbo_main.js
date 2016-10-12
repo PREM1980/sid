@@ -3381,7 +3381,7 @@ $(document).ready(function() {
         // Generate the callouts for the admin to view it real time.
         $('#gen-graph').on('click', function() {        
             $('.callout').remove();
-            $('.slant').remove();
+            $('.single-arrow-line').remove();
             $('.double-arrow-line').remove();
             remove_labels = false
             gen_points = {}
@@ -3490,8 +3490,7 @@ $(document).ready(function() {
                              console.log('a', a);
 
                          }
-                         else {
-                            alert('double line')
+                         else {                            
                              properties = 'style="display:block; background-color:#' + color + '; height:' + height + 'px; width:' + width + 'px; -ms-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); transform: rotate(' + angle + 'deg); transform-origin: bottom left;"'
                              console.log(properties)
                              var a = chart.renderer.label('<div class="double-arrow-line" ' + properties + '>  </div>',
@@ -3506,8 +3505,6 @@ $(document).ready(function() {
                  })
              }
          }
-
-
     };
 
     

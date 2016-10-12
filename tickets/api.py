@@ -12,11 +12,11 @@ payload = {"division":"Northeast"
 ,"date":"2016-10-10T09:33:52-05:00"
 ,"outage_caused":"Non-Comcast System Outage"
 ,"system_caused":"Backoffice"
-,"ticket_num":"SI017302822"
+,"ticket_num":"SI017302823"
 ,"error_count":"less than 1,000"}
 
 print payload
-r = requests.post('http://localhost:8000/post-ticket-data',headers=headers,data=payload)
+# r = requests.post('http://localhost:8000/post-ticket-data',headers=headers,data=payload)
 # r = requests.post('https://sid.comcast.net/post-ticket-data',headers=headers,data=payload, verify=False)
 
 print 'status_code == ', r.status_code

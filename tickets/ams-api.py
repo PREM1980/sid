@@ -47,8 +47,9 @@ WC03A Plant Integrity: 2.25% DOCSIS Integrity: 19.35    504899781     PRIORITY_P
 print payload
 
 
-r = requests.post('http://localhost:8000/ams-file-upload',headers=headers,data=payload)
+# r = requests.post('http://localhost:8000/ams-file-upload',headers=headers,data=payload)
+r = requests.post('https://sid.comcast.net/ams-file-upload',headers=headers,data=payload, verify=False)
 
-
+print 'call complete'
 print r.status_code
 print r.text

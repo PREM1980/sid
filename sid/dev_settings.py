@@ -212,8 +212,8 @@ MEDIA_ROOT = '/var/www/ams-files/'
 
 API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
-LOCAL_TEST_NINJA = False
-NINJA = False
+LOCAL_TEST_NINJA = True
+NINJA = True
 
 # CSRF_FAILURE_VIEW = 'tickets.ams_1views.csrf_failure'
 

@@ -76,3 +76,9 @@
     display: block;
     margin-top: 10px;
 }
+
+.jumbotron{
+    background: url('../images/peacock_ninja_NBC_500px.png') no-repeat center center;
+    min-height: 500px;
+    opacity: 0.5;
+}

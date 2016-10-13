@@ -9,9 +9,7 @@
     <title>NINJA Analytics and Reporting Portal</title>
     {% load staticfiles %}
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    
-
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>    
     
     <link rel="stylesheet" href="{% static "css/loginpage.css" %}">
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
@@ -29,8 +27,11 @@
 </head>
 
 <style type="text/css" scoped>
+    /*.GeneratedText {
+    font-family:'Comic Sans MS';font-size:1em;font-weight:bold;font-stretch:expanded;letter-spacing:0.2em;line-height:1.3em;color:#CC3300;background-color:#add8e6;padding:1.5em;padding-left:11em;
+    }*/
     .GeneratedText {
-    font-family:'Comic Sans MS';font-size:2em;font-weight:bold;font-stretch:expanded;letter-spacing:0.2em;line-height:1.3em;color:#CC3300;background-color:#add8e6;padding:1.5em;padding-left:11em;
+    font-family:'Comic Sans MS';font-size:1em;font-weight:bold;font-stretch:expanded;letter-spacing:0.2em;line-height:1.3em;color:#CC3300;padding:1.5em;padding-left:20em;
     }
 </style>
 
@@ -39,16 +40,21 @@
     <div class="container">
 
         <div class="row">
-            <div id="header"><img src="{% static "images/comcast_ninja.png" %}"></div>
+            <div id="header"><img style="width:100px" src="{% static "images/comcast_logo_detail.png" %}"></div>
         </div>
         <div class="row">
             <br>
-            <div class="GeneratedText">NINJA METRICS AGGREGATION & ANALYTICS DASHBOARD PORTAL</div>
+            <div class="GeneratedText" style="">NINJA METRICS AGGREGATION & ANALYTICS DASHBOARD PORTAL</div>
+        </div>
+        {% load staticfiles %}
+    <!-- <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css"> -->
+        <div class="jumbotron">
+            
         </div>
 
         <div class="row">
 
-            <div class="col-sm-4 col-md-4 col-md-offset-4" style="padding-top: 100px;">
+            <div class="col-sm-4 col-md-4 col-md-offset-4" style="padding-top: 5px;">
                 <form action="/ninja-login" method="post" id="loginForm">
                     <!-- <form action="/vbo/login" method="post" id="loginForm"> -->
                         <div class="form-group input-group">

@@ -49,6 +49,7 @@ CUSTOM_APPS = ('tickets',
     'vbo_module',
     'et',
     'ppe',
+    'qvfb',
     'django_extensions',
     )
 
@@ -98,11 +99,13 @@ if HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
         VBO_SERVER = 'http://test-api-box:9000/'
         PPE_SERVER = 'http://test-api-box:5000/'
         ET_SERVER = 'http://test-api-box:5000/'
+	QVFB_SERVER = 'http://test-api-box:5000/'
     else:
         host = 'prod-sid-web-server'
         VBO_SERVER = 'http://prod-api-box:9000/'
         PPE_SERVER = 'http://prod-api-box:5000/'
         ET_SERVER = 'http://prod-api-box:5000/'
+        QVFB_SERVER = 'http://prod-api-box:5000/'
 elif HOSTNAME in ['test-sid-web-server','prod-sid-web-server']:
     host = 'localhost'
 else:
@@ -111,6 +114,7 @@ else:
     VBO_SERVER = 'http://localhost:9000/'
     PPE_SERVER = 'http://localhost:5000/'
     ET_SERVER = 'http://localhost:5000/'
+    QVFB_SERVER = 'http://localhost:5000/'
 
 
 DATABASES = {
@@ -212,8 +216,8 @@ MEDIA_ROOT = '/var/www/ams-files/'
 
 API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
-LOCAL_TEST_NINJA = True
-NINJA = True
+LOCAL_TEST_NINJA = False
+NINJA = False
 
 # CSRF_FAILURE_VIEW = 'tickets.ams_1views.csrf_failure'
 

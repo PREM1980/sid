@@ -52,7 +52,7 @@ class LoginView(View):
 class VBFCombined(View):
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
-		return super(ETStats, self).dispatch(request, *args, **kwargs)
+		return super(VBFCombined, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):
 		print 'VBFCombined'
@@ -65,7 +65,7 @@ class VBFCombined(View):
 			from_epoch = request.GET.get('from_epoch')
 			to_epoch = request.GET.get('to_epoch')            
 			call_server = 'vbf_combined?' + 'from_epoch=' + from_epoch + '&to_epoch='+to_epoch         
-			results = requests.get(settings.ET_SERVER + call_server)            
+			results = requests.get(settings.QVFB_SERVER + call_server)            
 			print 'results == ', results.text
 			return JsonResponse({'status':'success', 'results':json.loads(results.text)})
 		except Exception as e:

@@ -31,7 +31,7 @@ var fetch = function() {
   var dataurl = getUrl(from_epoch,to_epoch);
 
  var getUrl = function(from_epoch,to_epoch) {
-      var dataurl = "http://127.0.0.1:5000/vbf_combined?from_epoch="+from_epoch+"&to_epoch="+to_epoch; //KEEP AGAIN
+      var dataurl = "vbf_combined?from_epoch="+from_epoch+"&to_epoch="+to_epoch; //KEEP AGAIN
       return dataurl;
   }
 
@@ -42,8 +42,8 @@ var fetch = function() {
 
  var onDataReceived = function(data) {
     var obj = JSON.stringify(data);
-    var new_obj = JSON.parse(obj);
-    console.log(obj); 
+    var int_obj = JSON.parse(obj);	
+    var new_obj = int_obj.results;
 
     errorTypes=["Tune Errors","Plant Teardown Errors","Network Resource Failure","CM_CONNECT Errors", "Infinite Retry Errors", "none"];
     sidErrorTypes=["Cisco Pump", "UDB", "Backoffice", "Network", "Aloha Network", "Arris Pump", "Capacity", "blank", "Other"];

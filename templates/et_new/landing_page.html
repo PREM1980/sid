@@ -1,0 +1,71 @@
+{% extends "base_ninja.html" %}
+
+{% block jscontent %}
+    <title>NINJA Analytics and Reporting Portal - VBO  Module</title>
+    {% load staticfiles %}
+    <link href="{% static "feedback_me/css/jquery.feedback_me.css" %}" rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+    <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
+    <script src="{% static "highcharts/highstocks.js" %}"></script>
+    <script src="{% static "highcharts/highcharts.js" %}"></script>
+    <script src="{% static "highcharts/exporting.js" %}"></script>
+
+
+    <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
+    <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
+    <script src="{% static "js/customjs/common.js" %}"></script>
+    <script src="{% static "js/customjs/et_new/main.js" %}"></script>    
+    <script src="{% static "js/export-csv.js" %}"></script>
+<script>
+$(document).ready(function()
+{
+    if ("{{error}}" == 'N') {
+       $('#loginid').html("{{request.session.userid}}")
+    }
+}
+)
+</script>
+<style>
+.center {
+     float: none;
+     margin-left: auto;
+     margin-right: auto;
+}
+
+td {
+  padding: 5px;
+  border:1px solid;
+  
+} 
+td.right-align{
+  text-align: right;  
+}
+
+</style>
+    
+{% endblock jscontent %}
+
+{% block content %}
+    {% load staticfiles %}
+    <div class="container-fluid">
+
+    <div class="row">
+      <div id="container" style="height: 400px; min-width: 310px"></div>
+
+<!-- http://jsfiddle.net/gh/get/jquery/1.9.1/highslide-software/highcharts.com/tree/master/samples/stock/demo/compare/ -->
+<!-- http://jsfiddle.net/BWEm5/ -->
+
+    </div>
+    <!-- /.bg -->
+</div>
+<br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+
+{% endblock content %}
+   

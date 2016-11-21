@@ -1,5 +1,6 @@
 $(document).ready(function() {
 
+    daily_report_on_load = true
 
     if (!String.prototype.format) {
        String.prototype.format = function() {
@@ -130,9 +131,18 @@ $(document).ready(function() {
     
 
     var generate_daily_report = function() {       
-
+        console.log('daily_report_on_load ==', daily_report_on_load)
+        console.log('report_names ==', report_names_and_dates[report_names_and_dates.length - 1].report_run_date )
+        $('#report_names').val('Daily Errors Report')
+        $('#report_dates').val(report_names_and_dates[report_names_and_dates.length - 1].report_run_date)
+        handle_report_name_change('Daily Errors Report')
+        if (daily_report_on_load == true){
+            url = '/vbo/report-data/?' + 'report_name=' + 'Daily Errors Report' + '&report_run_date=' + report_names_and_dates[report_names_and_dates.length - 1].report_run_date
+        }else{
+            url = '/vbo/report-data/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val()
+        }
         $.ajax({
-            url: '/vbo/report-data/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val(),
+            url: url,
             type: 'GET',
             //data: data,
             success: function(result) {
@@ -462,7 +472,8 @@ $(document).ready(function() {
             });
         }
     }
-
+    var report_names_values = []
+    var report_names_and_dates;
     var load_vbo_report_names = function() {
         $.ajax({
             url: '/vbo/get-report-names',
@@ -472,18 +483,19 @@ $(document).ready(function() {
                 if (result.status == 'success') {
                     report_names_and_dates = result.results[0].results
                     console.log(JSON.stringify(report_names_and_dates))
-                    var report_names = []
+                    
                     report_names_and_dates.forEach(function(obj) {
-                        report_names.push(obj.report_name)
+                        report_names_values.push(obj.report_name)
                     })
-                    report_names = _.uniq(report_names);
+                    report_names_values = _.uniq(report_names_values);
 
-                    report_names.forEach(function(each) {
+                    report_names_values.forEach(function(each) {
                         $('#report_names')
                             .append($("<option></option>")
                                 .attr("value", each)
                                 .text(each));
                     })
+                    generate_daily_report()
                 } else if (result.status == 'session timeout') {
                     alert("Session expired -- Please relogin")
                     document.location.href = "/";
@@ -507,6 +519,7 @@ $(document).ready(function() {
             if ($('#report_names').val() == 'Weekly Errors Report'){
             generate_weekly_report()
             }else{
+                daily_report_on_load = false
                 generate_daily_report()
                 
             }
@@ -514,7 +527,13 @@ $(document).ready(function() {
     })
 
     $('#report_names').on('change', function() {
-        var selected = $(this).find("option:selected").val();
+        alert('hi')
+       var selected = $(this).find("option:selected").val();
+       alert('report_name_change == ', selected)
+       handle_report_name_change(selected)
+    });
+    var handle_report_name_change = function(selected){
+        
         var report_dates = []        
         report_names_and_dates.forEach(function(obj) {
             if (obj.report_name == selected) {
@@ -530,8 +549,7 @@ $(document).ready(function() {
                     .attr("name", each[1])
                     .text(each[0]));
         })
-
-    });
+    }
 
     var set_summary_weekly = function(x1) {
         //report_create_time = moment.utc(x1.report_create_time).format('MMM DD, YYYY');        

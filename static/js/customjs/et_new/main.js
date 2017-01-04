@@ -1,59 +1,120 @@
-$(document).ready(function(){
-	$(function() {
+$(document).ready(function() {
+    $(function() {
+        var seriesOptions = [],
+            seriesCounter = 0,
+            names = ['MSFT', 'AAPL', 'GOOG'];
+            error_list = ['CM_CONNECT Errors','Infinite Retry Errors','Network Resource Failure','Plant Setup Errors','Plant Teardown Errors','Tune Errors','VCP Errors']                            
+            error_constants = ['br','business','errors','nbr','success']
+            error_counts_results= []
 
-    $.getJSON('http://www.highcharts.com/samples/data/jsonp.php?filename=aapl-c.json&callback=?', function(data) {
-        // Create the chart
-        window.chart = new Highcharts.StockChart({
-            chart: {
-                renderTo: 'container'
-            },
+        /**
+         * Create the chart when all data is loaded
+         * @returns {undefined}
+         */
+        function createChart() {
 
-            rangeSelector: {
-                selected: 1,
-                inputDateFormat: '%Y-%m-%d'
-            },
+            Highcharts.stockChart('container', {
+                title: {
+                    text: 'national'
+                },
+                rangeSelector: {
+                    selected: 6
+                },
 
-            title: {
-                text: 'Error Count'
-            },
+                yAxis: {
+                    labels: {
+                        formatter: function() {
+                            return (this.value > 0 ? ' + ' : '') + this.value + '%';
+                        }
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 2,
+                        color: 'silver'
+                    }]
+                },
 
-            series: [{
-                name: 'AAPL',
-                data: data,
+                plotOptions: {
+                    series: {
+                        compare: 'percent',
+                        showInNavigator: true
+                    }
+                },
+
                 tooltip: {
-                    valueDecimals: 2
-                }}]
+                    pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+                    valueDecimals: 2,
+                    split: true
+                },
 
-        }, function(chart) {
-
-            // apply the date pickers
-            setTimeout(function() {
-                $('input.highcharts-range-selector', $('#' + chart.options.chart.renderTo)).datepicker()
-            }, 0)
-        });
-    });
-
-//     p = a[0][0].X1.national
-// output = []
-// for (var key in p) {
-//   if (p.hasOwnProperty(key)) {
-//      console.log('ptrm == ',Number.isInteger(parseInt(key)))
-//      if (Number.isInteger(parseInt(key))){
-//       output.push([key,p[key].errors])
-//      }
-//   }
-// }
-// console.log(JSON.stringify(output))
-
-    // Set the datepicker's date format
-    $.datepicker.setDefaults({
-        dateFormat: 'yy-mm-dd',
-        onSelect: function(dateText) {
-            this.onchange();
-            this.onblur();
+                series: seriesOptions
+            });
         }
+
+        $.getJSON('http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope=national&interval=day&startTime=1478667600000&endTime=1482210000000',
+            function(data){
+                // console.log(JSON.stringify(data))
+                $.each(data,function(i,x){
+                    console.log(i)
+                    console.log(x)
+                    console.log('national == ', x[0]['X1']['national'])                                                
+
+                    for (var i = 0; i <= 10; i++)
+                    {   
+                        error_counts_results[i] = []
+                    }
+                    $.each(x[0]['X1']['national'], function(unix_date,data){                                
+                        if  (parseFloat(unix_date)){
+                            $.each(error_constants, 
+                                    function(ix,error_item){  
+                                        console.log(ix)
+                                         console.log(data[error_item])
+                                         error_counts_results[ix].push([parseInt(unix_date),data[error_item]])
+                                    }
+                            )
+                        console.log('result == ', JSON.stringify(error_counts_results))
+                        }                           
+                    })
+                })
+                $.each(error_constants, function(i, name){
+                seriesOptions[i] = {
+                name: name,
+                data: error_counts_results[i]
+                };
+        })
+        console.log('seriesOptions == ', JSON.stringify(seriesOptions))
+        createChart();
+            })
+        //[{"name":"br","data":[[1478667600000,0.059082882203051704,1478754000000,0.049829476318059514]]}
+        //[{"name":"br","data":[[[1478667600000,0.059082882203051704],[1478754000000,0.049829476318059514]]]}
+
+
+
+        // $.each(names, function(i, name) {
+
+        //     $.getJSON('https://www.highcharts.com/samples/data/jsonp.php?filename=' + name.toLowerCase() + '-c.json&callback=?',    function (data) {
+        //         // console.log(name)
+        //         // console.log(data)
+        //         seriesOptions[i] = {
+        //             name: name,
+        //             data: data
+        //         };
+                
+
+        //         // As we're loading the data asynchronously, we don't know what order it will arrive. So
+        //         // we keep a counter and create the chart when all the data is loaded.
+        //         seriesCounter += 1;
+
+        //         if (seriesCounter === names.length) {
+        //             console.log(JSON.stringify(seriesOptions))
+        //             createChart();
+        //         }
+        //     });
+
+
+        // });
+
+
     });
 
-});
-	
-	})
+})

@@ -526,10 +526,8 @@ $(document).ready(function() {
         }
     })
 
-    $('#report_names').on('change', function() {
-        alert('hi')
-       var selected = $(this).find("option:selected").val();
-       alert('report_name_change == ', selected)
+    $('#report_names').on('change', function() {        
+       var selected = $(this).find("option:selected").val();       
        handle_report_name_change(selected)
     });
     var handle_report_name_change = function(selected){

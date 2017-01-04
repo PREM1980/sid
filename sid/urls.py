@@ -37,6 +37,7 @@ if settings.HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server'] or \
         
         #Urls for ET Module
         url(r'^et/',include('et.urls')),
+        url(r'^et_new/',include('et_new.urls')),
 
         #Urls for PPE Module
         url(r'^ppe/',include('ppe.urls')),

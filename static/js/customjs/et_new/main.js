@@ -1,3 +1,13 @@
+// multiple axis http://jsfiddle.net/5eem7a2a/1/
+
+// br,nbr,business,errors ,success
+// yeah br is a rate
+// hence the r component of "br"
+// business is the raw count
+// that creates is the numerator of br
+// business, success, errors are all raw coungs
+// business = BR error counts, Errors = NBR error counts # Don
+// br/nbr = error rates
 $(document).ready(function() {
     $(function() {
         var seriesOptions = [],
@@ -7,112 +17,187 @@ $(document).ready(function() {
             error_constants = ['br','business','errors','nbr','success']
             error_counts_results= []
 
-        /**
-         * Create the chart when all data is loaded
-         * @returns {undefined}
-         */
-        function createChart() {
-
-            Highcharts.stockChart('container', {
+        
+        function createChart_National(chart, params) {
+            console.log(JSON.stringify(params))
+            Highcharts.stockChart(chart, {
                 title: {
-                    text: 'national'
+                    text: params.title
                 },
                 rangeSelector: {
-                    selected: 6
+                    selected: 0
                 },
 
-                yAxis: {
+                yAxis: [{
                     labels: {
-                        formatter: function() {
-                            return (this.value > 0 ? ' + ' : '') + this.value + '%';
-                        }
+                        // formatter: function() {
+                        //     return (this.value > 0 ? ' + ' : '');
+                        // }
+                        format: '{value}'
+                    },
+                    title:{
+                        text: "Session's",
+                        style: {
+                        color: Highcharts.getOptions().colors[5]
+                    }
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 2,
+                        color: 'silver'
+                    }],
+                    opposite: false
+
+                },
+                {
+                    labels: {
+                        formatter:                                 
+                                function() {
+                                    if (params.y2axis == 'pct'){
+                                        return (this.value > 0 ? ' + ' : '') + this.value + '%'
+                                    }
+                                    else{
+                                        return this.value ;
+                                    }
+                                
+                                }
+
+                    },
+                    title:{
+                        text: 'BR / NBR Rates',
+                        style: {
+                        color: Highcharts.getOptions().colors[5]
+                    }
                     },
                     plotLines: [{
                         value: 0,
                         width: 2,
                         color: 'silver'
                     }]
+                }],
+                legend:{
+                    enabled: true
+                },
+                // plotOptions:{
+                //      showInLegend: true
+                // },
+                // plotOptions: {
+                //     series: {
+                //         compare: 'percent',
+                //         showInNavigator: true
+                //     }
+                // },
+
+                // tooltip: {
+                //     pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+                //     valueDecimals: 2,
+                //     split: true
+                // },
+                series: 
+                [
+                {
+                name: 'BR',
+                data: seriesOptions[0]['data'],
+                yAxis: 1
+                },
+                {
+                name: 'NBR',
+                data: seriesOptions[1]['data'],
+                yAxis: 1
+                },
+                {
+                name: 'Session',
+                // type: 'column',
+                data: seriesOptions[2]['data'],
+                yAxis: 0
                 },
 
-                plotOptions: {
-                    series: {
-                        compare: 'percent',
-                        showInNavigator: true
-                    }
-                },
-
-                tooltip: {
-                    pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
-                    valueDecimals: 2,
-                    split: true
-                },
-
-                series: seriesOptions
+                ]
             });
-        }
+        }    
+        // business = BR error counts, Errors = NBR error counts
+        // http://jsfiddle.net/5eem7a2a/1/
 
-        $.getJSON('http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope=national&interval=day&startTime=1478667600000&endTime=1482210000000',
-            function(data){
-                // console.log(JSON.stringify(data))
-                $.each(data,function(i,x){
-                    console.log(i)
-                    console.log(x)
-                    console.log('national == ', x[0]['X1']['national'])                                                
+        var load_graphs = function(region){
+            d = new Date()
+            starttime = d.setMonth(d.getMonth()-6)
+            endtime = (new Date).getTime()
+            console.log('starttime == ', starttime)
+            console.log('endtime == ', endtime)
+            $.ajax({type:'GET',
+                url:'http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope='+region+'&interval=day&startTime='+starttime+'&endTime='+ endtime,                        
+                success: function(data){
+                    console.log('i')
+                    console.log(JSON.stringify(data))
+                    $.each(data,function(i,x){                    
+                        // console.log('national == ', x[0]['X1']['national'])                                                
 
-                    for (var i = 0; i <= 10; i++)
-                    {   
-                        error_counts_results[i] = []
-                    }
-                    $.each(x[0]['X1']['national'], function(unix_date,data){                                
-                        if  (parseFloat(unix_date)){
-                            $.each(error_constants, 
+                        for (var i = 0; i <= 10; i++)
+                        {   
+                            error_counts_results[i] = []
+                        }
+                        $.each(x[0]['X1']['national'], function(unix_date,data){                                
+                            if  (parseFloat(unix_date)){
+                                $.each(error_constants, 
                                     function(ix,error_item){  
-                                        console.log(ix)
-                                         console.log(data[error_item])
-                                         error_counts_results[ix].push([parseInt(unix_date),data[error_item]])
+                                        // console.log(ix)
+                                        // console.log(data[error_item])
+                                        error_counts_results[ix].push([parseInt(unix_date),data[error_item]])
                                     }
-                            )
-                        console.log('result == ', JSON.stringify(error_counts_results))
-                        }                           
+                                )
+                            // console.log('result == ', JSON.stringify(error_counts_results))
+                            }                           
+                        })
                     })
-                })
-                $.each(error_constants, function(i, name){
-                seriesOptions[i] = {
-                name: name,
-                data: error_counts_results[i]
-                };
-        })
-        console.log('seriesOptions == ', JSON.stringify(seriesOptions))
-        createChart();
+                    // $.each(error_constants, function(i, name){
+                    //     seriesOptions[i] = {
+                    //     name: name,
+                    //     data: error_counts_results[i]
+                    //     };
+                    // })
+                    seriesOptions[0] = {
+                        name: error_constants[0],
+                        data: error_counts_results[0]
+                    };
+
+                    seriesOptions[1] = {
+                        name: error_constants[3],
+                        data: error_counts_results[3]
+                    };
+
+                    seriesOptions[2] = {
+                        name: error_constants[4],
+                        data: error_counts_results[4]
+                    };
+                    params = {
+                        'title':'National - Session Rates vs BR/NBR Rates'
+                        ,'y2axis':'pct'
+                    }                                 
+                    createChart_National('container-natl-rates',params);
+                    seriesOptions[0] = {
+                        name: error_constants[0],
+                        data: error_counts_results[0]
+                    };
+                    
+                    seriesOptions[1] = {
+                        name: name,
+                        data: error_counts_results[1]
+                    };
+
+                    seriesOptions[2] = {
+                        name: name,
+                        data: error_counts_results[2]
+                    };
+                    params = {
+                        'title':'National - Session Counts vs BR/NBR Counts'
+                        ,'y2axis':'cnt'
+                    }                                 
+                    createChart_National('container-natl-counts',params);
+                    
+                },                
             })
-        //[{"name":"br","data":[[1478667600000,0.059082882203051704,1478754000000,0.049829476318059514]]}
-        //[{"name":"br","data":[[[1478667600000,0.059082882203051704],[1478754000000,0.049829476318059514]]]}
-
-
-
-        // $.each(names, function(i, name) {
-
-        //     $.getJSON('https://www.highcharts.com/samples/data/jsonp.php?filename=' + name.toLowerCase() + '-c.json&callback=?',    function (data) {
-        //         // console.log(name)
-        //         // console.log(data)
-        //         seriesOptions[i] = {
-        //             name: name,
-        //             data: data
-        //         };
-                
-
-        //         // As we're loading the data asynchronously, we don't know what order it will arrive. So
-        //         // we keep a counter and create the chart when all the data is loaded.
-        //         seriesCounter += 1;
-
-        //         if (seriesCounter === names.length) {
-        //             console.log(JSON.stringify(seriesOptions))
-        //             createChart();
-        //         }
-        //     });
-
-
-        // });
+        }
+        load_graphs('national')
 
 
     });

@@ -3204,9 +3204,12 @@ $(document).ready(function() {
             // async: false,
             success: function(result){
              if (result.status == 'success')   {                           
-                if(Object.getOwnPropertyNames(result.results[0]).length != 0){                
+                console.log('callouts results - 1 == ', result.results[0].results[0].report_data)
+                console.log('callouts results - 2 == ', result.results[0].results[0].report_data.length)
+                // if(Object.getOwnPropertyNames(result.results[0].results[0].report_data).length != 0){                
+                if(result.results[0].results[0].report_data.length != 2){                
                     // console.log('callouts results - 1 == ', JSON.stringify(result.results[0].results))
-                    console.log('callouts results - 2 == ', result.results[0].results[0])
+                    console.log('callouts results - 3 == ', result.results[0].results[0])
                     // gen_points = result.results[0].results[0]
                     // gen_points = gen_points.report_data
                     // gen_points = JSON.parse(gen_points.report_data)
@@ -3408,6 +3411,7 @@ $(document).ready(function() {
 
         var generate_callout_points = function(){
             gen_points = {}
+            var chart = $("#report-daily-2-highcharts").highcharts();
             $('#points-table tr').not(':first').each(function() {                
                 // line_item = $(this).find(".callout-line-item").html().split('&amp;&amp;')[1];                
                 line_item = $(this).find(".callout-line-item").html();                
@@ -3417,15 +3421,23 @@ $(document).ready(function() {
                 callout = $(this).find(".callout-message").find('textarea').val()
                 y_axis_position = $(this).find(".callout-x-axis-position").find('input').val()
                 x_axis_position = $(this).find(".callout-y-axis-position").find('input').val()
+
                 angle = $(this).find(".callout-angle").find('input').val()
                 draw_type = $(this).find(".callout-box-type").find('select').val()
                 width = $(this).find(".callout-width").find('input').val()
                 height = $(this).find(".callout-height").find('input').val()
                 color = $(this).find(".callout-color").find('input').val()
+                series = chart.series[0]
+                point_graph_x_axis = series.data[parseInt(point)].plotX;   
+                point_graph_y_axis = series.data[parseInt(point)].plotY;                   
+                console.log('here im plotX == ', point_graph_x_axis)
+                console.log('here im plotY == ', point_graph_y_axis)
                 if (line_item in gen_points) {
-                    gen_points[line_item].push({ x_axis, y_axis, point, callout, y_axis_position, x_axis_position, color, draw_type, height, width, angle })
+                    gen_points[line_item].push({ x_axis, y_axis, point, callout, y_axis_position, x_axis_position, color, 
+                                    draw_type, height, width, angle, point_graph_x_axis, point_graph_y_axis })
                 } else {
-                    gen_points[line_item] = [{ x_axis, y_axis, point, callout, y_axis_position, x_axis_position, color, draw_type, height, width, angle }]
+                    gen_points[line_item] = [{ x_axis, y_axis, point, callout, y_axis_position, x_axis_position, color, draw_type, height, 
+                                    width, angle, point_graph_x_axis, point_graph_y_axis }]
                 }
                 console.log('gen_points == ', JSON.stringify(gen_points))
 
@@ -3455,6 +3467,8 @@ $(document).ready(function() {
                      callout = gen_points[key][index]['callout']
                      y_axis_position = gen_points[key][index]['y_axis_position']
                      x_axis_position = gen_points[key][index]['x_axis_position']
+                     actual_y_axis_position = gen_points[key][index]['point_graph_y_axis']
+                     actual_x_axis_position = gen_points[key][index]['point_graph_x_axis']
                      color = gen_points[key][index]['color']
                      draw_type = gen_points[key][index]['draw_type']
                      height = gen_points[key][index]['height']
@@ -3462,11 +3476,33 @@ $(document).ready(function() {
                      angle = gen_points[key][index]['angle']
 
                      series = chart.series[parseInt(key)]
-                     point = series.data[parseInt(point_val)];
+                     point = series.data[parseInt(point_val)];   
+                     if (point.plotX > actual_x_axis_position) {
+                        plotX = point.plotX
+                        plotY = point.plotY
+
+                     }else if (point.plotX < actual_x_axis_position) {
+                        plotX = point.plotX
+                        plotY = point.plotY
+                     }else {
+                        plotX = point.plotX
+                        plotY = point.plotY
+                     }
+
+                     if (point.plotY > actual_y_axis_position){
+                        plotY = plotY
+                     }else if (point.plotY < actual_y_axis_position){
+                        plotY = plotY
+                     }else{
+                        plotY = plotY
+                     }
 
                      console.log('gen_points == ', gen_points)
-                         // console.log('xAxis == ', xAxis)
-                         // console.log('yAxis == ', yAxis.toPixels)                                                             
+                     // console.log('xAxis == ', xAxis)
+                     // console.log('yAxis == ', yAxis.toPixels)                                                             
+
+                     // If the monitor size changes, add/subtract the position accordingly.
+
                      if (y_axis_position == '' || parseInt(y_axis_position) == 0) {
                          y_axis_position = 0
                      }
@@ -3474,44 +3510,61 @@ $(document).ready(function() {
                          x_axis_position = 0
                      }
                      console.log('chart.plotTop == ', chart.plotTop)
+                     console.log('chart.plotLeft == ', chart.plotLeft)
                      console.log('point.plotX == ', point.plotX)
                      console.log('point.plotY == ', point.plotY)
                      console.log('x_axis_position == ', x_axis_position)
                      console.log('y_axis_position == ', y_axis_position)
-                     console.log('xAxis position 1 == ', (point.plotX + chart.plotLeft + x_axis_position_default))
-                     console.log('yAxis position 1 == ', (point.plotY + chart.plotTop - y_axis_position_default))
-                     console.log('xAxis position 2 == ', (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position))
-                     console.log('yAxis position 2 == ', (point.plotY + chart.plotTop - y_axis_position_default) + parseInt(y_axis_position))
+                     // console.log('xAxis position 1 == ', (point.plotX + chart.plotLeft + x_axis_position_default))
+                     // console.log('yAxis position 1 == ', (point.plotY + chart.plotTop - y_axis_position_default))
+                     
                      remove_labels = false
+                     // x_axis = (plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position)
+                     // y_axis = (plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position)
+                     x_axis = (plotX + chart.plotLeft ) + parseInt(x_axis_position)
+                     y_axis = (plotY + chart.plotTop ) - parseInt(y_axis_position)
+                     // if (index == 0){
+                     //   x_axis = 444
+                     //   y_axis = 66 
+                     // }else{
+                     //    x_axis = 340
+                     //    y_axis = 37
+                     // }
+                     // x_axis = plotX
+                     // y_axis = plotY
+                     console.log('xAxis position 2 == ', x_axis)
+                     console.log('yAxis position 2 == ', y_axis)
                      if (remove_labels) {
                          //we dont need this anymore but ill leave it for any future use if needed.
                          console.log(chart.renderer.label)
                          var a = chart.renderer.label('<div class="callout">' + callout + '</div>',
-                             point.plotX + chart.plotLeft + 10,
-                             point.plotY + chart.plotTop - parseInt(y_axis_position), 'callout', null, null, true).destroy();
+                             plotX + chart.plotLeft + 10,
+                             plotY + chart.plotTop - parseInt(y_axis_position), 'callout', null, null, true).destroy();
 
                          console.log('a', a);
                      } else {
                          if (draw_type == 'Box') {
-                             // alert('draw')              
+                             console.log(draw_type)         
                              var a = chart.renderer.label('<div class="callout" style="background-color:#' + gen_points[key][index]['color'] + ';height:'+ height +'px;width:'+width+'px">' + callout + '</div>',
-                                 (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
-                                 (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
+                                 x_axis,
+                                 y_axis, 'callout', null, null, true).add();
                          }else if (draw_type == 'Line') {
+                            console.log(draw_type)         
                              properties = 'style="display:block; background-color:#' + color + '; height:' + height + 'px; width:' + width + 'px; -ms-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); transform: rotate(' + angle + 'deg); transform-origin: bottom left;"'
                              console.log(properties)
                              var a = chart.renderer.label('<div class="single-arrow-line" ' + properties + '>  </div>',
-                                 (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
-                                 (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
+                                 x_axis,
+                                 y_axis, 'callout', null, null, true).add();
                              console.log('a', a);
 
                          }
                          else {                            
+                            console.log(draw_type)         
                              properties = 'style="display:block; background-color:#' + color + '; height:' + height + 'px; width:' + width + 'px; -ms-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); transform: rotate(' + angle + 'deg); transform-origin: bottom left;"'
                              console.log(properties)
                              var a = chart.renderer.label('<div class="double-arrow-line" ' + properties + '>  </div>',
-                                 (point.plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position),
-                                 (point.plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position), 'callout', null, null, true).add();
+                                 x_axis,
+                                 y_axis, 'callout', null, null, true).add();
                              console.log('a', a);
 
 

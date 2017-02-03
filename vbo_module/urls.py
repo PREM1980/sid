@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^report-view$', ReportView.as_view()),
     url(r'^report-data/$', ReportData.as_view()),
     url(r'^get-report-names$', SplunkReportNames.as_view()),
-    url(r'^update-comments/$', UpdateComments.as_view()),
+    url(r'^update-report-comments/$', UpdateComments.as_view()),
     url(r'^store-callouts/$', StoreCallouts.as_view()),
     #Monthly
     # url(r'^monthly/report-view$', ReportView.as_view()),

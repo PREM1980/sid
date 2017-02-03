@@ -1,9 +1,9 @@
 {% block content %}
 <div id="daily-div">
     <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
-    <button class="btn-success" data-toggle="collapse" data-target="#html-reports" id="html-reports-btn" style="display:none">Summary</button>
+    <!-- <button class="btn-success" data-toggle="collapse" data-target="#html-reports" id="html-reports-btn" style="display:none">Summary</button> -->
 
-    <div id="html-reports" class="collapse">
+    <div id="html-reports" class="">
         <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
         <table border="1" style="border-spacing: 1px;border-collapse: separate;">
 
@@ -133,6 +133,7 @@
                 </tr>
             </tbody>
         </table>
+        
         <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
 
 
@@ -160,19 +161,32 @@
         </table>
 
         <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
+        <div class="row">        
+        <div class="col-md-12" id="daily-report-0-comments" style="display:none">
+            <div class="form-group">
+                <pre>
+                <textarea style="white-space: pre-wrap;" class="form-control" rows="10" id="report-daily-0-comments-txt" placeholder="Please provide your comments here..."></textarea>
+                </pre>
+            </div>
+            <div class="col-sm-2">
+                <input type="submit" class="btn btn-success" value="Update Comments" id="report-daily-0-submit">
+            </div>
+        </div>
+
+    </div>
 
     </div>
 
     <div class="row">
         <div class="col-md-12" id="report-daily-1-highcharts"></div>
-        <!-- <div class="col-md-4" id="daily-report-1-comments" style="display:none">
+        <div class="col-md-4" id="daily-report-1-comments" style="display:none">
             <div class="form-group">
                 <textarea class="form-control" rows="10" id="report-daily-1-comments-txt" placeholder="Please provide your comments here..."></textarea>
             </div>
             <div class="col-sm-2">
                 <input type="submit" class="btn btn-success" value="Update Comments" id="report-daily-1-submit">
             </div>
-        </div> -->
+        </div>
 
     </div>
     <!-- <div class="col-md-6" id="container_users_by_count"></div> -->    
@@ -186,7 +200,7 @@
 <span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span><span class="help-block">&nbsp</span>
 
 <div class="row">
-    <div class="col-md-12" id="report-daily-2-highcharts"></div>
+    <div class="col-md-12" style="height:800px" id="report-daily-2-highcharts"></div>
     <!-- <div class="col-md-4" id="daily-report-2-comments" style="display:none">
         <div class="form-group">
             <textarea class="form-control" rows="10" id="report-daily-2-comments-txt" placeholder="Please provide your comments here..."></textarea>

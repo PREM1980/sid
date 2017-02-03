@@ -148,6 +148,7 @@ class UpdateComments(View):
 		return super(UpdateComments, self).dispatch(request, *args, **kwargs)
 
 	def get(self, request):
+		print 'Update comments'
 		user_id = utils.check_session_variable(request)
 		
 		ip = utils.getip()

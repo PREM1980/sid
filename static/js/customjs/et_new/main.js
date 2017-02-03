@@ -8,18 +8,22 @@
 // business, success, errors are all raw coungs
 // business = BR error counts, Errors = NBR error counts # Don
 // br/nbr = error rates
+// removed it 69.0.0.0/0 (CIDR)
 $(document).ready(function() {
+    function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
     $(function() {
         var seriesOptions = [],
             seriesCounter = 0,
             names = ['MSFT', 'AAPL', 'GOOG'];
             error_list = ['CM_CONNECT Errors','Infinite Retry Errors','Network Resource Failure','Plant Setup Errors','Plant Teardown Errors','Tune Errors','VCP Errors']                            
-            error_constants = ['br','business','errors','nbr','success']
+            error_constants = ['br','business','errors','nbr','success', 'sr']
             error_counts_results= []
 
         
         function createChart_National(chart, params) {
-            console.log(JSON.stringify(params))
+            // console.log(JSON.stringify(params))
             Highcharts.stockChart(chart, {
                 title: {
                     text: params.title
@@ -30,10 +34,12 @@ $(document).ready(function() {
 
                 yAxis: [{
                     labels: {
-                        // formatter: function() {
-                        //     return (this.value > 0 ? ' + ' : '');
-                        // }
-                        format: '{value}'
+                        formatter: function() {
+                                    if (params.y2axis == 'pct'){
+                                        return (this.value > 0 ? ' + ' : '') + this.value + '%'
+                                    }else
+                                        return (this.value)                             
+                        }                        
                     },
                     title:{
                         text: "Session's",
@@ -47,7 +53,6 @@ $(document).ready(function() {
                         color: 'silver'
                     }],
                     opposite: false
-
                 },
                 {
                     labels: {
@@ -58,10 +63,8 @@ $(document).ready(function() {
                                     }
                                     else{
                                         return this.value ;
-                                    }
-                                
+                                    }                                
                                 }
-
                     },
                     title:{
                         text: 'BR / NBR Rates',
@@ -97,18 +100,18 @@ $(document).ready(function() {
                 [
                 {
                 name: 'BR',
-                data: seriesOptions[0]['data'],
+                data: seriesOptions[1]['data'],
                 yAxis: 1
                 },
                 {
                 name: 'NBR',
-                data: seriesOptions[1]['data'],
+                data: seriesOptions[2]['data'],
                 yAxis: 1
                 },
                 {
                 name: 'Session',
                 // type: 'column',
-                data: seriesOptions[2]['data'],
+                data: seriesOptions[0]['data'],
                 yAxis: 0
                 },
 
@@ -118,25 +121,63 @@ $(document).ready(function() {
         // business = BR error counts, Errors = NBR error counts
         // http://jsfiddle.net/5eem7a2a/1/
 
-        var load_graphs = function(region){
+        var load_graphs = function(scope, scopeFilter, chart_1, chart_2){
+            console.log('load_graphs scope == ', scope)
+            console.log('load_graphs sopeFilter== ', scopeFilter)
+            var deferred = $.Deferred()
+
             d = new Date()
-            starttime = d.setMonth(d.getMonth()-6)
+            starttime = d.setMonth(d.getMonth()-1)
+            starttime = d.setDate(d.getDate()-1)
             endtime = (new Date).getTime()
-            console.log('starttime == ', starttime)
-            console.log('endtime == ', endtime)
+            // console.log('starttime == ', starttime)
+            // console.log('endtime == ', endtime)
+            if (scope == 'national'){
+                url = 'http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope='+ scope + '&interval=day&startTime='+starttime+'&endTime='+ endtime
+            }
+            else if (scope == 'division'){
+                url = 'http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope=' + scope + '&scopeFilter=' + scopeFilter + '&interval=day&startTime='+starttime+'&endTime='+ endtime
+            }
+            // else if (scope == 'division'){
+            //     url = 'http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope=' + scope + '&scopeFilter=' + scopeFilter + '&interval=day&startTime='+starttime+'&endTime='+ endtime
+            // }
+            // else if (scope == 'central'){
+            //     url = 'http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope=' + scope + '&scopeFilter=' + scopeFilter + '&interval=day&startTime='+starttime+'&endTime='+ endtime
+            // }
+
+            if (scopeFilter == ''){
+                data_filter = 'national'
+            }
+            else if  (scopeFilter == 'western'){
+                data_filter = 'Western'
+            }
+            else if  (scopeFilter == 'northeast'){
+                data_filter = 'Northeast'
+            }
+            else if  (scopeFilter == 'central'){
+                data_filter = 'Central'
+            }
+            console.log(url)
+            console.log('scopeFilter == ', scopeFilter)
+            console.log('data_filter == ',data_filter)
+            
             $.ajax({type:'GET',
-                url:'http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope='+region+'&interval=day&startTime='+starttime+'&endTime='+ endtime,                        
-                success: function(data){
-                    console.log('i')
-                    console.log(JSON.stringify(data))
+                url: url,             
+                // dataType: 'jsonp',
+                jsonpCallback: 'test',
+                success: function(data){                    
+                    // console.log(JSON.stringify(data))
+                    console.log('data == ', data)
                     $.each(data,function(i,x){                    
-                        // console.log('national == ', x[0]['X1']['national'])                                                
+                        console.log('data x1 == ', x[0]['X1'])                                                
+                        console.log('data x1 data_filter == ', data_filter)                                                
+                        console.log('data x1 data_filter applied == ', x[0]['X1'][data_filter])                                                
 
                         for (var i = 0; i <= 10; i++)
                         {   
                             error_counts_results[i] = []
                         }
-                        $.each(x[0]['X1']['national'], function(unix_date,data){                                
+                        $.each(x[0]['X1'][data_filter], function(unix_date,data){                                
                             if  (parseFloat(unix_date)){
                                 $.each(error_constants, 
                                     function(ix,error_item){  
@@ -156,27 +197,29 @@ $(document).ready(function() {
                     //     };
                     // })
                     seriesOptions[0] = {
+                        name: error_constants[5],
+                        data: error_counts_results[5]
+                    };
+                    console.log('option 1 == ', seriesOptions[0])
+                    seriesOptions[1] = {
                         name: error_constants[0],
                         data: error_counts_results[0]
                     };
-
-                    seriesOptions[1] = {
+                    console.log('option 2 == ', seriesOptions[1])
+                    seriesOptions[2] = {
                         name: error_constants[3],
                         data: error_counts_results[3]
                     };
-
-                    seriesOptions[2] = {
-                        name: error_constants[4],
-                        data: error_counts_results[4]
-                    };
+                    console.log('option 3 == ', seriesOptions[2])
                     params = {
-                        'title':'National - Session Rates vs BR/NBR Rates'
+                        'title':  capitalizeFirstLetter(data_filter) + '- Session Rates vs BR/NBR Rates'
+                        // 'title': capitalizeFirstLetter(data_filter) + ' - Session Rates vs BR/NBR Rates'
                         ,'y2axis':'pct'
                     }                                 
-                    createChart_National('container-natl-rates',params);
+                    createChart_National(chart_1,params);
                     seriesOptions[0] = {
-                        name: error_constants[0],
-                        data: error_counts_results[0]
+                        name: error_constants[4],
+                        data: error_counts_results[4]
                     };
                     
                     seriesOptions[1] = {
@@ -189,15 +232,59 @@ $(document).ready(function() {
                         data: error_counts_results[2]
                     };
                     params = {
-                        'title':'National - Session Counts vs BR/NBR Counts'
+                        'title':capitalizeFirstLetter(data_filter) +  ' - Session Counts vs BR/NBR Counts'
                         ,'y2axis':'cnt'
                     }                                 
-                    createChart_National('container-natl-counts',params);
+                    createChart_National(chart_2,params);
+                    deferred.resolve()
                     
                 },                
             })
+            return deferred.promise()
         }
-        load_graphs('national')
+
+        load_graphs('national','','container-natl-rates','container-natl-counts').then(
+            function() {
+                load_graphs('division','western','container-west-rates','container-west-counts').then(
+                    function() {
+                load_graphs('division','central','container-central-rates','container-central-counts').then(
+                    function() {
+                    load_graphs('division','northeast','container-east-rates','container-east-counts')    
+            }
+            )   
+                }
+            )
+            }
+        )
+        // .then(
+            
+        // ).then(
+        //     function() {
+        //         load_graphs('division','Northeast','container-east-rates','container-east-counts')    
+        //     }
+        // )
+
+        // load_graphs('national','','container-natl-rates','container-natl-counts',
+        //     function() {
+        //         load_graphs('division','Western','container-west-rates','container-west-counts')    
+        //     }
+        // )
+
+        // function load_all_graphs(arg1, arg2, arg3){
+        //     var result = load_graphs('national','','container-natl-rates','container-natl-counts')
+        //     console.log('result == ', result)
+        //     var result = load_graphs('division','Western','container-west-rates','container-west-counts')
+        //     console.log('result == ', result)
+        // }
+
+        // load_all_graphs()
+
+        // var promise_1 = load_graphs('national','','container-natl-rates','container-natl-counts')        
+        // var promise_2 = load_graphs('division','Western','container-west-rates','container-west-counts')
+        
+        // console.log('start promise')
+        // $.when(promise_1, promise_2).done(function(){console.log('its complete')})
+
 
 
     });

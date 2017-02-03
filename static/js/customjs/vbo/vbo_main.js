@@ -19,7 +19,7 @@ $(document).ready(function() {
     function add_percentage(val) {                
         return val + '%'
     }
-    $('#report-daily-1-submit, #report-daily-2-submit, #report-daily-3-submit,' + 
+    $('#report-daily-0-submit,#report-daily-1-submit, #report-daily-2-submit, #report-daily-3-submit,' + 
         '#report-weekly-1-submit, #report-weekly-2-submit, #report-weekly-3-submit ' + 
         ',#report-weekly-4-submit, #report-weekly-5-submit, #report-weekly-6-submit ' + 
         ',#report-weekly-7-submit, #report-weekly-8-submit, #report-weekly-9-submit ' + 
@@ -33,7 +33,9 @@ $(document).ready(function() {
         report_num = this.id.split('-')[1] + '-' + this.id.split('-')[2]        
         // alert(report_num)
         elem = "#report-{0}-comments-txt".format(report_num)        
-        comments = $(elem).val()        
+        comments = encodeURI($(elem).val())
+        // comments = comments.replace(" ","%20")
+        console.log('comments == ', comments)
         
         $.ajax({
             url: '/vbo/update-report-comments/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() +  '&report_num=' + report_num + '&report_callouts=' + comments,            
@@ -127,16 +129,21 @@ $(document).ready(function() {
 
         return;
     }
-
     
-
     var generate_daily_report = function() {       
         console.log('daily_report_on_load ==', daily_report_on_load)
+        console.log('report name == ', $('#report_names').val())
+        console.log('report date == ', $('#report_dates').val())
         console.log('report_names ==', report_names_and_dates[report_names_and_dates.length - 1].report_run_date )
         $('#report_names').val('Daily Errors Report')
-        $('#report_dates').val(report_names_and_dates[report_names_and_dates.length - 1].report_run_date)
-        handle_report_name_change('Daily Errors Report')
+        console.log('report_names_and_dates == ', report_names_and_dates)
+        console.log('report_names_and_dates == ', report_names_and_dates.length)
+        console.log('report_names_and_dates == ', report_names_and_dates.length)
+        
+        
         if (daily_report_on_load == true){
+            handle_report_name_change('Daily Errors Report')
+            $('#report_dates').val(report_names_and_dates[report_names_and_dates.length - 1].report_run_date)
             url = '/vbo/report-data/?' + 'report_name=' + 'Daily Errors Report' + '&report_run_date=' + report_names_and_dates[report_names_and_dates.length - 1].report_run_date
         }else{
             url = '/vbo/report-data/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val()
@@ -166,6 +173,7 @@ $(document).ready(function() {
                     tune_errors_rate = [x1.x1_tune_error_rate, legacy.legacy_tune_error_rate]
 
                     drawchart_stacked_stb_error_rates()
+                    $('#daily-report-0-comments').show()
                     spikes = result.results.results_nbrf_spikes
 
                     spikes_categories = []
@@ -203,6 +211,7 @@ $(document).ready(function() {
                     drawchart_x1_vs_legacy()
 
                     comments = result.results.report_comments
+                    $('#report-daily-0-comments-txt').val(comments.report_1_comments)
                     $('#report-daily-1-comments-txt').val(comments.report_1_comments)
                     $('#report-daily-2-comments-txt').val(comments.report_2_comments)
                     $('#report-daily-3-comments-txt').val(comments.report_3_comments)
@@ -283,6 +292,8 @@ $(document).ready(function() {
             // $('#vbo-nbrf-spikes').highcharts({
             $('#report-daily-2-highcharts').highcharts({
                 chart: {
+                        height: 700,
+                        // plotAreaHeight: 400
                           // type: 'bar',
                           events: {
                             load: function() {  
@@ -482,7 +493,7 @@ $(document).ready(function() {
             success: function(result) {
                 if (result.status == 'success') {
                     report_names_and_dates = result.results[0].results
-                    console.log(JSON.stringify(report_names_and_dates))
+                    console.log('report_names_dates == ', JSON.stringify(report_names_and_dates))
                     
                     report_names_and_dates.forEach(function(obj) {
                         report_names_values.push(obj.report_name)
@@ -517,9 +528,9 @@ $(document).ready(function() {
             alert('Pick your report and run date')
         } else {
             if ($('#report_names').val() == 'Weekly Errors Report'){
-            generate_weekly_report()
+                generate_weekly_report()
             }else{
-                daily_report_on_load = false
+                daily_report_on_load = false                
                 generate_daily_report()
                 
             }
@@ -680,7 +691,7 @@ $(document).ready(function() {
         // console.log('x1 == ', JSON.stringify(x1))
 
         x1['qry-4'].forEach(function(obj) {
-            console.log(JSON.stringify(obj))
+            // console.log(JSON.stringify(obj))
             if (obj.dayname == 'Saturday'){
                 $('#stb-x1-weekly').text(add_percentage(obj.x1_nbr_error_rate))
                 $('#stb-legacy-weekly').text(add_percentage(obj.legacy_nbr_error_rate))
@@ -689,7 +700,7 @@ $(document).ready(function() {
             })
 
         x1['qry-3'].forEach(function(obj) {
-            console.log(JSON.stringify(obj))
+            // console.log(JSON.stringify(obj))
             if (obj.dayname == 'Saturday'){
                 $('#stb-x1-sat').text(add_percentage(obj.x1_nbr_error_rate))
                 $('#stb-legacy-sat').text(add_percentage(obj.legacy_nbr_error_rate))
@@ -736,11 +747,11 @@ $(document).ready(function() {
             url: '/vbo/monthly/report-1/?' + 'report_name=' + $('#report_names').val() + '&report_run_date=' + $('#report_dates').val() + '&report_id=' + $('#report_dates').find('option:selected').attr("name"),
             type: 'GET',
             success: function(result) {
-                console.log('monthly report-1 result == ', result)
+                // console.log('monthly report-1 result == ', result)
                 if (result.status == 'success') {
-                    console.log('chart results == ', JSON.stringify(result.results.report_1))
+                    // console.log('chart results == ', JSON.stringify(result.results.report_1))
                     x1 = result.results.report_1
-                    console.log('x1 ==',x1)
+                    // console.log('x1 ==',x1)
                     set_summary_weekly(x1)
                     $('#report-weekly-1-comments-txt').val(x1.report_comments.report_1_comments)
          
@@ -3203,13 +3214,14 @@ $(document).ready(function() {
             type: 'GET',
             // async: false,
             success: function(result){
-             if (result.status == 'success')   {                           
-                console.log('callouts results - 1 == ', result.results[0].results[0].report_data)
-                console.log('callouts results - 2 == ', result.results[0].results[0].report_data.length)
+             if (result.status == 'success')   {                
+             console.log('result == ', JSON.stringify(result)           )
+                // console.log('callouts results - 1 == ', result.results[0].results[0].report_data)
+                // console.log('callouts results - 2 == ', result.results[0].results[0].report_data.length)
                 // if(Object.getOwnPropertyNames(result.results[0].results[0].report_data).length != 0){                
-                if(result.results[0].results[0].report_data.length != 2){                
+                if(result.results[0].results.length != 0){                
                     // console.log('callouts results - 1 == ', JSON.stringify(result.results[0].results))
-                    console.log('callouts results - 3 == ', result.results[0].results[0])
+                    // console.log('callouts results - 3 == ', result.results[0].results[0])
                     // gen_points = result.results[0].results[0]
                     // gen_points = gen_points.report_data
                     // gen_points = JSON.parse(gen_points.report_data)
@@ -3346,13 +3358,13 @@ $(document).ready(function() {
                                 .text(this.point))
                     });
                 $('#pick-x-y-axis').multiselect('refresh');
-                console.log('load_all_data_points - 1')
+                // console.log('load_all_data_points - 1')
                 if(Object.getOwnPropertyNames(gen_points).length != 0){                
                     $('#pick-x-y-axis').multiselect("widget").find(":checkbox").each(function(){
                         checkbox_item = this
                         position_value = this.title.split('&&')[2].trim()                                                
-                        console.log('load_all_data_points -gen_points == ', gen_points)
-                        console.log('load_all_data_points -gen_points == ', gen_points['0'])
+                        // console.log('load_all_data_points -gen_points == ', gen_points)
+                        // console.log('load_all_data_points -gen_points == ', gen_points['0'])
                         gen_points['0'].forEach(function(obj){                            
                             if (position_value == obj.point) {                                                            
                                 $(checkbox_item).attr("checked",true)
@@ -3360,7 +3372,7 @@ $(document).ready(function() {
                         })                        
                 })
                 }
-                console.log('load_all_data_points - 2')
+                // console.log('load_all_data_points - 2')
         }
 
         //Store the attributes of the callouts in the database
@@ -3430,8 +3442,8 @@ $(document).ready(function() {
                 series = chart.series[0]
                 point_graph_x_axis = series.data[parseInt(point)].plotX;   
                 point_graph_y_axis = series.data[parseInt(point)].plotY;                   
-                console.log('here im plotX == ', point_graph_x_axis)
-                console.log('here im plotY == ', point_graph_y_axis)
+                // console.log('here im plotX == ', point_graph_x_axis)
+                // console.log('here im plotY == ', point_graph_y_axis)
                 if (line_item in gen_points) {
                     gen_points[line_item].push({ x_axis, y_axis, point, callout, y_axis_position, x_axis_position, color, 
                                     draw_type, height, width, angle, point_graph_x_axis, point_graph_y_axis })
@@ -3450,8 +3462,8 @@ $(document).ready(function() {
 
          x_axis_position_default = 10
          y_axis_position_default = 30
-         console.log('******generate callouts******* == ', gen_points)
-         console.log('******generate callouts******* == ', JSON.stringify(gen_points))
+         // console.log('******generate callouts******* == ', gen_points)
+         // console.log('******generate callouts******* == ', JSON.stringify(gen_points))
          var xAxis;
          var yAxis;
          if (Object.keys(gen_points).length === 0) {
@@ -3475,54 +3487,58 @@ $(document).ready(function() {
                      width = gen_points[key][index]['width']
                      angle = gen_points[key][index]['angle']
 
-                     series = chart.series[parseInt(key)]
-                     point = series.data[parseInt(point_val)];   
-                     if (point.plotX > actual_x_axis_position) {
-                        plotX = point.plotX
-                        plotY = point.plotY
+                     // series = chart.series[parseInt(key)]
+                     // point = series.data[parseInt(point_val)];   
+                     // chart.xAxis[0].toPixels(200)
+                     // console.log('x_axis_position == ', x_axis_position)
+                     // console.log('y_axis_position == ', y_axis_position)
+                     x_axis = chart.xAxis[0].toPixels(x_axis_position)
+                     y_axis = chart.yAxis[0].toPixels(y_axis_position)
+                     // console.log('gen_points == ', gen_points)
+                     // if (point.plotX > actual_x_axis_position) {
+                     //    plotX = point.plotX
+                     //    plotY = point.plotY
 
-                     }else if (point.plotX < actual_x_axis_position) {
-                        plotX = point.plotX
-                        plotY = point.plotY
-                     }else {
-                        plotX = point.plotX
-                        plotY = point.plotY
-                     }
+                     // }else if (point.plotX < actual_x_axis_position) {
+                     //    plotX = point.plotX
+                     //    plotY = point.plotY
+                     // }else {
+                     //    plotX = point.plotX
+                     //    plotY = point.plotY
+                     // }
 
-                     if (point.plotY > actual_y_axis_position){
-                        plotY = plotY
-                     }else if (point.plotY < actual_y_axis_position){
-                        plotY = plotY
-                     }else{
-                        plotY = plotY
-                     }
+                     // if (point.plotY > actual_y_axis_position){
+                     //    plotY = plotY
+                     // }else if (point.plotY < actual_y_axis_position){
+                     //    plotY = plotY
+                     // }else{
+                     //    plotY = plotY
+                     // }
 
-                     console.log('gen_points == ', gen_points)
+                     
                      // console.log('xAxis == ', xAxis)
                      // console.log('yAxis == ', yAxis.toPixels)                                                             
 
                      // If the monitor size changes, add/subtract the position accordingly.
 
-                     if (y_axis_position == '' || parseInt(y_axis_position) == 0) {
-                         y_axis_position = 0
-                     }
-                     if (x_axis_position == '' || parseInt(x_axis_position) == 0) {
-                         x_axis_position = 0
-                     }
-                     console.log('chart.plotTop == ', chart.plotTop)
-                     console.log('chart.plotLeft == ', chart.plotLeft)
-                     console.log('point.plotX == ', point.plotX)
-                     console.log('point.plotY == ', point.plotY)
-                     console.log('x_axis_position == ', x_axis_position)
-                     console.log('y_axis_position == ', y_axis_position)
+                     // if (y_axis_position == '' || parseInt(y_axis_position) == 0) {
+                     //     y_axis_position = 0
+                     // }
+                     // if (x_axis_position == '' || parseInt(x_axis_position) == 0) {
+                     //     x_axis_position = 0
+                     // }
+                     // console.log('chart.plotTop == ', chart.plotTop)
+                     // console.log('chart.plotLeft == ', chart.plotLeft)
+                     // console.log('point.plotX == ', point.plotX)
+                     // console.log('point.plotY == ', point.plotY)
+                     // console.log('x_axis_position == ', x_axis_position)
+                     // console.log('y_axis_position == ', y_axis_position)
                      // console.log('xAxis position 1 == ', (point.plotX + chart.plotLeft + x_axis_position_default))
                      // console.log('yAxis position 1 == ', (point.plotY + chart.plotTop - y_axis_position_default))
-                     
-                     remove_labels = false
                      // x_axis = (plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position)
                      // y_axis = (plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position)
-                     x_axis = (plotX + chart.plotLeft ) + parseInt(x_axis_position)
-                     y_axis = (plotY + chart.plotTop ) - parseInt(y_axis_position)
+                     // x_axis = (plotX + chart.plotLeft ) + parseInt(x_axis_position)
+                     // y_axis = (plotY + chart.plotTop ) - parseInt(y_axis_position)
                      // if (index == 0){
                      //   x_axis = 444
                      //   y_axis = 66 
@@ -3532,8 +3548,15 @@ $(document).ready(function() {
                      // }
                      // x_axis = plotX
                      // y_axis = plotY
-                     console.log('xAxis position 2 == ', x_axis)
-                     console.log('yAxis position 2 == ', y_axis)
+      //                var a = chart.renderer.label('<div class="callout">This is a message <br> needs to be fixed</div>',
+      // x,
+      // y,
+      //   'callout', null, null, true).add();
+                     
+                     remove_labels = false
+                     
+                     // console.log('xAxis position 2 == ', x_axis)
+                     // console.log('yAxis position 2 == ', y_axis)
                      if (remove_labels) {
                          //we dont need this anymore but ill leave it for any future use if needed.
                          console.log(chart.renderer.label)
@@ -3541,31 +3564,31 @@ $(document).ready(function() {
                              plotX + chart.plotLeft + 10,
                              plotY + chart.plotTop - parseInt(y_axis_position), 'callout', null, null, true).destroy();
 
-                         console.log('a', a);
+                         // console.log('a', a);
                      } else {
                          if (draw_type == 'Box') {
-                             console.log(draw_type)         
+                             // console.log(draw_type)         
                              var a = chart.renderer.label('<div class="callout" style="background-color:#' + gen_points[key][index]['color'] + ';height:'+ height +'px;width:'+width+'px">' + callout + '</div>',
                                  x_axis,
                                  y_axis, 'callout', null, null, true).add();
                          }else if (draw_type == 'Line') {
                             console.log(draw_type)         
                              properties = 'style="display:block; background-color:#' + color + '; height:' + height + 'px; width:' + width + 'px; -ms-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); transform: rotate(' + angle + 'deg); transform-origin: bottom left;"'
-                             console.log(properties)
+                             // console.log(properties)
                              var a = chart.renderer.label('<div class="single-arrow-line" ' + properties + '>  </div>',
                                  x_axis,
                                  y_axis, 'callout', null, null, true).add();
-                             console.log('a', a);
+                             // console.log('a', a);
 
                          }
                          else {                            
                             console.log(draw_type)         
                              properties = 'style="display:block; background-color:#' + color + '; height:' + height + 'px; width:' + width + 'px; -ms-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); transform: rotate(' + angle + 'deg); transform-origin: bottom left;"'
-                             console.log(properties)
+                             // console.log(properties)
                              var a = chart.renderer.label('<div class="double-arrow-line" ' + properties + '>  </div>',
                                  x_axis,
                                  y_axis, 'callout', null, null, true).add();
-                             console.log('a', a);
+                             // console.log('a', a);
 
 
                          }

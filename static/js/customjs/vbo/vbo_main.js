@@ -3463,7 +3463,7 @@ $(document).ready(function() {
          x_axis_position_default = 10
          y_axis_position_default = 30
          // console.log('******generate callouts******* == ', gen_points)
-         // console.log('******generate callouts******* == ', JSON.stringify(gen_points))
+         console.log('******generate callouts******* == ', JSON.stringify(gen_points))
          var xAxis;
          var yAxis;
          if (Object.keys(gen_points).length === 0) {

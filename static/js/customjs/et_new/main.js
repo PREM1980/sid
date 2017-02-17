@@ -127,17 +127,23 @@ $(document).ready(function() {
             var deferred = $.Deferred()
 
             d = new Date()
-            starttime = d.setMonth(d.getMonth()-1)
-            starttime = d.setDate(d.getDate()-1)
+            starttime = d.setMonth(d.getMonth()-3)
+            starttime = d.setDate(d.getDate()-3)
             endtime = (new Date).getTime()
             // console.log('starttime == ', starttime)
             // console.log('endtime == ', endtime)
             if (scope == 'national'){
-                url = 'http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope='+ scope + '&interval=day&startTime='+starttime+'&endTime='+ endtime
+                url = 'https://vpsq.cable.comcast.com/metrics/vod?scope='+ scope + '&interval=day&startTime='+starttime+'&endTime='+ endtime
             }
             else if (scope == 'division'){
-                url = 'http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope=' + scope + '&scopeFilter=' + scopeFilter + '&interval=day&startTime='+starttime+'&endTime='+ endtime
+                url = 'https://vpsq.cable.comcast.com/metrics/vod?scope=' + scope + '&scopeFilter=' + scopeFilter + '&interval=day&startTime='+starttime+'&endTime='+ endtime
             }
+            // if (scope == 'national'){
+            //     url = 'http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope='+ scope + '&interval=day&startTime='+starttime+'&endTime='+ endtime
+            // }
+            // else if (scope == 'division'){
+            //     url = 'http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope=' + scope + '&scopeFilter=' + scopeFilter + '&interval=day&startTime='+starttime+'&endTime='+ endtime
+            // }
             // else if (scope == 'division'){
             //     url = 'http://96.118.53.210:8081/vpsq-er-ws-0.0.1-SNAPSHOT/vodMetrics?scope=' + scope + '&scopeFilter=' + scopeFilter + '&interval=day&startTime='+starttime+'&endTime='+ endtime
             // }

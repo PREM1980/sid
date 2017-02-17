@@ -383,13 +383,14 @@ class GetTicketData(View):
 
 def get_ticket_data(alldata,api_key,ip,user_id):	
 	initial = alldata.get('initial')
-	print 'prem get alldata ==', alldata
+	# print 'prem get alldata ==', alldata
 	try:
 		doc = {
 			'start_date_s': alldata.get('start_date_s'),
 			'start_date_e': alldata.get('start_date_e'),
 			'division': alldata.get('division'),
 			'duration': alldata.get('duration'),
+			'query_user_id': alldata.get('query_user_id'),
 			'pg': alldata.getlist('pg[]'),
 			'error_count': alldata.get('error_count'),
 			'ticket_num': alldata.get('ticket_num'),
@@ -433,6 +434,8 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 			doc['system_caused'] = 'All'
 		if doc['ticket_num'] is None:
 			doc['ticket_num'] = ''			
+		if doc['query_user_id'] is None:
+			doc['query_user_id'] = ''			
 	logger.debug("ip = {0} &&  document == {1} ".format(ip,doc))
 	try:
 		if initial == 'Y':			
@@ -441,10 +444,10 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 			results = cursor.fetchall()
 		else:			
 			cursor = connection.cursor()
-			start_date_qry_set = end_date_qry_set = duration_qry_set = error_count_qry_set = ticket_num_qry_set = division_qry_set = \
+			start_date_qry_set = end_date_qry_set = duration_qry_set = error_count_qry_set = ticket_num_qry_set = query_user_id_set = division_qry_set = \
 			pg_qry_set = outage_qry_set = system_qry_set = antenna_root_cause_qry_set = outage_categories_qry_set = mitigate_check_qry_set = hardened_check_qry_set = \
 			antenna_tune_error_qry_set = antenna_qam_error_qry_set = antenna_network_error_qry_set = antenna_insuff_qam_error_qry_set = antenna_cm_error_qry_set = False
-			start_date_qry = end_date_qry = duration_qry = error_count_qry = ticket_num_qry = \
+			start_date_qry = end_date_qry = duration_qry = error_count_qry = ticket_num_qry = query_user_id_qry = \
 			division_qry = pg_qry = outage_qry = system_qry = antenna_root_cause_qry = outage_categories_qry = mitigate_check_qry = hardened_check_qry = \
 			antenna_tune_error_qry = antenna_qam_error_qry = antenna_network_error_qry = antenna_insuff_qam_error_qry = antenna_cm_error_qry = ''
 			
@@ -473,6 +476,12 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 			else:
 				ticket_num_qry_set = True
 				ticket_num_qry = " tb1.ticket_num = '{ticket_num}' ".format(ticket_num=doc['ticket_num'])
+
+			if doc['query_user_id'] == '':
+				query_user_id_qry = ""
+			else:
+				query_user_id_set = True
+				query_user_id_qry = " tb1.crt_user_id = '{query_user_id}' ".format(query_user_id=doc['query_user_id'])
 
 			if doc['error_count'] in ['Error Count','All']:
 				error_count_qry = ""
@@ -608,6 +617,7 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				,'error_count_qry_set':error_count_qry_set
 				,'duration_qry_set':duration_qry_set
 				,'ticket_num_qry_set':ticket_num_qry_set
+				,'query_user_id_set':query_user_id_set
 				,'antenna_root_cause_qry_set':antenna_root_cause_qry_set
 				,'outage_categories_qry_set':outage_categories_qry_set
 				,'mitigate_check_qry_set':mitigate_check_set
@@ -626,6 +636,7 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				,'error_count_qry':error_count_qry
 				,'duration_qry':duration_qry
 				,'ticket_num_qry':ticket_num_qry						
+				,'query_user_id_qry':query_user_id_qry						
 				,'antenna_root_cause_qry':antenna_root_cause_qry
 				,'outage_categories_qry':outage_categories_qry
 				,'mitigate_check_qry':mitigate_check_qry
@@ -652,6 +663,7 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				,'error_count_qry_set':error_count_qry_set
 				,'duration_qry_set':duration_qry_set
 				,'ticket_num_qry_set':ticket_num_qry_set
+				,'query_user_id_set':query_user_id_set
 				,'antenna_root_cause_qry_set':antenna_root_cause_qry_set
 				,'outage_categories_qry_set':outage_categories_qry_set
 				,'mitigate_check_qry_set':mitigate_check_qry_set
@@ -670,6 +682,7 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 				,'error_count_qry':error_count_qry
 				,'duration_qry':duration_qry
 				,'ticket_num_qry':ticket_num_qry		
+				,'query_user_id_qry':query_user_id_qry						
 				,'antenna_root_cause_qry':antenna_root_cause_qry
 				,'outage_categories_qry':outage_categories_qry
 				,'mitigate_check_qry':mitigate_check_qry
@@ -689,12 +702,14 @@ def get_ticket_data(alldata,api_key,ip,user_id):
 		logger.debug("ip = {0} &&  results-len == {1}".format(ip,len(results)))
 		output = enum_results(user_id,results)		
 	except Exception as e:
+		# print 'qry == ', qry
 		print 'Select Exception == ', e
 		logger.debug("MySQLException == {0}".format(e))
 		return JsonResponse({'status': 'failure'})
 	return output
 
 def set_query_params(**kwargs):
+	# print 'set_query_params == ', kwargs
 	prev_qry_set = False
 	qry = kwargs['qry']
 	if kwargs['start_date_qry_set'] \
@@ -704,6 +719,7 @@ def set_query_params(**kwargs):
 		or kwargs['outage_qry_set']	\
 		or kwargs['system_qry_set']	\
 		or kwargs['ticket_num_qry_set'] \
+		or kwargs['query_user_id_set'] \
 		or kwargs['duration_qry_set'] \
 		or kwargs['error_count_qry_set'] \
 		or kwargs['antenna_root_cause_qry_set'] \
@@ -736,6 +752,14 @@ def set_query_params(**kwargs):
 			prev_qry_set = True
 		else:
 			qry = qry + kwargs['ticket_num_qry']
+			prev_qry_set = True					
+
+	if kwargs['query_user_id_set']:
+		if prev_qry_set:
+			qry = qry + ' and ' + kwargs['query_user_id_qry']
+			prev_qry_set = True
+		else:
+			qry = qry + kwargs['query_user_id_qry']
 			prev_qry_set = True					
 
 	if kwargs['duration_qry_set']:
@@ -849,7 +873,7 @@ def set_query_params(**kwargs):
 		else:
 			qry = qry + kwargs['antenna_cm_error_qry']
 			prev_qry_set = True	
-	print 'set_quert_params final query== ', qry	
+	# print 'set_quert_params final query== ', qry	
 	return qry
 
 

@@ -427,6 +427,7 @@
              'start_date_e': $('#query_datepicker_start_end').val(),
              'end_date_s': $('#query_datepicker_end').val(),
              'end_date_e': $('#query_datepicker_end_end').val(),
+             'query_user_id': $('#query_user_id').val(),
              'ticket_num': ticket_num,
              'division': $('#query_division').val(),
              'pg': pg,
@@ -482,6 +483,7 @@
                  $('#downloadform').submit()
              }
          } else {
+             // console.log(JSON.stringify(data))
              $.ajax({
                  url: '/get-ticket-data',
                  type: 'POST',

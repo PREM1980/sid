@@ -22,7 +22,7 @@ $(document).ready(function() {
             error_counts_results= []
 
         
-        function createChart_National(chart, params) {
+        function createChart_rates(chart, params) {
             // console.log(JSON.stringify(params))
             Highcharts.stockChart(chart, {
                 title: {
@@ -33,6 +33,9 @@ $(document).ready(function() {
                 },
 
                 yAxis: [{
+                    // min:60,
+                    // max:100,
+                    // tickInterval: 10,
                     labels: {
                         formatter: function() {
                                     if (params.y2axis == 'pct'){
@@ -55,6 +58,9 @@ $(document).ready(function() {
                     opposite: false
                 },
                 {
+                    min:0,
+                    max:10,
+                    tickInterval: 5,
                     labels: {
                         formatter:                                 
                                 function() {
@@ -77,7 +83,8 @@ $(document).ready(function() {
                         width: 2,
                         color: 'silver'
                     }]
-                }],
+                }
+                ],
                 legend:{
                     enabled: true
                 },
@@ -118,6 +125,96 @@ $(document).ready(function() {
                 ]
             });
         }    
+
+        function createChart_counts(chart, params) {
+            // console.log(JSON.stringify(params))
+            Highcharts.stockChart(chart, {
+                title: {
+                    text: params.title
+                },
+                rangeSelector: {
+                    selected: 0
+                },
+
+                yAxis: [{
+                    // min:60,
+                    // max:100,
+                    // tickInterval: 10,
+                    labels: {
+                        formatter: function() {
+                                    if (params.y2axis == 'pct'){
+                                        return (this.value > 0 ? ' + ' : '') + this.value + '%'
+                                    }else
+                                        return (this.value)                             
+                        }                        
+                    },
+                    title:{
+                        text: "Session's",
+                        style: {
+                        color: Highcharts.getOptions().colors[5]
+                    }
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 2,
+                        color: 'silver'
+                    }],
+                    opposite: false
+                },
+                {
+                    // min:0,
+                    // max:10,
+                    // tickInterval: 5,
+                    labels: {
+                        formatter:                                 
+                                function() {
+                                    if (params.y2axis == 'pct'){
+                                        return (this.value > 0 ? ' + ' : '') + this.value + '%'
+                                    }
+                                    else{
+                                        return this.value ;
+                                    }                                
+                                }
+                    },
+                    title:{
+                        text: 'BR / NBR Rates',
+                        style: {
+                        color: Highcharts.getOptions().colors[5]
+                    }
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 2,
+                        color: 'silver'
+                    }]
+                }
+                ],
+                legend:{
+                    enabled: true
+                },                
+                series: 
+                [
+                {
+                name: 'BR',
+                data: seriesOptions[1]['data'],
+                yAxis: 1
+                },
+                {
+                name: 'NBR',
+                data: seriesOptions[2]['data'],
+                yAxis: 1
+                },
+                {
+                name: 'Session',
+                // type: 'column',
+                data: seriesOptions[0]['data'],
+                yAxis: 0
+                },
+
+                ]
+            });
+        }    
+
         // business = BR error counts, Errors = NBR error counts
         // http://jsfiddle.net/5eem7a2a/1/
 
@@ -125,7 +222,6 @@ $(document).ready(function() {
             console.log('load_graphs scope == ', scope)
             console.log('load_graphs sopeFilter== ', scopeFilter)
             var deferred = $.Deferred()
-
             d = new Date()
             starttime = d.setMonth(d.getMonth()-3)
             starttime = d.setDate(d.getDate()-3)
@@ -222,7 +318,7 @@ $(document).ready(function() {
                         // 'title': capitalizeFirstLetter(data_filter) + ' - Session Rates vs BR/NBR Rates'
                         ,'y2axis':'pct'
                     }                                 
-                    createChart_National(chart_1,params);
+                    createChart_rates(chart_1,params);
                     seriesOptions[0] = {
                         name: error_constants[4],
                         data: error_counts_results[4]
@@ -241,7 +337,7 @@ $(document).ready(function() {
                         'title':capitalizeFirstLetter(data_filter) +  ' - Session Counts vs BR/NBR Counts'
                         ,'y2axis':'cnt'
                     }                                 
-                    createChart_National(chart_2,params);
+                    createChart_counts(chart_2,params);
                     deferred.resolve()
                     
                 },                

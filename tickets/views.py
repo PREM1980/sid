@@ -1390,8 +1390,8 @@ class UpdateTicketData(View):
 				,outage_categories=alldata.get('outage_categories')
 				)
 			
-			print 'update doc  == ', t
-			logger.debug("ip == {0} && Update document == {1}".format(ip,t))
+			# print 'update doc  == ', t
+			# logger.debug("ip == {0} && Update document == {1}".format(ip,t))
 			
 			if t.ticket_num != t.orig_ticket_num and api_key is None:						
 				# If new ticket number, get the old ticket number

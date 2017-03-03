@@ -37,54 +37,54 @@ HOSTNAME = socket.gethostname()
 # Application definition
 
 INSTALLED_APPS = (
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+	'django.contrib.admin',
+	'django.contrib.auth',
+	'django.contrib.contenttypes',
+	'django.contrib.sessions',
+	'django.contrib.messages',
+	'django.contrib.staticfiles',
 )
 
 CUSTOM_APPS = ('tickets',
-    'vbo_module',
-    'et',
-    'ppe',
-    'qvfb',
-    'django_extensions',
-    )
+	'vbo_module',
+	'et',
+	'ppe',
+	'qvfb',
+	'django_extensions',
+	)
 
 
 INSTALLED_APPS = INSTALLED_APPS + CUSTOM_APPS
 
 MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+	'django.contrib.sessions.middleware.SessionMiddleware',
+	'django.middleware.common.CommonMiddleware',
+	'django.middleware.csrf.CsrfViewMiddleware',
+	'django.contrib.auth.middleware.AuthenticationMiddleware',
+	'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+	'django.contrib.messages.middleware.MessageMiddleware',
+	'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'django.middleware.security.SecurityMiddleware',
 )
 
 ROOT_URLCONF = 'sid.urls'
 
 
 TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
+	{
+		'BACKEND': 'django.template.backends.django.DjangoTemplates',
+		'DIRS': [os.path.join(BASE_DIR, 'templates')],
+		'APP_DIRS': True,
+		'OPTIONS': {
 
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
+			'context_processors': [
+				'django.template.context_processors.debug',
+				'django.template.context_processors.request',
+				'django.contrib.auth.context_processors.auth',
+				'django.contrib.messages.context_processors.messages',
+			],
+		},
+	},
 ]
 
 WSGI_APPLICATION = 'sid.wsgi.application'
@@ -92,43 +92,43 @@ WSGI_APPLICATION = 'sid.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-# HOSTNAME = 'localhost'
+# HOSTNAME = 'prod-ninja-web-server'
 if HOSTNAME in ['test-ninja-web-server','prod-ninja-web-server']:
-    if HOSTNAME == 'test-ninja-web-server':
-        host = 'test-sid-web-server'
-        VBO_SERVER = 'http://test-api-box:9000/'
-        PPE_SERVER = 'http://test-api-box:5000/'
-        ET_SERVER = 'http://test-api-box:5000/'
-	QVFB_SERVER = 'http://test-api-box:5000/'
-    else:
-        host = 'prod-sid-web-server'
-        VBO_SERVER = 'http://prod-api-box:9000/'
-        PPE_SERVER = 'http://prod-api-box:5000/'
-        ET_SERVER = 'http://prod-api-box:5000/'
-        QVFB_SERVER = 'http://prod-api-box:5000/'
+	if HOSTNAME == 'test-ninja-web-server':
+		host = 'test-sid-web-server'
+		VBO_SERVER = 'http://test-api-box:9000/'
+		PPE_SERVER = 'http://test-api-box:5000/'
+		ET_SERVER = 'http://test-api-box:5000/'
+		QVFB_SERVER = 'http://test-api-box:5000/'
+	else:
+		host = 'prod-sid-web-server'
+		VBO_SERVER = 'http://prod-api-box:9000/'
+		PPE_SERVER = 'http://prod-api-box:5000/'
+		ET_SERVER = 'http://prod-api-box:5000/'
+		QVFB_SERVER = 'http://prod-api-box:5000/'
 elif HOSTNAME in ['test-sid-web-server','prod-sid-web-server']:
-    host = 'localhost'
+	host = 'localhost'
 else:
-    host = 'localhost'
-    host = '127.0.0.1'
-    VBO_SERVER = 'http://localhost:9000/'
-    PPE_SERVER = 'http://localhost:5000/'
-    ET_SERVER = 'http://localhost:5000/'
-    QVFB_SERVER = 'http://localhost:5000/'
+	host = 'localhost'
+	host = '127.0.0.1'
+	VBO_SERVER = 'http://localhost:9000/'
+	PPE_SERVER = 'http://localhost:5000/'
+	ET_SERVER = 'http://localhost:5000/'
+	QVFB_SERVER = 'http://localhost:5000/'
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'NAME': 'sid',
-        'USER': 'ninja',
-        'PASSWORD': 'ninja!@#$',
-        'HOST': host,
-        # 'OPTIONS': {
-        #             'init_command': 'SET character_set_connection=utf8mb4,collation_connection=utf8mb4_unicode_ci',
-        # }
-    }
+	'default': {
+		'ENGINE': 'django.db.backends.mysql',
+		#'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+		'NAME': 'sid',
+		'USER': 'ninja',
+		'PASSWORD': 'ninja!@#$',
+		'HOST': host,
+		# 'OPTIONS': {
+		#             'init_command': 'SET character_set_connection=utf8mb4,collation_connection=utf8mb4_unicode_ci',
+		# }
+	}
 }
 
 
@@ -158,55 +158,55 @@ STATIC_URL = '/static/'
 
 # logging
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        'verbose': {
-            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt': "%d/%b/%Y %H:%M:%S"
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
-    },
-    'handlers': {
-        'django': {
-            'level':'DEBUG',
-            'class':'logging.handlers.RotatingFileHandler',
-            'filename': '/var/www//logs/sid.log',
-            'maxBytes': 1024*1024*5, # 5 MB
-            'backupCount': 5,
-            'formatter':'verbose',
-        }, 
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': '/var/www//logs/sid.log',
-            'formatter': 'verbose'
-        },
-        'feedback_log_file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': '/var/www//logs/feedback.log',
-            'formatter': 'verbose'
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'propagate': True,
-            'level': 'DEBUG',
-        },
-        'app_logger': {
-            'handlers': ['file'],
-            'propagate': True,
-            'level': 'DEBUG',
-        },
-        'feedback_logger': {
-            'handlers': ['feedback_log_file'],
-            'level': 'DEBUG',
-        },
-    }
+	'version': 1,
+	'disable_existing_loggers': True,
+	'formatters': {
+		'verbose': {
+			'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+			'datefmt': "%d/%b/%Y %H:%M:%S"
+		},
+		'simple': {
+			'format': '%(levelname)s %(message)s'
+		},
+	},
+	'handlers': {
+		'django': {
+			'level':'DEBUG',
+			'class':'logging.handlers.RotatingFileHandler',
+			'filename': '/var/www//logs/sid.log',
+			'maxBytes': 1024*1024*5, # 5 MB
+			'backupCount': 5,
+			'formatter':'verbose',
+		}, 
+		'file': {
+			'level': 'DEBUG',
+			'class': 'logging.FileHandler',
+			'filename': '/var/www//logs/sid.log',
+			'formatter': 'verbose'
+		},
+		'feedback_log_file': {
+			'level': 'DEBUG',
+			'class': 'logging.FileHandler',
+			'filename': '/var/www//logs/feedback.log',
+			'formatter': 'verbose'
+		},
+	},
+	'loggers': {
+		'django': {
+			'handlers': ['file'],
+			'propagate': True,
+			'level': 'DEBUG',
+		},
+		'app_logger': {
+			'handlers': ['file'],
+			'propagate': True,
+			'level': 'DEBUG',
+		},
+		'feedback_logger': {
+			'handlers': ['feedback_log_file'],
+			'level': 'DEBUG',
+		},
+	}
 }
 
 SESSION_COOKIE_AGE = 500* 60

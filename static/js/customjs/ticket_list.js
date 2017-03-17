@@ -203,7 +203,7 @@
                  'error_count': error_count,
                  'outage_caused': outage_caused,
                  'system_caused': system_caused,
-                 'ticket_num': ticket_num,
+                 'ticket_num': ticket_num.trim(),
                  'ticket_link': ticket_link,
                  'addt_notes': $('#additional_notes').val(),
                  'ticket_type': $('input[name=tkt-radio]:checked').val(),

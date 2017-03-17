@@ -1398,7 +1398,7 @@ class UpdateTicketData(View):
 				try:
 					old_ticket = Tickets.objects.get(ticket_num=t.orig_ticket_num)		
 				except Exception as e:
-					print 'e ==',e
+					print 'Exception ==',e
 				# Create the old ticket replica				
 				new_ticket = copy.deepcopy(old_ticket)
 				# End date the exiting ticket

@@ -223,8 +223,8 @@ $(document).ready(function() {
             console.log('load_graphs sopeFilter== ', scopeFilter)
             var deferred = $.Deferred()
             d = new Date()
-            starttime = d.setMonth(d.getMonth()-3)
-            starttime = d.setDate(d.getDate()-3)
+            starttime = d.setMonth(d.getMonth()-6)
+            starttime = d.setDate(d.getDate()-6)
             endtime = (new Date).getTime()
             // console.log('starttime == ', starttime)
             // console.log('endtime == ', endtime)
@@ -303,6 +303,7 @@ $(document).ready(function() {
                         data: error_counts_results[5]
                     };
                     console.log('option 1 == ', seriesOptions[0])
+                    
                     seriesOptions[1] = {
                         name: error_constants[0],
                         data: error_counts_results[0]

@@ -3477,8 +3477,8 @@ $(document).ready(function() {
                  gen_points[key].forEach(function(obj, index) {
                      point_val = gen_points[key][index]['point']
                      callout = gen_points[key][index]['callout']
-                     y_axis_position = gen_points[key][index]['y_axis_position']
                      x_axis_position = gen_points[key][index]['x_axis_position']
+                     y_axis_position = gen_points[key][index]['y_axis_position']                     
                      actual_y_axis_position = gen_points[key][index]['point_graph_y_axis']
                      actual_x_axis_position = gen_points[key][index]['point_graph_x_axis']
                      color = gen_points[key][index]['color']
@@ -3487,76 +3487,13 @@ $(document).ready(function() {
                      width = gen_points[key][index]['width']
                      angle = gen_points[key][index]['angle']
 
-                     // series = chart.series[parseInt(key)]
-                     // point = series.data[parseInt(point_val)];   
-                     // chart.xAxis[0].toPixels(200)
-                     // console.log('x_axis_position == ', x_axis_position)
-                     // console.log('y_axis_position == ', y_axis_position)
-                     x_axis = chart.xAxis[0].toPixels(x_axis_position)
-                     y_axis = chart.yAxis[0].toPixels(y_axis_position)
-                     // console.log('gen_points == ', gen_points)
-                     // if (point.plotX > actual_x_axis_position) {
-                     //    plotX = point.plotX
-                     //    plotY = point.plotY
-
-                     // }else if (point.plotX < actual_x_axis_position) {
-                     //    plotX = point.plotX
-                     //    plotY = point.plotY
-                     // }else {
-                     //    plotX = point.plotX
-                     //    plotY = point.plotY
-                     // }
-
-                     // if (point.plotY > actual_y_axis_position){
-                     //    plotY = plotY
-                     // }else if (point.plotY < actual_y_axis_position){
-                     //    plotY = plotY
-                     // }else{
-                     //    plotY = plotY
-                     // }
-
-                     
-                     // console.log('xAxis == ', xAxis)
-                     // console.log('yAxis == ', yAxis.toPixels)                                                             
-
-                     // If the monitor size changes, add/subtract the position accordingly.
-
-                     // if (y_axis_position == '' || parseInt(y_axis_position) == 0) {
-                     //     y_axis_position = 0
-                     // }
-                     // if (x_axis_position == '' || parseInt(x_axis_position) == 0) {
-                     //     x_axis_position = 0
-                     // }
-                     // console.log('chart.plotTop == ', chart.plotTop)
-                     // console.log('chart.plotLeft == ', chart.plotLeft)
-                     // console.log('point.plotX == ', point.plotX)
-                     // console.log('point.plotY == ', point.plotY)
-                     // console.log('x_axis_position == ', x_axis_position)
-                     // console.log('y_axis_position == ', y_axis_position)
-                     // console.log('xAxis position 1 == ', (point.plotX + chart.plotLeft + x_axis_position_default))
-                     // console.log('yAxis position 1 == ', (point.plotY + chart.plotTop - y_axis_position_default))
-                     // x_axis = (plotX + chart.plotLeft + x_axis_position_default) + parseInt(x_axis_position)
-                     // y_axis = (plotY + chart.plotTop - y_axis_position_default) - parseInt(y_axis_position)
-                     // x_axis = (plotX + chart.plotLeft ) + parseInt(x_axis_position)
-                     // y_axis = (plotY + chart.plotTop ) - parseInt(y_axis_position)
-                     // if (index == 0){
-                     //   x_axis = 444
-                     //   y_axis = 66 
-                     // }else{
-                     //    x_axis = 340
-                     //    y_axis = 37
-                     // }
-                     // x_axis = plotX
-                     // y_axis = plotY
-      //                var a = chart.renderer.label('<div class="callout">This is a message <br> needs to be fixed</div>',
-      // x,
-      // y,
-      //   'callout', null, null, true).add();
-                     
+                                          
                      remove_labels = false
-                     
-                     // console.log('xAxis position 2 == ', x_axis)
-                     // console.log('yAxis position 2 == ', y_axis)
+
+                     lineXLength = 100,
+                     lineYLength = -50;
+                     point_val = chart.series[0].data[point_val]
+
                      if (remove_labels) {
                          //we dont need this anymore but ill leave it for any future use if needed.
                          console.log(chart.renderer.label)
@@ -3566,38 +3503,120 @@ $(document).ready(function() {
 
                          // console.log('a', a);
                      } else {
-                         if (draw_type == 'Box') {
+                         if (draw_type == 'Box') {  
+                            x_axis = chart.xAxis[0].toPixels(x_axis_position)
+                            y_axis = chart.yAxis[0].toPixels(y_axis_position)
                              // console.log(draw_type)         
                              var a = chart.renderer.label('<div class="callout" style="background-color:#' + gen_points[key][index]['color'] + ';height:'+ height +'px;width:'+width+'px">' + callout + '</div>',
                                  x_axis,
                                  y_axis, 'callout', null, null, true).add();
                          }else if (draw_type == 'Line') {
-                            console.log(draw_type)         
-                             properties = 'style="display:block; background-color:#' + color + '; height:' + height + 'px; width:' + width + 'px; -ms-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); transform: rotate(' + angle + 'deg); transform-origin: bottom left;"'
-                             // console.log(properties)
-                             var a = chart.renderer.label('<div class="single-arrow-line" ' + properties + '>  </div>',
-                                 x_axis,
-                                 y_axis, 'callout', null, null, true).add();
-                             // console.log('a', a);
+                            console.log('****Line Drawn*****')         
+                            x_axis = gen_points[key][index]['x_axis_position']
+                            y_axis = gen_points[key][index]['y_axis_position']                     
+                            x_axis_to = gen_points[key][index]['height']
+                            y_axis_to = gen_points[key][index]['width'] 
+                            console.log('x_axis    == ', x_axis)                    
+                            console.log('y_axis    == ', y_axis)                    
+                            console.log('x_axis_to == ', x_axis_to)                    
+                            console.log('y_axis_to == ', y_axis_to)                    
 
+                            $('.C0').remove();
+                            $('.C1').remove();
+                            
+                            // x_axis = 336.0729166666667
+                            // y_axis = 523.5319999999999
+                            // x_axis_to = 436.0729166666667
+                            // y_axis_to = 473.5319999999999
+
+                            // chart.renderer.path(['M', 428, 320, 
+                            //                 'L', 528 , 270, 
+                            //                 'L', 518 , 270]
+
+                             
+                             var label = chart.renderer.path(
+                                ['M', x_axis, y_axis,
+                                 'L',  x_axis_to , y_axis_to                                
+                                ]
+                                    // ['M', 428, 320, 
+                                    // 'L', 528 , 270, 
+                                    // // 'L', 518 , 270
+                                    // ]
+
+                                                ).attr({
+                              'stroke-width': 4,
+                              stroke: 'blue',
+                              zIndex: 0
+                            }).addClass('C0').add();
+
+      //                       const label = chart.renderer.label('Custom label', xAxis.toPixels(point.x) + lineXLength, yAxis.toPixels(point.y) + lineYLength, 'rect')
+      // .css({
+      //   color: '#FFFFFF'
+      // })
+      // .attr({
+      //   fill: 'rgba(0, 0, 0, 0.75)',
+      //   padding: 8,
+      //   r: 5,
+      //   width: 100,
+      //   height: 30,
+      //   zIndex: 6
+      // }).addClass('cO')
+      // .add();
+      x = x_axis
+      y = y_axis
+      const x0 = label.x;
+      const y0 = label.y + label.height / 2;
+      const x1 = x;
+      const y1 = y;
+      
+      const path = chart.renderer.path([
+        'M', label.x, label.y + label.height / 2,
+        'L', x, y,
+      ]).attr({
+        'stroke-width': 1,
+        stroke: 'black',
+        zIndex: 6
+      }).add()
+      
+      const array = [[x1 - 5, y1 - 15], [x1 + 5, y1 - 15], [x1, y1], [x1 - 5, y1- 15]]
+      const angle = Math.atan2(y0 - y1, x0 - x1) + 90 * Math.PI / 180;
+      const ma = array.map(point => rotatePoint(array[2], angle, point));
+      
+      const arrow = chart.renderer.path({
+        fill: 'black',
+        zIndex: 6,
+        d: ['M', ma[0].join(' '), 'L', ma[1].join(' '), ma[2].join(' '), ma[3].join(' ')].join(' ')
+      }).add()
+
+                            console.log('****Line Drawn complete*****')         
                          }
                          else {                            
                             console.log(draw_type)         
                              properties = 'style="display:block; background-color:#' + color + '; height:' + height + 'px; width:' + width + 'px; -ms-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); transform: rotate(' + angle + 'deg); transform-origin: bottom left;"'
-                             // console.log(properties)
                              var a = chart.renderer.label('<div class="double-arrow-line" ' + properties + '>  </div>',
                                  x_axis,
                                  y_axis, 'callout', null, null, true).add();
                              // console.log('a', a);
-
-
                          }
 
                      }
                  })
              }
          }
+
     };
+
+    function rotatePoint(c, angle, p) {
+    const sin = Math.sin(angle);
+    const cos = Math.cos(angle);
+    const x = p[0] - c[0];
+    const y = p[1] - c[1];
+    
+    const nx = x * cos - y * sin;
+    const ny = x * sin + y * cos;
+    
+    return [nx + c[0], ny + c[1]];
+  }
 
     
 

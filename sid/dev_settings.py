@@ -116,6 +116,8 @@ else:
 	ET_SERVER = 'http://localhost:5000/'
 	QVFB_SERVER = 'http://localhost:5000/'
 
+host='prod-sid-web-server'
+
 
 DATABASES = {
 	'default': {

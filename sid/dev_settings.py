@@ -116,9 +116,6 @@ else:
 	ET_SERVER = 'http://localhost:5000/'
 	QVFB_SERVER = 'http://localhost:5000/'
 
-host='prod-sid-web-server'
-
-
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.mysql',
@@ -218,8 +215,8 @@ MEDIA_ROOT = '/var/www/ams-files/'
 
 API_KEY = 'CPT74QBAWFIDFH4U27RT'
 
-LOCAL_TEST_NINJA = False
-NINJA = False
+LOCAL_TEST_NINJA = True
+NINJA = True
 
 # CSRF_FAILURE_VIEW = 'tickets.ams_1views.csrf_failure'
 

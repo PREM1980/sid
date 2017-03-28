@@ -11,6 +11,7 @@
     <script src="{% static "highcharts/exporting.js" %}"></script>
 
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>    
+    <link href="{% static "css/et_new.css" %}" rel="stylesheet" type="text/css">
     <script src="{% static "bower_components/underscore/underscore.js" %}"></script>
     <script src="{% static "feedback_me/js/jquery.feedback_me.js" %}"></script>
     <script src="{% static "js/customjs/common.js" %}"></script>
@@ -47,29 +48,35 @@ td.right-align{
 
 {% block content %}
     {% load staticfiles %}
-    <div class="container-fluid">
+    <a href="x1">x1</a> <a href="classic">classic</a> 
 
-    <div class="row">
-      <div class='col-lg-6' id="container-natl-rates"></div>
-      <div class='col-lg-6' id="container-natl-counts"></div>
-    </div>
+    <div class="container-fluid" id="x1-div">
     
-    <div class="row">
-      <div class='col-lg-6' id="container-west-rates"></div>
-      <div class='col-lg-6' id="container-west-counts"></div>
+    <div style="margin-top:100px"></div>
+
+    <div class="row" >
+      <div class='col-lg-6' style="border: 1px solid gray" id="container-natl-rates"></div>
+      <div class='col-lg-6' style="border: 1px solid gray" id="container-natl-counts"></div>
     </div>
+    <div style="margin-top:100px"></div>
+    <div class="row">
+      <div class='col-lg-6' style="border: 1px solid gray" id="container-west-rates"></div>
+      <div class='col-lg-6' style="border: 1px solid gray" id="container-west-counts"></div>
+    </div>
+    <div style="margin-top:100px"></div>
 
     <div class="row">
-      <div class='col-lg-6' id="container-central-rates"></div>
-      <div class='col-lg-6' id="container-central-counts"></div>
+      <div class='col-lg-6' style="border: 1px solid gray" id="container-central-rates"></div>
+      <div class='col-lg-6' style="border: 1px solid gray" id="container-central-counts"></div>
     </div>
+    <div style="margin-top:100px"></div>
 
     <div class="row">
-      <div class='col-lg-6' id="container-east-rates"></div>
-      <div class='col-lg-6' id="container-east-counts"></div>
+      <div class='col-lg-6' style="border: 1px solid gray" id="container-east-rates"></div>
+      <div class='col-lg-6' style="border: 1px solid gray" id="container-east-counts"></div>
     </div>
       
-    
+    </div>
     
 
 
@@ -79,7 +86,7 @@ td.right-align{
 
     
     <!-- /.bg -->
-</div>
+
 <br>
         <br>
         <br>

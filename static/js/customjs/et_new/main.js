@@ -10,9 +10,12 @@
 // br/nbr = error rates
 // removed it 69.0.0.0/0 (CIDR)
 $(document).ready(function() {
+    $('#x1-div').hide()
+
     function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
     $(function() {
         var seriesOptions = [],
             seriesCounter = 0,
@@ -26,7 +29,7 @@ $(document).ready(function() {
             // console.log(JSON.stringify(params))
             Highcharts.stockChart(chart, {
                 title: {
-                    text: params.title
+                    text: '<p class="title">'+params.title+'</strong>'
                 },
                 rangeSelector: {
                     selected: 0
@@ -130,7 +133,7 @@ $(document).ready(function() {
             // console.log(JSON.stringify(params))
             Highcharts.stockChart(chart, {
                 title: {
-                    text: params.title
+                    text: '<p class="title">'+params.title+'</strong>'
                 },
                 rangeSelector: {
                     selected: 0
@@ -218,7 +221,8 @@ $(document).ready(function() {
         // business = BR error counts, Errors = NBR error counts
         // http://jsfiddle.net/5eem7a2a/1/
 
-        var load_graphs = function(scope, scopeFilter, chart_1, chart_2){
+        var load_graphs = function(scope, scopeFilter, chart_1, chart_2, x1_classic){
+            console.log('x1_classic == ', x1_classic)
             console.log('load_graphs scope == ', scope)
             console.log('load_graphs sopeFilter== ', scopeFilter)
             var deferred = $.Deferred()
@@ -273,24 +277,34 @@ $(document).ready(function() {
                     $.each(data,function(i,x){                    
                         console.log('data x1 == ', x[0]['X1'])                                                
                         console.log('data x1 data_filter == ', data_filter)                                                
-                        console.log('data x1 data_filter applied == ', x[0]['X1'][data_filter])                                                
+                        // console.log('data x1 data_filter applied == ', x[0]['X1'][data_filter])                                                
 
                         for (var i = 0; i <= 10; i++)
                         {   
                             error_counts_results[i] = []
                         }
-                        $.each(x[0]['X1'][data_filter], function(unix_date,data){                                
-                            if  (parseFloat(unix_date)){
+                        $.each(x[0], function(obj){                        
+                            if  (parseFloat(obj)){
                                 $.each(error_constants, 
                                     function(ix,error_item){  
-                                        // console.log(ix)
-                                        // console.log(data[error_item])
-                                        error_counts_results[ix].push([parseInt(unix_date),data[error_item]])
-                                    }
-                                )
-                            // console.log('result == ', JSON.stringify(error_counts_results))
-                            }                           
+                                        console.log(x[0][obj])
+                                        console.log('x1_classic == ', x1_classic)
+                                        error_counts_results[ix].push([parseInt(obj),x[0][obj][x1_classic][error_item]])
+                                })
+                            }
                         })
+                        // $.each(x[0]['X1'][data_filter], function(unix_date,data){                                
+                        //     if  (parseFloat(unix_date)){
+                        //         $.each(error_constants, 
+                        //             function(ix,error_item){  
+                        //                 // console.log(ix)
+                        //                 // console.log(data[error_item])
+                        //                 error_counts_results[ix].push([parseInt(unix_date),data[error_item]])
+                        //             }
+                        //         )
+                        //     // console.log('result == ', JSON.stringify(error_counts_results))
+                        //     }                           
+                        // })
                     })
                     // $.each(error_constants, function(i, name){
                     //     seriesOptions[i] = {
@@ -340,25 +354,38 @@ $(document).ready(function() {
                     }                                 
                     createChart_counts(chart_2,params);
                     deferred.resolve()
+                    $('#x1-div').show()
                     
                 },                
             })
             return deferred.promise()
         }
+        split_url_val = window.location.href.split('/')[4]
+        // alert(url.split('/')[4])
+        
 
-        load_graphs('national','','container-natl-rates','container-natl-counts').then(
+        if (split_url_val == 'x1'){
+            split_url_val = 'X1'
+        }
+        else{
+
+            split_url_val = 'Classic'
+        
+        }
+
+        load_graphs('national','','container-natl-rates','container-natl-counts', split_url_val).then(
             function() {
-                load_graphs('division','western','container-west-rates','container-west-counts').then(
+                load_graphs('division','western','container-west-rates','container-west-counts', split_url_val).then(
                     function() {
-                load_graphs('division','central','container-central-rates','container-central-counts').then(
+                load_graphs('division','central','container-central-rates','container-central-counts', split_url_val).then(
                     function() {
-                    load_graphs('division','northeast','container-east-rates','container-east-counts')    
+                    load_graphs('division','northeast','container-east-rates','container-east-counts',split_url_val)    
             }
             )   
                 }
             )
             }
-        )
+            )
         // .then(
             
         // ).then(

@@ -47,3 +47,17 @@ class LoginView(View):
 			return render(request,'et_new/landing_page.html',{'error':'N'})
 		else:
 			return utils.page_redirects_login(request,user_id)
+
+class CempVsSplunk(View):
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(CempVsSplunk, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		
+		user_id = utils.check_session_variable(request)
+		if user_id is None:
+			return utils.page_redirects_login(request)
+		return render(request,'et_new/cemp_vs_splunk.html',{'error':'N'})
+
+	

@@ -1,6 +1,6 @@
 from django.conf.urls import include, url
 from django.contrib import admin
-from vbo_module.views import LoginView , SplunkReportNames, ReportView, ReportData, UpdateComments, StoreCallouts
+from vbo_module.views import LoginView , SplunkReportNames, ReportView, ReportData, UpdateComments, StoreCallouts, GetSessionCounts
 from vbo_module.monthly_views import Report1, Report2, Report3, Report4, Report5, Report6, Report7, Report8, Report9, Report10, Report11, Report12, Report13, Report14, Report15, Report16, Report17, Report19 
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^get-report-names$', SplunkReportNames.as_view()),
     url(r'^update-report-comments/$', UpdateComments.as_view()),
     url(r'^store-callouts/$', StoreCallouts.as_view()),
+    url(r'^get-session-counts$', GetSessionCounts.as_view()),
     #Monthly
     # url(r'^monthly/report-view$', ReportView.as_view()),
     url(r'^monthly/report-1/$', Report1.as_view()),

@@ -48,32 +48,15 @@ td.right-align{
 
 {% block content %}
     {% load staticfiles %}
-    <a href="x1">x1</a> <a href="classic">classic</a>  <a href="cempvssplunk">Session Compare</a>
-
-    <div class="container-fluid" id="x1-div">
+    <a href="x1">x1</a> <a href="classic">classic</a>  <p>&nbsp;&nbsp;</p><a href="cempvssplunk">Session Counts - CEMP Vs Splunk</a>
     
-    <div style="margin-top:100px"></div>
+    <!-- CEMP Vs Splunk - Session Counts -->
+    
 
+    <div class="container-fluid">
+      
     <div class="row" >
-      <div class='col-lg-6' style="border: 1px solid gray" id="container-natl-rates"></div>
-      <div class='col-lg-6' style="border: 1px solid gray" id="container-natl-counts"></div>
-    </div>
-    <div style="margin-top:100px"></div>
-    <div class="row">
-      <div class='col-lg-6' style="border: 1px solid gray" id="container-west-rates"></div>
-      <div class='col-lg-6' style="border: 1px solid gray" id="container-west-counts"></div>
-    </div>
-    <div style="margin-top:100px"></div>
-
-    <div class="row">
-      <div class='col-lg-6' style="border: 1px solid gray" id="container-central-rates"></div>
-      <div class='col-lg-6' style="border: 1px solid gray" id="container-central-counts"></div>
-    </div>
-    <div style="margin-top:100px"></div>
-
-    <div class="row">
-      <div class='col-lg-6' style="border: 1px solid gray" id="container-east-rates"></div>
-      <div class='col-lg-6' style="border: 1px solid gray" id="container-east-counts"></div>
+      <div class='col-lg-10'  id="cemp-splunk-counts"></div>      
     </div>
       
     </div>

@@ -360,6 +360,7 @@ $(document).ready(function() {
             })
             return deferred.promise()
         }
+        
         split_url_val = window.location.href.split('/')[4]
         // alert(url.split('/')[4])
         

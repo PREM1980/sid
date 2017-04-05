@@ -231,6 +231,31 @@ class StoreCallouts(View):
 		else:
 			return JsonResponse({'status': 'session timeout'})
 
+
+class GetSessionCounts(View):
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, request, *args, **kwargs):
+		return super(GetSessionCounts, self).dispatch(request, *args, **kwargs)
+
+	def get(self, request):
+		user_id = utils.check_session_variable(request)
+		print 'user id == ', user_id
+		api_key = request.META.get('HTTP_AUTHORIZATION')
+		if user_id is not None or api_key == settings.API_KEY:			
+			print 'calling vbo get'
+			try:				
+				results = requests.get(settings.VBO_SERVER + 'get-session-counts' )
+				# print 'results.json == ', results.json()
+				return JsonResponse({'status':'success', 'results':[results.json()]})
+			except Exception as e:				
+				logger.debug("GetSessionCounts Exception == {0}".format(e))
+				return JsonResponse({'status': 'Contact Support Team'})
+
+			return JsonResponse({'status': 'success'})
+		else:
+			return JsonResponse({'status': 'session timeout'})
+		return JsonResponse({'status': 'success'})	
 	
 
 		

@@ -16,7 +16,7 @@ pyparsing==2.0.1
 python-dateutil==1.5
 python-ldap==2.4.27
 pytz==2016.6.1
-reportlab==3.3.0
+reportlab==3.5.55
 requests==2.11.1
 singledispatch==3.4.0.3
 six==1.4.1
